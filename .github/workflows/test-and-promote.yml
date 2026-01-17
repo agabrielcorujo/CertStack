@@ -1,4 +1,4 @@
-name: Test and Create PR to Prod
+name: test-and-promote
 
 on:
   push:
@@ -6,33 +6,28 @@ on:
       - testing
 
 jobs:
-  test:
+  test-and-pr:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Run tests
         run: |
           echo "Running tests..."
-          echo "All tests passed!"
-      
-  create-pr:
-    needs: test
-    runs-on: ubuntu-latest
-    if: success()
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Create Pull Request
+          echo "All tests passed ✅"
+
+      - name: Create PR to prod
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: testing
-          base: prod
-          title: "Auto-promote testing to prod"
+          source: testing
+          target: prod
+          title: "Merge testing into prod"
           body: |
-            Automated PR created after successful tests on testing branch.
-            
-            Tests passed ✅
+            ✅ Tests passed automatically.
+
+            This PR was created by GitHub Actions after a successful push to `testing`.
+          branch: testing
+          delete-branch: false
