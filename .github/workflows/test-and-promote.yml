@@ -22,14 +22,13 @@ jobs:
           echo "Running tests..."
           echo "All tests passed ✅"
 
-      - name: Create PR to prod
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: prod
-          branch: auto/testing-to-prod
-          title: "Merge testing into prod"
-          body: |
-            ✅ Tests passed automatically.
-      
-            This PR was created by GitHub Actions after a successful push to `testing`.
+      - name: Create PR from testing to prod
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          gh pr create \
+            --base prod \
+            --head testing \
+            --title "Merge testing into prod" \
+            --body "✅ Tests passed automatically."
