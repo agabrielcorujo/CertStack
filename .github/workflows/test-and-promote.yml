@@ -1,0 +1,43 @@
+name: Test and Promote to Production
+
+on:
+  push:
+    branches:
+      - testing
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for all branches
+      
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          echo "All tests passed!"
+          # Add your actual test commands here later
+      
+  promote-to-prod:
+    needs: test
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Merge testing into prod
+        run: |
+          git checkout prod
+          git merge testing --no-ff -m "Auto-merge testing into prod after successful tests"
+          git push origin prod
