@@ -1,0 +1,20 @@
+# lightweight Node image
+FROM node:20-alpine
+
+# app directory inside container
+WORKDIR /app
+
+# copy package files first (cache go brrr)
+COPY package*.json ./
+
+# install deps
+RUN npm install
+
+# copy the rest of the app
+COPY . .
+
+# Vite dev server port
+EXPOSE 5173
+
+# run dev server
+CMD ["npm", "run", "dev"]
