@@ -11,3 +11,17 @@ services:
       - ../frontend/certstack:/app
       - /app/node_modules
     command: npm run dev
+
+  backend:
+    build:
+      context: ../backend/src
+      dockerfile: ../../infra/Dockerfile.backend
+    ports: 
+      - "8000:8000"
+    env_file:
+      - ../backend/src/.env
+    volumes:
+      - type: bind
+        source: ../backend/src
+        target: /app
+    
