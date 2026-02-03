@@ -1,0 +1,958 @@
+{
+  "question_1": {
+    "question_number": 1,
+    "question": "Which of the following can help secure your sensitive data in Amazon S3? (Choose TWO)",
+    "choices": [
+      "A. Delete the encryption keys once your data is encrypted.",
+      "B. With AWS you do not need to worry about encryption.",
+      "C. Enable S3 Encryption.",
+      "D. Encrypt the data prior to uploading it.",
+      "E. Delete all IAM users that have access to S3."
+    ],
+    "answer": [
+      "C",
+      "D"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_2": {
+    "question_number": 2,
+    "question": "Which AWS service helps developers compile and test their code?",
+    "choices": [
+      "A. AWS CodeDeploy.",
+      "B. AWS CodeCommit.",
+      "C. CloudEndure.",
+      "D. AWS CodeBuild."
+    ],
+    "answer": "D",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_3": {
+    "question_number": 3,
+    "question": "Which of the following will affect how much you are charged for storing objects in S3? (Choose TWO)",
+    "choices": [
+      "A. Using default encryption for any number of S3 buckets.",
+      "B. The number of EBS volumes attached to your instances.",
+      "C. The storage class used for the objects stored.",
+      "D. Creating and deleting S3 buckets.",
+      "E. The total size in gigabytes of all objects stored."
+    ],
+    "answer": [
+      "C",
+      "E"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_4": {
+    "question_number": 4,
+    "question": "What does the Amazon CloudFront service provide? (Choose TWO)",
+    "choices": [
+      "A. Tracks user activity and APl usage.",
+      "B. Increases application availability by caching at the edge.",
+      "C. Enables faster disaster recovery.",
+      "D. Stores archived data at very low costs.",
+      "E. Delivers content to end users with low latency."
+    ],
+    "answer": [
+      "B",
+      "E"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_5": {
+    "question_number": 5,
+    "question": "You are facing a lot of problems with your current contact center. Which service provides a cloud-based contact center that can deliver a better service for your customers?",
+    "choices": [
+      "A. Amazon Lightsail.",
+      "B. Amazon Connect.",
+      "C. AWS Direct Connect.",
+      "D. AWS Elastic Beanstalk."
+    ],
+    "answer": "B",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_6": {
+    "question_number": 6,
+    "question": "You have migrated your application to AWS recently. How can you view the AWS costs applied to your account?",
+    "choices": [
+      "A. Using the AWS Cost & Usage Report.",
+      "B. Using the AWS Total Cost of Ownership (TCO) dashboard.",
+      "C. Using the AWS CloudWatch logs dashboard.",
+      "D. Using the Amazon VPC dashboard."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_7": {
+    "question_number": 7,
+    "question": "Which of the following are valid Amazon EC2 Reserved Instance types? (Choose TWO)",
+    "choices": [
+      "A. Convertible.",
+      "B. Expedited.",
+      "C. Bulk.",
+      "D. Spot.",
+      "E. Standard."
+    ],
+    "answer": [
+      "A",
+      "E"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_8": {
+    "question_number": 8,
+    "question": "Which of the following services gives you access to all AWS auditor-issued reports and certifications?",
+    "choices": [
+      "A. AWS Artifact.",
+      "B. AWS Config.",
+      "C. Amazon CloudWatch.",
+      "D. AWS CloudTrail."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_9": {
+    "question_number": 9,
+    "question": "You manage a blog on AWS that has different environments: development, testing, and production. What can you use to create a custom console for each environment to view and manage your resources easily?",
+    "choices": [
+      "A. AWS Resource Groups.",
+      "B. AWS Placement Groups.",
+      "C. AWS Management Console.",
+      "D. AWS Tag Editor."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_10": {
+    "question_number": 10,
+    "question": "Which AWS service collects metrics from running EC2 instances?",
+    "choices": [
+      "A. Amazon Inspector.",
+      "B. Amazon CloudWatch.",
+      "C. AWS CloudFormation.",
+      "D. AWS CloudTrail."
+    ],
+    "answer": "B",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_11": {
+    "question_number": 11,
+    "question": "Your web application currently faces performance issues and suffers from long load times. Which of the following AWS services could help fix these issues and improve performance?",
+    "choices": [
+      "A. Amazon Detective.",
+      "B. AWS X-Ray.",
+      "C. AWS Security Hub.",
+      "D. AWS Shield."
+    ],
+    "answer": "B",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_12": {
+    "question_number": 12,
+    "question": "Which of the following compute resources are serverless? (Choose TWO)",
+    "choices": [
+      "A. Amazon EC2.",
+      "B. AWS Fargate.",
+      "C. AWS Lambda.",
+      "D. Amazon ECS.",
+      "E. Amazon EMR."
+    ],
+    "answer": [
+      "B",
+      "C"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_13": {
+    "question_number": 13,
+    "question": "For compliance and regulatory purposes, a government agency requires that their applications must run on hardware that is dedicated to them only. How can you meet this requirement?",
+    "choices": [
+      "A. Use EC2 Dedicated Hosts.",
+      "B. Use EC2 Reserved Instances.",
+      "C. Use EC2 Spot Instances.",
+      "D. Use EC2 On-demand Instances."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_14": {
+    "question_number": 14,
+    "question": "Which AWS Cost Governance best practice recommends refining workloads regularly to make the most of existing AWS resources and reduce costs?",
+    "choices": [
+      "A. Tagging Enforcement.",
+      "B. Architecture Optimization.",
+      "C. Budgeting Processes.",
+      "D. Resource Controls."
+    ],
+    "answer": "B",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_15": {
+    "question_number": 15,
+    "question": "An organization needs to build a financial application that requires support for ACID transactions. Which AWS database service is most appropriate in this case?",
+    "choices": [
+      "A. RedShift.",
+      "B. RDS.",
+      "C. CloudHSM.",
+      "D. DMS."
+    ],
+    "answer": "B",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_16": {
+    "question_number": 16,
+    "question": "What can you use to assign permissions directly to an IAM user?",
+    "choices": [
+      "A. IAM Identity.",
+      "B. IAM Group.",
+      "C. IAM Role.",
+      "D. IAM Policy."
+    ],
+    "answer": "D",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_17": {
+    "question_number": 17,
+    "question": "The owner of an E-Commerce application notices that the compute capacity requirements vary heavily from time to time. What makes AWS more economical than traditional data centers for this type of application?",
+    "choices": [
+      "A. AWS allows customers to launch powerful EC2 instances to handle spikes in load.",
+      "B. AWS allows customers to pay upfront to get bigger discounts.",
+      "C. AWS allows customers to launch and terminate EC2 instances based on demand.",
+      "D. AWS allows customers to choose cheaper types of EC2 instances that best fit their needs."
+    ],
+    "answer": "C",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_18": {
+    "question_number": 18,
+    "question": "Amazon RDS supports multiple database engines to choose from. Which of the following is not one of them?",
+    "choices": [
+      "A. PostgreSQL.",
+      "B. Oracle.",
+      "C. Microsoft SQL Server.",
+      "D. Teradata."
+    ],
+    "answer": "D",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_19": {
+    "question_number": 19,
+    "question": "Which of the following AWS services would help you migrate on-premise databases to AWS?",
+    "choices": [
+      "A. AWS DMS.",
+      "B. Amazon S3 Transfer Acceleration.",
+      "C. AWS Directory Service.",
+      "D. AWS Transit Gateway."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_20": {
+    "question_number": 20,
+    "question": "For new AWS customers, what is the EASIEST way to launch a simple WordPress website on AWS?",
+    "choices": [
+      "A. Run WordPress on an Amazon Lightsail instance.",
+      "B. Install WordPress on an Amazon EC2 instance.",
+      "C. Use the Amazon S3 Web hosting feature.",
+      "D. Host the website directly on AWS Cloud Development Kit (AWS CDK)."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_21": {
+    "question_number": 21,
+    "question": "Which of the following would you use to manage your encryption keys in the AWS Cloud? (Choose TWO)",
+    "choices": [
+      "A. AWS KMS.",
+      "B. AWS Certificate Manager.",
+      "C. AWS CodeDeploy.",
+      "D. AWS CodeCommit.",
+      "E. CloudHSM."
+    ],
+    "answer": [
+      "A",
+      "E"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_22": {
+    "question_number": 22,
+    "question": "Which of the following services allows you to install and run custom relational database software?",
+    "choices": [
+      "A. Amazon EC2.",
+      "B. Amazon Cognito.",
+      "C. Amazon RDS.",
+      "D. Amazon Inspector."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_23": {
+    "question_number": 23,
+    "question": "Your application requirements for CPU and RAM are changing in an unpredictable way. Which service can be used to dynamically adjust these resources based on load?",
+    "choices": [
+      "A. Auto Scaling.",
+      "B. ELB.",
+      "C. Amazon Route53.",
+      "D. Amazon Elastic Container Service."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_24": {
+    "question_number": 24,
+    "question": "A company has infrastructure hosted in an on-premises data center. They currently have an operations team that takes care of identity management. If they decide to migrate to the AWS cloud, which of the following services would help them perform the same role in AWS?",
+    "choices": [
+      "A. AWS IAM.",
+      "B. AWS Outposts.",
+      "C. AWS Federation.",
+      "D. Amazon Redshift."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_25": {
+    "question_number": 25,
+    "question": "What are some key design principles for designing public cloud systems? (Choose TWO)",
+    "choices": [
+      "A. Reserved capacity instead of on demand.",
+      "B. Loose coupling over tight coupling.",
+      "C. Servers instead of managed services.",
+      "D. Disposable resources instead of fixed servers.",
+      "E. Multi-AZ deployments instead of multi-region deployments."
+    ],
+    "answer": [
+      "B",
+      "D"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_26": {
+    "question_number": 26,
+    "question": "Where can AWS account owners get a list of all users in their account, including the status of their AWS credentials?",
+    "choices": [
+      "A. AWS CloudTrail Trails.",
+      "B. IAM Credential Report.",
+      "C. AWS Artifact reports.",
+      "D. AWS Cost and Usage Report."
+    ],
+    "answer": "B",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_27": {
+    "question_number": 27,
+    "question": "Which of the following services enables you to easily generate and use your own encryption keys in the AWS Cloud?",
+    "choices": [
+      "A. AWS Shield.",
+      "B. AWS Certificate Manager.",
+      "C. AWS CloudHSM.",
+      "D. AWS WAF."
+    ],
+    "answer": "C",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_28": {
+    "question_number": 28,
+    "question": "You have developed a web application targeting a global audience. Which of the following will help you achieve the highest redundancy and fault tolerance from an infrastructure perspective?",
+    "choices": [
+      "A. There is no need to architect for these capabilities in AWS, as AWS is redundant by default.",
+      "B. Deploy the application in a single Availability Zone.",
+      "C. Deploy the application in multiple Availability Zones in a single AWS region.",
+      "D. Deploy the application in multiple Availability Zones in multiple AWS regions."
+    ],
+    "answer": "D",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_29": {
+    "question_number": 29,
+    "question": "For some services, AWS automatically replicates data across multiple Availability Zones to provide fault tolerance in the event of a server failure or Availability Zone outage. Select TWO services that automatically replicate data across Availability Zones.",
+    "choices": [
+      "A. Instance Store.",
+      "B. S3.",
+      "C. DynamoDB.",
+      "D. Amazon Route 53.",
+      "E. AWS VPN."
+    ],
+    "answer": [
+      "B",
+      "C"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_30": {
+    "question_number": 30,
+    "question": "Which of the following factors affect Amazon CloudFront cost? (Choose TWO)",
+    "choices": [
+      "A. Number of Requests.",
+      "B. Traffic Distribution.",
+      "C. Number of Volumes.",
+      "D. Instance type.",
+      "E. Storage Class."
+    ],
+    "answer": [
+      "A",
+      "B"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_31": {
+    "question_number": 31,
+    "question": "Which of the following resources can an AWS customer use to learn more about prohibited uses of the services offered by AWS?",
+    "choices": [
+      "A. AWS Service Control Policies (SCPs).",
+      "B. AWS Artifact.",
+      "C. AWS Budgets.",
+      "D. AWS Acceptable Use Policy."
+    ],
+    "answer": "D",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_32": {
+    "question_number": 32,
+    "question": "Which of the following security resources are available to any user for free? (Choose TWO)",
+    "choices": [
+      "A. AWS Bulletins.",
+      "B. AWS TAM.",
+      "C. AWS Support APl.",
+      "D. AWS Security Blog.",
+      "E. AWS Classroom Training."
+    ],
+    "answer": [
+      "A",
+      "D"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_33": {
+    "question_number": 33,
+    "question": "How can you protect data stored on Amazon S3 from accidental deletion?",
+    "choices": [
+      "A. By enabling S3 Versioning.",
+      "B. By configuring S3 Bucket Policies.",
+      "C. By configuring S3 Lifecycle Policies.",
+      "D. By disabling S3 Cross-Region Replication (CRR)."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_34": {
+    "question_number": 34,
+    "question": "Which of the following is the responsibility of AWS according to the AWS Shared Responsibility Model?",
+    "choices": [
+      "A. Securing regions and edge locations.",
+      "B. Performing auditing tasks.",
+      "C. Monitoring AWS resources usage.",
+      "D. Securing access to AWS resources."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_35": {
+    "question_number": 35,
+    "question": "Which of the following AWS support plans provides access to only the seven core AWS Trusted Advisor checks?",
+    "choices": [
+      "A. Business & Enterprise Support.",
+      "B. Basic & Developer Support.",
+      "C. Developer & Enterprise Support.",
+      "D. Developer & Business Support."
+    ],
+    "answer": "B",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_36": {
+    "question_number": 36,
+    "question": "Which of the following is NOT a benefit of using AWS Lambda?",
+    "choices": [
+      "A. AWS Lambda runs code without provisioning or managing servers.",
+      "B. AWS Lambda provides resizable compute capacity in the cloud.",
+      "C. There is no charge when your AWS Lambda code is not running.",
+      "D. AWS Lambda can be called directly from any mobile app."
+    ],
+    "answer": "D",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_37": {
+    "question_number": 37,
+    "question": "How does AWS help customers achieve compliance in the cloud?",
+    "choices": [
+      "A. It's not possible to meet regulatory compliance requirements in the Cloud.",
+      "B. AWS applies the most common Cloud security standards, and is responsible for complying with customers’ applicable laws and regulations.",
+      "C. AWS has many common assurance certifications such as ISO 9001 and HIPAA.",
+      "D. Many AWS services are assessed regularly to comply with local laws and regulations."
+    ],
+    "answer": "C",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_38": {
+    "question_number": 38,
+    "question": "Who is responsible for scaling a DynamoDB database in the AWS Shared Responsibility Model?",
+    "choices": [
+      "A. Your security team.",
+      "B. Your development team.",
+      "C. AWS.",
+      "D. Your internal DevOps team."
+    ],
+    "answer": "C",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_39": {
+    "question_number": 39,
+    "question": "You are working as a web app developer. You are currently facing issues in media playback for mobile devices because your media format is not supported. Which of the following AWS services can help you convert your media into another format?",
+    "choices": [
+      "A. Amazon Elastic Transcoder.",
+      "B. Amazon Pinpoint.",
+      "C. AmazonS3.",
+      "D. Amazon Rekognition."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_40": {
+    "question_number": 40,
+    "question": "What are the benefits of the AWS Organizations service? (Choose TWO)",
+    "choices": [
+      "A. Control access to AWS services.",
+      "B. Help organizations design and maintain an accelerated path to successful cloud adoption.",
+      "C. Manage your organization’s payment methods.",
+      "D. Help organization achieve their desired business outcomes with AWS.",
+      "E. Consolidate billing across multiple AWS accounts."
+    ],
+    "answer": [
+      "A",
+      "E"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_41": {
+    "question_number": 41,
+    "question": "Which AWS service allows you to build a data warehouse in the cloud?",
+    "choices": [
+      "A. AWS Shield.",
+      "B. Amazon Redshift.",
+      "C. Amazon RDS.",
+      "D. Amazon Comprehend."
+    ],
+    "answer": "B",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_42": {
+    "question_number": 42,
+    "question": "What AWS service allows you to buy third-party software solutions and services that run on AWS resources?",
+    "choices": [
+      "A. AWS Application Discovery service.",
+      "B. Amazon DevPay.",
+      "C. AWS Marketplace.",
+      "D. Resource Groups."
+    ],
+    "answer": "C",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_43": {
+    "question_number": 43,
+    "question": "Which of the following services is an AWS repository management system that allows for storing, versioning, and managing your application code?",
+    "choices": [
+      "A. AWS CodePipeline.",
+      "B. AWS CodeCommit.",
+      "C. AWS X-Ray.",
+      "D. Amazon Inspector."
+    ],
+    "answer": "B",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_44": {
+    "question_number": 44,
+    "question": "Which AWS service can be used to route end users to the nearest AWS Region to reduce latency?",
+    "choices": [
+      "A. Amazon Cognito.",
+      "B. AWS Systems Manager.",
+      "C. AWS Cloud9.",
+      "D. Amazon Route 53."
+    ],
+    "answer": "D",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_45": {
+    "question_number": 45,
+    "question": "Which feature enables users to sign into their AWS accounts with their existing corporate credentials?",
+    "choices": [
+      "A. Federation.",
+      "B. Access keys.",
+      "C. IAM Permissions.",
+      "D. WAF rules."
+    ],
+    "answer": "A",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_46": {
+    "question_number": 46,
+    "question": "According to the AWS shared responsibility model, what are the controls that customers fully inherit from AWS? (Choose TWO)",
+    "choices": [
+      "A. Awareness and Training.",
+      "B. Communications controls.",
+      "C. Data center security controls.",
+      "D. Environmental controls.",
+      "E. Resource Configuration Management."
+    ],
+    "answer": [
+      "C",
+      "D"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_47": {
+    "question_number": 47,
+    "question": "What can you access by visiting the URL: <http://status.aws.amazon.com>?",
+    "choices": [
+      "A. AWS Billing Dashboard.",
+      "B. AWS Cost Dashboard.",
+      "C. AWS Service Health Dashboard.",
+      "D. AWS Security Dashboard."
+    ],
+    "answer": "C",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_48": {
+    "question_number": 48,
+    "question": "Which of the following procedures can reduce latency when your end users are retrieving data? (Choose TWO)",
+    "choices": [
+      "A. Store media assets in the region closest to your end users.",
+      "B. Store media assets on an additional EBS volume and increase the capacity of your server.",
+      "C. Replicate media assets to at least two availability zones.",
+      "D. Reduce the size of media assets using the Amazon Elastic Transcoder.",
+      "E. Store media assets in S3 and use CloudFront to distribute these assets."
+    ],
+    "answer": [
+      "A",
+      "E"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_49": {
+    "question_number": 49,
+    "question": "Which of the following are part of the seven design principles for security in the cloud? (Choose TWO)",
+    "choices": [
+      "A. Use manual monitoring techniques to protect your AWS resources.",
+      "B. Use IAM roles to grant temporary access instead of long-term credentials.",
+      "C. Scale horizontally to protect from failures.",
+      "D. Enable real-time traceability.",
+      "E. Never store sensitive data in the cloud."
+    ],
+    "answer": [
+      "B",
+      "D"
+    ],
+    "is_multi_select": true,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  },
+  "question_50": {
+    "question_number": 50,
+    "question": "A company is migrating production workloads to AWS, and they are concerned about cost management across different departments. Which option should the company implement to categorize and track AWS spending?",
+    "choices": [
+      "A. Use the AWS Pricing Calculator service to monitor the costs incurred by each department.",
+      "B. Use Amazon Aurora to forecast AWS spending based on usage.",
+      "C. Apply cost allocation tags to segment AWS costs by different e projects and departments.",
+      "D. Configure AWS Price List API to receive billing updates for each department automatically."
+    ],
+    "answer": "C",
+    "is_multi_select": false,
+    "category": "Cloud Concepts",
+    "tags": [
+      "AWS",
+      "Cloud Practitioner"
+    ],
+    "difficulty": 2
+  }
+}
