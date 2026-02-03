@@ -24,4 +24,11 @@ services:
       - type: bind
         source: ../backend/src
         target: /app
-    
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+      

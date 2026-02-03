@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from jwt_auth.auth_router import router as auth_router
 from business_router import router as business_router
 from fastapi.middleware.cors import CORSMiddleware
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
