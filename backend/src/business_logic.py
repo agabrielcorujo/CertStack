@@ -8,5 +8,14 @@ class AppError(Exception):
         self.status_code = status_code
         super().__init__(message)
 
+def sample_function(userid:str,param:type)->type:
+
+    if ... : #something goes wrong
+
+        raise AppError(message="something went wrong",status_code="some status code")
+
+    return ...
+
+
 
 
