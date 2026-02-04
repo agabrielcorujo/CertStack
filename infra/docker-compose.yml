@@ -1,18 +1,18 @@
 version: "3.9"
 
 services:
-  react:
+  nextjs:
     build:
       context: ../frontend/certstack
       dockerfile: ../../infra/Dockerfile.react
     ports:
-      - "5173:5173"
+      - "3000:3000"
     volumes:
       - ../frontend/certstack:/app
       - /app/node_modules
     command: npm run dev
 
-  backend:
+  fastapi:
     build:
       context: ../backend/src
       dockerfile: ../../infra/Dockerfile.backend
