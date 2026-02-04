@@ -8,9 +8,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",   # Next.js dev
-        "http://localhost:5173",   # if using Vite
-        # add prod frontend domain later
+        "http://localhost:3000",    # Next.js dev
+                                    # add prod frontend domain later
     ],
     allow_credentials=True,       # REQUIRED for cookies
     allow_methods=["*"],          # includes OPTIONS
