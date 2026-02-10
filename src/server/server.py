@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from jwt_auth.auth_router import router as auth_router
-from business_router import router as business_router
+from routes.example_route import router as business_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -19,6 +19,12 @@ app.add_middleware(
 #mount routers
 app.include_router(auth_router)
 app.include_router(business_router)
+
+@app.get("/")
+def health_check():
+    return {
+        "status":"healthy"
+    }
 
 
 

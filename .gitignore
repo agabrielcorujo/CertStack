@@ -1,3 +1,4 @@
 LICENSE
 README.md
-.env
+.env.prod
+.env.dev
