@@ -2,3 +2,4 @@ LICENSE
 README.md
 .env.prod
 .env.dev
+__pycache__
