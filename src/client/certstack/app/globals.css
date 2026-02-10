@@ -1,26 +1,111 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+    /* Soft Periwinkle Blue - Primary */
+    --primary-50: 224 100% 97%;
+    --primary-100: 223 100% 94%;
+    --primary-200: 223 96% 89%;
+    --primary-300: 223 95% 82%;
+    --primary-400: 223 93% 76%;
+    --primary-500: 223 100% 71%;  /* Main brand - #6B8DFF */
+    --primary-600: 223 89% 66%;
+    --primary-700: 223 77% 58%;
+    
+    /* Backgrounds - Warmer, creamier */
+    --background: 220 40% 99%;  /* Soft blue tint */
+    --background-app: 220 35% 99%;
+    --background-card: 0 0% 100%;
+    --background-surface: 220 25% 98%;
+    --background-hover: 220 30% 96%;
+    
+    /* Pastel Accent Colors - for icon circles */
+    --pastel-blue: 223 100% 96%;  /* #E8F1FF */
+    --pastel-mint: 160 80% 93%;   /* #E6F9F5 */
+    --pastel-yellow: 48 100% 95%; /* #FFF9E6 */
+    --pastel-lavender: 250 100% 97%; /* #F3F0FF */
+    --pastel-peach: 25 100% 96%;  /* #FFF0E8 */
+    --pastel-pink: 340 100% 96%;  /* #FFE8F0 */
+    
+    /* Subject Colors - Soft and Desaturated */
+    --subject-anatomy: 223 100% 71%;    /* Soft blue #6B8DFF */
+    --subject-pharma: 165 65% 55%;      /* Soft teal #4FD1B8 */
+    --subject-biochem: 38 100% 65%;     /* Soft orange #FFB84D */
+    --subject-pathology: 255 70% 80%;   /* Soft purple #B8A0FF */
+    --subject-micro: 350 100% 76%;      /* Soft coral #FF8FA3 */
+    
+    /* Text Colors - Warmer grays with blue tint */
+    --text-primary: 215 25% 24%;   /* #2E3A4D */
+    --text-secondary: 215 15% 50%; /* #6F7B8A */
+    --text-tertiary: 215 12% 66%;  /* #A0A8B4 */
+    --text-disabled: 220 13% 82%;
+    
+    /* Borders - Very subtle */
+    --border-light: 220 15% 95%;   /* #F0F1F4 */
+    --border: 220 15% 93%;
+    --border-medium: 220 13% 91%;
+    
+    /* Semantic Colors - Softer versions */
+    --success: 160 65% 50%;        /* #4FD1B8 soft teal */
+    --success-light: 160 80% 93%;  /* #E6F9F5 */
+    --warning: 38 92% 65%;         /* #FFB84D */
+    --warning-light: 48 100% 95%;  /* #FFF9E6 */
+    --error: 350 85% 65%;          /* #FF8FA3 */
+    --error-light: 350 100% 96%;   /* #FFE8F0 */
+    --info: 223 100% 71%;
+    --info-light: 223 100% 96%;
+    
+    /* shadcn/ui compatibility */
+    --foreground: 215 25% 24%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 24%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 24%;
+    --primary: 223 100% 71%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 25% 98%;
+    --secondary-foreground: 215 25% 24%;
+    --muted: 220 25% 98%;
+    --muted-foreground: 215 15% 50%;
+    --accent: 220 25% 98%;
+    --accent-foreground: 215 25% 24%;
+    --destructive: 350 85% 65%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 93%;
+    --input: 220 15% 93%;
+    --ring: 223 100% 71%;
+    --radius: 1.25rem;  /* 20px - rounder than before */
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    /* Chart colors - desaturated */
+    --chart-1: 350 100% 76%;  /* Coral */
+    --chart-2: 223 100% 71%;  /* Blue */
+    --chart-3: 165 65% 55%;   /* Teal */
+    --chart-4: 255 70% 80%;   /* Purple */
+    --chart-5: 38 100% 65%;   /* Amber */
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 25% 24%;
+    --sidebar-primary: 223 100% 71%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 223 100% 96%;
+    --sidebar-accent-foreground: 223 89% 66%;
+    --sidebar-border: 220 15% 95%;
+    --sidebar-ring: 223 100% 71%;
+
+    /* Additional tokens */
+    --surface: 220 25% 98%;
+    --surface-elevated: 0 0% 100%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
 }
