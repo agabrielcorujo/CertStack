@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel 
 from typing import Optional
 from jwt_auth.jwt_auth import decode_access_token
-from business_logic import (
+from controllers.example_controller import (
     AppError,
     sample_function
 )
