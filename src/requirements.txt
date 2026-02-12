@@ -1,1 +1,0 @@
-jwt-auth @ git+https://github.com/agabrielcorujo/jwt-auth.git

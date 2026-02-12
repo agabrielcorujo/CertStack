@@ -1,21 +1,21 @@
-from jwt_auth.db import safe_query #syntax: result = safe_query(query,(param1,param2...),fetch="one/all",insert=True/False)
-import boto3 as aws
-from dotenv import load_dotenv
 import os
+from schemas.schema import SampleRequest
+from services.service import sample_service,AppError
+from fastapi import HTTPException
 
-class AppError(Exception):
-    def __init__(self, message: str, status_code: int = 400):
-        self.message = message
-        self.status_code = status_code
-        super().__init__(message)
 
-def sample_function(userid:str,param:type)->type:
+def sample_controller(request:SampleRequest)->type:
 
-    if ... : #something goes wrong
+    try:
 
-        raise AppError(message="something went wrong",status_code="some status code")
+        result = sample_service(request.request_param1)
 
-    return ...
+    except AppError as error:
+        
+        raise HTTPException(
+            detail=error.message,
+            status_code=error.status_code
+        )
 
 
 import hashlib
