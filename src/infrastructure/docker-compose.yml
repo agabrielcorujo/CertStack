@@ -16,7 +16,7 @@ services:
       - server
 
   server:
-    build:
+    build: 
       context: ../server
       dockerfile: ../infrastructure/Dockerfile.server
     ports: 

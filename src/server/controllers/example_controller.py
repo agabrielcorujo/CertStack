@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 #from jwt_auth.db import safe_query #syntax: result = safe_query(query,(param1,param2...),fetch="one/all",insert=True/False)
 import boto3 as aws
 from dotenv import load_dotenv
 import os
+=======
+from schemas.schema import SampleRequest
+from services.example_service import sample_service,AppError
+from fastapi import HTTPException
+>>>>>>> 7f4566eef0d6d3ebf339f6d0fabbe67e01db43fa
 
 class AppError(Exception):
     def __init__(self, message: str, status_code: int = 400):
@@ -17,6 +23,7 @@ def sample_function(userid:str,param:type)->type:
 
     return ...
 
+<<<<<<< HEAD
 import hashlib
 from langchain_community.document_loaders import DirectoryLoader, JSONLoader
 import json
@@ -126,3 +133,5 @@ def get_metadata(query: str, k: int = 1)->list[dict]:
         
     return formatted_results
 
+=======
+>>>>>>> 7f4566eef0d6d3ebf339f6d0fabbe67e01db43fa
