@@ -1,4 +1,4 @@
-from jwt_auth.db import safe_query #syntax: result = safe_query(query,(param1,param2...),fetch="one/all",insert=True/False)
+#from jwt_auth.db import safe_query #syntax: result = safe_query(query,(param1,param2...),fetch="one/all",insert=True/False)
 import boto3 as aws
 from dotenv import load_dotenv
 import os
@@ -23,7 +23,7 @@ import json
 from langchain_community.vectorstores.upstash import UpstashVectorStore
 import getpass
 from langchain_openai import OpenAIEmbeddings
-
+from langchain.tools import tool
 
 
 def initialize_config():
@@ -87,7 +87,21 @@ def Similarity_Search(query: str, k: int = 3) -> list[str]:
     return [doc.page_content for doc in results]
 
 
+
 #Helper Functions
+
+@tool(response_format="content_and_artifact")
+def retrieve_context(query: str):
+    
+    store = get_vector_store()
+    retrieved_docs = store.similarity_search(query, k=2)
+    serialized = "\n\n".join(
+        (f"Source: {doc.metadata}\n Content: {doc.page_content}")
+        for doc in retrieved_docs
+    )
+    return serialized, retrieved_docs
+
+
 
 def get_vector_store()-> UpstashVectorStore:
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
@@ -111,3 +125,4 @@ def get_metadata(query: str, k: int = 1)->list[dict]:
         formatted_results.append(data)
         
     return formatted_results
+

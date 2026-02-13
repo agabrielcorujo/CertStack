@@ -4,7 +4,7 @@ import getpass
 
 def main():
     initialize_config()
-    print(Similarity_Search("A user uses AWS for an hour and 20 minutes?"))
+    print(Similarity_Search("Which AWS team provides paid professional services to help organizations speed up their transition to the cloud?"))
 
 if __name__ == "__main__":
     main()

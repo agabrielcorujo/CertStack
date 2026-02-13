@@ -12,3 +12,4 @@ def sample_service(variable:str):
         raise AppError("error message",400)
     
     return ...
+
