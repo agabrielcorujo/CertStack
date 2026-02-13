@@ -1,3 +1,4 @@
+from jwt_auth.db import safe_query #syntax: result = safe_query(query,(param1,param2...),fetch="one/all",insert=True/False)
 import boto3 as aws
 from dotenv import load_dotenv
 import os
