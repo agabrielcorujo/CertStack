@@ -1,6 +1,6 @@
 from fastapi import Depends,APIRouter
 from fastapi.security import OAuth2PasswordBearer
-from jwt_auth.services.auth_services import decode_access_token
+from jwt_auth.controllers.auth_controller import decode_access_token_controller as decode_access_token
 from controllers.example_controller import (
     sample_controller
 )
