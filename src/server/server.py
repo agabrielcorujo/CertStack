@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from jwt_auth.services.auth_services import router as auth_router
-from routes.example_route import router as business_router
+from jwt_auth.auth_routes import router as auth_router
+from routes.example_router import router as business_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
