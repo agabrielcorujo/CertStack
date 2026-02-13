@@ -1,4 +1,3 @@
-from jwt_auth.db import safe_query #syntax: result = safe_query(query,(param1,param2...),fetch="one/all",insert=True/False)
 import boto3 as aws
 from dotenv import load_dotenv
 import os
@@ -17,7 +16,6 @@ def sample_function(userid:str,param:type)->type:
 
     return ...
 
-
 import hashlib
 from langchain_community.document_loaders import DirectoryLoader, JSONLoader
 import json
@@ -25,15 +23,26 @@ from langchain_community.vectorstores.upstash import UpstashVectorStore
 import getpass
 from langchain_openai import OpenAIEmbeddings
 
-#input should be a folder with json or a singular json file
-def update_Database(path:str)->str: #return number of added docs
 
+
+def initialize_config():
+    load_dotenv()
     os.environ["UPSTASH_VECTOR_REST_URL"] = "https://loving-kingfish-56853-us1-vector.upstash.io"
-    if not os.environ.get("UPSTASH_VECTOR_REST_TOKEN"):
-        os.environ["UPSTASH_VECTOR_REST_TOKEN"] = getpass.getpass("Enter API key for Upstash: ")
+    # Required keys
+    keys = [
+        "UPSTASH_VECTOR_REST_URL",
+        "UPSTASH_VECTOR_REST_TOKEN",
+        "OPENAI_API_KEY"
+    ]
+    for key in keys:
+        if not os.environ.get(key):
+            os.environ[key] = getpass.getpass(f"Enter {key}: ")
 
-    if not os.environ.get("OPENAI_API_KEY"):
-        os.environ["OPENAI_API_KEY"] = getpass.getpass("Enter API key for OpenAI: ")
+
+            
+#input should be a folder with json or a singular json file
+def Update_Database(path:str)->str: #return number of added docs
+
     loader_kwargs = {
         "jq_schema": ".[]", #iterate over question objects.
         "text_content": False
@@ -71,4 +80,33 @@ def update_Database(path:str)->str: #return number of added docs
     return f"Successfully processed {len(sanitized_docs)} documents."
 
 
+def Similarity_Search(query: str, k: int = 3) -> list[str]:
+    store = get_vector_store()
+    results = store.similarity_search(query, k=k)
+    return [doc.page_content for doc in results]
 
+
+#Helper Functions
+
+def get_vector_store()-> UpstashVectorStore:
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    return UpstashVectorStore(embedding=embeddings)
+
+
+
+def get_metadata(query: str, k: int = 1)->list[dict]:
+    store = get_vector_store()
+    results = store.similarity_search(query, k=k)
+    
+    formatted_results = []
+    
+    for doc in results:
+        data = {
+            "question": doc.page_content,
+            "choices": doc.metadata.get("choices"),
+            "answer": doc.metadata.get("answer"),
+            "difficulty": doc.metadata.get("difficulty")
+        }
+        formatted_results.append(data)
+        
+    return formatted_results
