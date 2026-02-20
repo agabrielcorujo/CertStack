@@ -1,0 +1,10 @@
+langchain
+langchain-community
+langchain-core
+langchain-openai
+langchain-text-splitters
+openai
+upstash-vector
+tiktoken
+requests
+beautifulsoup4
