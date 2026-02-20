@@ -64,42 +64,22 @@ def extract_pdf_text(pdf_path: Path) -> Tuple[str, int]:
     return content, page_count
 
 
-def sanitize_slug(repo_path: str) -> str:
-    """Create a filesystem-safe slug from a repository path."""
-    slug = repo_path.replace("/", "__")
-    slug = re.sub(r"[^A-Za-z0-9_.-]+", "_", slug)
-    return slug.strip("._") or "pdf"
-
-
-def save_pdf_json(
-    repo_path: str, content: str, page_count: int, extracted_at: str
-) -> Path:
-    """Save extracted PDF data to a JSON file with metadata."""
+def save_all_json(documents: List[Dict[str, object]]) -> Path:
+    """Persist all extracted PDF data into a single JSON file."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    slug = sanitize_slug(repo_path)
-    output_path = DATA_DIR / f"{slug}_content.json"
-
-    payload: Dict[str, object] = {
-        "filename": Path(repo_path).name,
-        "repo_path": repo_path,
-        "page_count": page_count,
-        "extracted_at": extracted_at,
-        "content": content,
-    }
-
+    output_path = DATA_DIR / "aws_notes_all.json"
     with output_path.open("w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-
+        json.dump(documents, f, ensure_ascii=False, indent=2)
     return output_path
 
 
 def process_repository() -> Dict[str, object]:
-    """Fetch PDFs from the repo, extract text, and persist as JSON files."""
+    """Fetch PDFs from the repo, extract text, and persist into one JSON file."""
     pdf_paths = fetch_pdf_paths()
     print(f"Found {len(pdf_paths)} PDF file(s) in the repository.")
 
     results: Dict[str, object] = {"processed": 0, "failed": []}
+    aggregated: List[Dict[str, object]] = []
 
     if not pdf_paths:
         return results
@@ -113,12 +93,24 @@ def process_repository() -> Dict[str, object]:
                 download_pdf(raw_url, temp_pdf)
                 content, page_count = extract_pdf_text(temp_pdf)
                 extracted_at = datetime.now(timezone.utc).isoformat()
-                output_path = save_pdf_json(repo_path, content, page_count, extracted_at)
+                aggregated.append(
+                    {
+                        "filename": Path(repo_path).name,
+                        "repo_path": repo_path,
+                        "page_count": page_count,
+                        "extracted_at": extracted_at,
+                        "content": content,
+                    }
+                )
                 results["processed"] += 1
-                print(f"Saved {repo_path} -> {output_path}")
+                print(f"Queued {repo_path}")
             except Exception as exc:  # noqa: BLE001
                 results["failed"].append({"path": repo_path, "error": str(exc)})
                 print(f"Failed {repo_path}: {exc}")
+
+    if aggregated:
+        output_path = save_all_json(aggregated)
+        print(f"Saved all PDFs into {output_path}")
 
     return results
 
