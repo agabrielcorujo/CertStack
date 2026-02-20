@@ -6,7 +6,10 @@ from controllers.example_controller import (
 )
 import schemas.schema as schema
 
-router = APIRouter()
+router = APIRouter(
+    prefix = "/{route name}",
+    tags = ["route name"]
+)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
