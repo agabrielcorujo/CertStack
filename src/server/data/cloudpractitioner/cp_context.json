@@ -1,0 +1,59 @@
+{
+
+  "exam_name": "AWS Certified Cloud Practitioner",
+  "exam_description": "Validates foundational understanding of AWS Cloud concepts, services, security, and pricing.",
+  "exam_focus": "High-level conceptual knowledge rather than hands-on configuration.",
+  "scoring_model": "Scaled score 100 to 1000. Passing score: 700.",
+
+  "domain_weights": [
+    { "domain_name": "Cloud Concepts", "weight_percentage": 24 },
+    { "domain_name": "Security and Compliance", "weight_percentage": 30 },
+    { "domain_name": "Cloud Technology and Services", "weight_percentage": 34 },
+    { "domain_name": "Billing, Pricing, and Support", "weight_percentage": 12 }
+  ],
+
+  "exam_topics": [
+    {
+      "domain_name": "Cloud Technology and Services",
+      "topics": [
+        "Amazon EC2",
+        "Amazon S3",
+        "Amazon VPC",
+        "AWS Lambda",
+        "Amazon RDS",
+        "Elastic Load Balancing"
+      ]
+    },
+    {
+      "domain_name": "Security and Compliance",
+      "topics": [
+        "IAM",
+        "Shared Responsibility Model",
+        "AWS KMS",
+        "CloudTrail",
+        "AWS Shield"
+      ]
+    }
+  ],
+
+  "expected_depth": [
+    "Understand what a service does",
+    "Understand common use cases",
+    "Know domain weight relevance",
+    "Understand high-level pricing models"
+  ],
+
+  "not_expected_depth": [
+    "CLI commands",
+    "Advanced architecture design",
+    "Detailed configuration steps",
+    "Complex networking troubleshooting"
+  ],
+
+  "llm_answering_rules": [
+    "Answer at the exams defined level.",
+    "Reference domain weight when discussing exam importance.",
+    "Do not provide deeper detail than expected unless user requests.",
+    "Tie answers back to exam relevance."
+  ]
+}
