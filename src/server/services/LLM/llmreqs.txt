@@ -1,9 +1,10 @@
-jwt-auth @ git+https://github.com/agabrielcorujo/jwt-auth.git@main
-boto3
 langchain
 langchain-community
 langchain-core
 langchain-openai
+langchain-text-splitters
 openai
 upstash-vector
 tiktoken
+requests
+beautifulsoup4

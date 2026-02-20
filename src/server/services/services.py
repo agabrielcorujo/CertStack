@@ -8,20 +8,35 @@ class AppError(Exception):
         self.status_code = status_code
         super().__init__(message)
 
-import hashlib,os,json,getpass
+from dotenv import load_dotenv
+import os
+import hashlib
 from langchain_community.document_loaders import DirectoryLoader, JSONLoader
+import json
 from langchain_community.vectorstores.upstash import UpstashVectorStore
+import getpass
 from langchain_openai import OpenAIEmbeddings
+from langchain.tools import tool
 
-#input should be a folder with json or a singular json file
-def update_Database(path:str)->str: #return number of added docs
 
+def initialize_config():
+    load_dotenv()
     os.environ["UPSTASH_VECTOR_REST_URL"] = "https://loving-kingfish-56853-us1-vector.upstash.io"
-    if not os.environ.get("UPSTASH_VECTOR_REST_TOKEN"):
-        os.environ["UPSTASH_VECTOR_REST_TOKEN"] = getpass.getpass("Enter API key for Upstash: ")
+    # Required keys
+    keys = [
+        "UPSTASH_VECTOR_REST_URL",
+        "UPSTASH_VECTOR_REST_TOKEN",
+        "OPENAI_API_KEY"
+    ]
+    for key in keys:
+        if not os.environ.get(key):
+            os.environ[key] = getpass.getpass(f"Enter {key}: ")
 
-    if not os.environ.get("OPENAI_API_KEY"):
-        os.environ["OPENAI_API_KEY"] = getpass.getpass("Enter API key for OpenAI: ")
+
+
+#input should be a folder with json
+def Update_Database(path:str)->str: #return number of added docs
+
     loader_kwargs = {
         "jq_schema": ".[]", #iterate over question objects.
         "text_content": False
@@ -42,10 +57,12 @@ def update_Database(path:str)->str: #return number of added docs
         unique_id = hashlib.md5(question_text.encode('utf-8')).hexdigest()
         
         doc.metadata = {
+            "exam": raw_data.get("exam"),
             "choices": raw_data.get("choices"),
             "category": raw_data.get("category"),
             "answer": raw_data.get("answer"),
             "difficulty": raw_data.get("difficulty"),
+
         }
         doc.page_content = question_text
         doc_ids.append(unique_id)
@@ -59,5 +76,69 @@ def update_Database(path:str)->str: #return number of added docs
     return f"Successfully processed {len(sanitized_docs)} documents."
 
 
+def Similarity_Search(query: str, k: int = 3) -> list[str]:
+    store = get_vector_store()
+    results = store.similarity_search(query, k=k)
+    return [doc.page_content for doc in results]
 
 
+
+#Helper Functions
+
+
+def get_exam(exam: str, category: str = "") -> list[dict]:
+    store = get_vector_store()
+    formatted_results = []
+    filter_string = f"exam = '{exam}' AND category = '{category}'"
+    
+    if category == "":
+        filter_string = f"exam = '{exam}'"
+
+    results = store.similarity_search(
+        query="", 
+        k=100, #max number set
+        filter=filter_string
+    )
+    for doc in results:
+        data = {
+            "question": doc.page_content,
+            "choices": doc.metadata.get("choices"),
+            "answer": doc.metadata.get("answer"),
+            "difficulty": doc.metadata.get("difficulty"),
+            "category": doc.metadata.get("category")
+        }
+        formatted_results.append(data)
+    return formatted_results
+    
+
+def get_vector_store()-> UpstashVectorStore: #returns upstash data
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    return UpstashVectorStore(embedding=embeddings)
+
+
+def get_metadata(query: str, k: int = 1)->list[dict]:
+    store = get_vector_store()
+    results = store.similarity_search(query, k=k)
+    formatted_results = []
+    
+    for doc in results:
+        data = {
+            "question": doc.page_content,
+            "choices": doc.metadata.get("choices"),
+            "answer": doc.metadata.get("answer"),
+            "difficulty": doc.metadata.get("difficulty")
+        }
+        formatted_results.append(data)
+        
+    return formatted_results
+
+
+
+
+if __name__ == "__main__":
+    initialize_config()
+    exams = get_exam("cloud practitioner")
+    for exam in exams:
+        print("Question: " + str(exam["question"]) + "\n")
+        print("Choices: " + str(exam["choices"]) + "\n")
+        print("___________________________________________________________________") 
