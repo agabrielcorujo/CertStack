@@ -5,7 +5,7 @@ from langchain_openai import OpenAIEmbeddings
 from psycopg2 import sql
 import os
 from dotenv import load_dotenv
-load_dotenv(".env.llm")
+load_dotenv("src/server/services/LLM/.env.llm")
 
 from jwt_auth.db.db import safe_query,DBError
 
@@ -99,7 +99,54 @@ def exam_context(exam:str,params:list=None)->dict:
     return result
 
 
+SCHEMA_COLUMNS = [#need specific exam names 
+    "exam_name", "exam_description", "exam_focus", "scoring_model", 
+    "domain_weights", "exam_topics", "expected_depth", 
+    "not_expected_depth", "llm_answering_rules"
+    ]
+
+def llm_context(question: str):
+    first_prompt = f""" given these following database colums: {SCHEMA_COLUMNS}, only return the columns that are needed
+     to answer the question: {question} as a comma seperated list.
+    """
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", first_prompt),
+        ("human", "{question}")
+    ])
+
+    model = ChatOpenAI(model="gpt-4o", temperature=0)
+    
+    chain = prompt | model
+    
+    response = chain.invoke({
+        "schema_columns": ", ".join(SCHEMA_COLUMNS),
+        "question": question
+    })
+    exam_name = "AWS Certified Cloud Practitioner"
+    response_columns = response.content.split(',')
+    context = exam_context(exam_name, response_columns)
+    
+    second_prompt = f"""
+    Given the context for the {exam_name} exam: {context}  answer the question: {question} appropriately.
+    """
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", second_prompt),
+        ("human", "{question}")
+    ])
+
+    chain = prompt | model
+
+    response = chain.invoke({
+        "context": context,
+        "question": question
+    })
+    return response.content
+
+
+
 
 if __name__ == "__main__":
+    print(llm_context("How much of the AWS cloud practitioner exam has questions on Cloud Concepts?"))
 
-    print(exam_context("AWS Certified Cloud Practitioner",["exam_topics"]))
+
+    #print(exam_context("AWS Certified Cloud Practitioner",["exam_topics"]))
