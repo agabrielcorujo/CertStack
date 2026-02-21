@@ -1,5 +1,2 @@
-import { redirect } from "next/navigation"
-
-export default function Page() {
-  redirect("/dashboard")
-}
+import StudyDashboard from "@/components/StudyDashboard";
+export default function Home() { return <StudyDashboard />; }
