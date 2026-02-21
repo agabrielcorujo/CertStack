@@ -1,74 +1,79 @@
-from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import UpstashVectorStore
 from langchain_openai import OpenAIEmbeddings
-from bs4 import BeautifulSoup
 from pathlib import Path
-import requests
-import os,re
+import os, re,json
+from langchain_core.documents import Document
 
-BASE_DIR = Path(__file__).resolve().parents[2] 
+from dotenv import load_dotenv
 
-DATA_PATH = BASE_DIR /"data/"
+load_dotenv(".env.llm")
 
-def scrape_from_site(url:str,output_path:Path):
+BASE_DIR = Path(__file__).resolve().parents[2]
 
-    response = requests.get(url)
+DATA_PATH = BASE_DIR / "data/"
 
-    html = response.text
 
-    soup = BeautifulSoup(html, "html.parser")
+def load_vectors_from_json(json_path: Path, exam_name: str):
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    text = soup.get_text()
-
-    # remove tabs
-    text = text.replace("\t", "")
-
-    # collapse multiple newlines into just one
-    clean_text = re.sub(r'\n+', '\n', text)
-
-    # remove trailing/leading whitespace
-    clean_text = clean_text.strip()
-
-    with open(output_path,"w") as f:
-        f.write(clean_text)
-
-    return f"Content from {url} scraped and saved to {output_path} ."
-
-def chunk_data(data_path:Path):
-
-    documents = []
-    for filename in os.listdir(DATA_PATH):
-        if filename.endswith(".txt"):
-            loader = TextLoader(os.path.join(DATA_PATH, filename))
-            documents.extend(loader.load())
-    
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=100,
-        length_function=len,
-        add_start_index=True,
-        separators = [
-            "\n          ",
-            "\n\n",
-            "\n",
-        ],
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200
     )
 
-    chunks = text_splitter.split_documents(documents)
+    documents = []
 
-    return chunks
+    for domain_name, content_list in data.items():
+        for idx, item in enumerate(content_list):
 
-def save_to_upstash(chunks):
+            clean_item = hardcore_clean(item)
+
+            chunks = splitter.split_text(clean_item)
+
+            for chunk_idx, chunk in enumerate(chunks):
+                documents.append(
+                    Document(
+                        page_content=chunk,
+                        metadata={
+                            "exam": exam_name,
+                            "domain": domain_name,
+                            "domain_item_index": idx,
+                            "chunk_index": chunk_idx
+                        }
+                    )
+                )
+
+    return documents
+
+def save_to_upstash(documents):
+
     vector_store = UpstashVectorStore.from_documents(
-        documents=chunks,
+        documents=documents,
         embedding=OpenAIEmbeddings(),
         index_url=os.getenv("UPSTASH_VECTOR_REST_URL"),
         index_token=os.getenv("UPSTASH_VECTOR_REST_TOKEN"),
     )
 
+
+def hardcore_clean(text: str) -> str:
+    # Keep only allowed characters
+    text = re.sub(r'[^a-zA-Z0-9\s\.,:;?!\-\(\)]', '', text)
+
+    # collapse extra spaces
+    text = re.sub(r'\s+', ' ', text)
+
+    text = re.sub(r'-{3,}', '', text)
+
+    return text.strip()
+
+
 if __name__ == "__main__":
 
-    scrape_from_site("some url",DATA_PATH)
-
-    chunk_data(DATA_PATH)
+    documents = load_vectors_from_json(
+    DATA_PATH/"cloudpractitioner/study_materials/study_materials.json",
+    exam_name="AWS Certified Cloud Practitioner"
+)
+    save_to_upstash(documents)
+        

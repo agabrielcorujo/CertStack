@@ -102,4 +102,4 @@ def exam_context(exam:str,params:list=None)->dict:
 
 if __name__ == "__main__":
 
-    print(exam_context("AWS Certified Cloud Practitioner",["exam_topics"]))
+    print(query_embeddings("What are IAM roles for?"))
