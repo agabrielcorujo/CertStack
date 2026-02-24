@@ -3,9 +3,9 @@ from langchain_openai import ChatOpenAI
 from langchain_community.vectorstores import UpstashVectorStore
 from langchain_openai import OpenAIEmbeddings
 from psycopg2 import sql
-import os
+import os,json as j
 from dotenv import load_dotenv
-load_dotenv("src/server/services/LLM/.env.llm")
+load_dotenv(".env.llm")
 
 from jwt_auth.db.db import safe_query,DBError
 
@@ -105,9 +105,11 @@ SCHEMA_COLUMNS = [#need specific exam names
     "not_expected_depth", "llm_answering_rules"
     ]
 
-def llm_context(question: str):
-    first_prompt = f""" given these following database colums: {SCHEMA_COLUMNS}, only return the columns that are needed
-     to answer the question: {question} as a comma seperated list.
+def llm_context(question: str,exam_name:str):
+    first_prompt = f""" given these following database colums: {SCHEMA_COLUMNS}, only return the columns that you understand are needed
+     to answer the question: {question} as a json string ONLY (no need to have '''json''' or anything) with
+     two keys: 'Result', which is either 'None' or 'Success', and 'Columns' which
+     is a comma separated list with the columns necessary.  
     """
     prompt = ChatPromptTemplate.from_messages([
         ("system", first_prompt),
@@ -117,18 +119,26 @@ def llm_context(question: str):
     model = ChatOpenAI(model="gpt-4o", temperature=0)
     
     chain = prompt | model
-    
+
     response = chain.invoke({
-        "schema_columns": ", ".join(SCHEMA_COLUMNS),
+        "schema_columns": ",".join(SCHEMA_COLUMNS),
         "question": question
     })
-    exam_name = "AWS Certified Cloud Practitioner"
-    response_columns = response.content.split(',')
+
+    res = j.loads(response.content)
+
+    if res["Result"] == "None":
+        return "Not enough context provided"
+    
+    response_columns = [col.strip() for col in res["Columns"].split(',')]
+
     context = exam_context(exam_name, response_columns)
     
-    second_prompt = f"""
-    Given the context for the {exam_name} exam: {context}  answer the question: {question} appropriately.
+    second_prompt = """
+    Given the context for the {exam_name} exam: {context}
+    Answer the question: {question} appropriately.
     """
+
     prompt = ChatPromptTemplate.from_messages([
         ("system", second_prompt),
         ("human", "{question}")
@@ -137,16 +147,12 @@ def llm_context(question: str):
     chain = prompt | model
 
     response = chain.invoke({
+        "exam_name": exam_name,
         "context": context,
         "question": question
     })
+
     return response.content
 
-
-
-
 if __name__ == "__main__":
-    print(llm_context("How much of the AWS cloud practitioner exam has questions on Cloud Concepts?"))
-
-
-    #print(exam_context("AWS Certified Cloud Practitioner",["exam_topics"]))
+    print(llm_context("how much time does the exam take to complete??",exam_name = "AWS Certified Cloud Practitioner"))
