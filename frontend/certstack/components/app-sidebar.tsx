@@ -1,6 +1,6 @@
 "use client"
 
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   LayoutDashboard,
@@ -17,8 +17,8 @@ import { cn } from "@/lib/utils"
 const mainNavItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Practice", href: "/practice", icon: FileText },
-  { label: "Exams", href: "/exams", icon: ClipboardList },
-  { label: "Study Materials", href: "/materials", icon: BookOpen },
+  { label: "Mock Exams", href: "/exams", icon: ClipboardList },
+  { label: "Resources", href: "/materials", icon: BookOpen },
 ]
 
 const bottomNavItems = [
@@ -29,11 +29,17 @@ const bottomNavItems = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  function handleLogout() {
+    // Clear auth cookies/tokens here
+    router.push("/")
+  }
 
   return (
     <aside className="flex h-screen w-60 flex-col border-r border-[hsl(var(--border-light))] bg-[hsl(var(--surface-elevated))] px-4 py-6">
       {/* Logo with gradient */}
-      <div className="mb-8 flex items-center gap-3 px-3">
+      <Link href="/dashboard" className="mb-8 flex items-center gap-3 px-3 transition-opacity hover:opacity-80">
         <div 
           className="flex h-10 w-10 items-center justify-center rounded-xl shadow-sm"
           style={{
@@ -42,8 +48,8 @@ export function AppSidebar() {
         >
           <BookOpen className="h-5 w-5 text-white" strokeWidth={2} />
         </div>
-        <span className="text-lg font-bold text-[hsl(var(--text-primary))]">ExamPrep</span>
-      </div>
+        <span className="text-lg font-bold text-[hsl(var(--text-primary))]">CertStack</span>
+      </Link>
 
       {/* Main Nav */}
       <nav className="flex flex-1 flex-col gap-1">
@@ -88,6 +94,7 @@ export function AppSidebar() {
           )
         })}
         <button
+          onClick={handleLogout}
           className="flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-[hsl(var(--text-secondary))] transition-all duration-150 hover:bg-[hsl(var(--background-hover))] hover:text-[hsl(var(--text-primary))]"
         >
           <LogOut className="h-5 w-5" strokeWidth={2} />

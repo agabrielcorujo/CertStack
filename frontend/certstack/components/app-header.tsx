@@ -44,7 +44,7 @@ export function AppHeader({ title, subtitle }: AppHeaderProps) {
           </div>
           <div className="hidden lg:block">
             <p className="text-sm font-medium text-[hsl(var(--text-primary))]">John Doe</p>
-            <p className="text-xs text-[hsl(var(--text-tertiary))]">Student</p>
+            <p className="text-xs text-[hsl(var(--text-tertiary))]">Learner</p>
           </div>
         </div>
       </div>

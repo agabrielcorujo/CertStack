@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CertStack — Medical Exam Prep Platform",
-  description: "AI-powered exam prep platform for medical students",
+  title: "CertStack — Certification Exam Prep Platform",
+  description: "AI-powered certification prep platform for professional development",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

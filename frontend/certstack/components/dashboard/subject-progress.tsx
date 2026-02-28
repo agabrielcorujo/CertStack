@@ -2,7 +2,7 @@
 
 const subjects = [
   { 
-    name: "Anatomy", 
+    name: "Cloud Computing", 
     progress: 85, 
     total: 500, 
     completed: 425, 
@@ -10,7 +10,7 @@ const subjects = [
     colorTo: "hsl(223 100% 76%)",
   },
   { 
-    name: "Pharmacology", 
+    name: "Cybersecurity", 
     progress: 62, 
     total: 400, 
     completed: 248, 
@@ -18,7 +18,7 @@ const subjects = [
     colorTo: "hsl(165 75% 60%)",
   },
   { 
-    name: "Biochemistry", 
+    name: "DevOps", 
     progress: 45, 
     total: 350, 
     completed: 157, 
@@ -26,7 +26,7 @@ const subjects = [
     colorTo: "hsl(38 100% 70%)",
   },
   { 
-    name: "Pathology", 
+    name: "Networking", 
     progress: 30, 
     total: 450, 
     completed: 135, 
@@ -34,7 +34,7 @@ const subjects = [
     colorTo: "hsl(255 80% 85%)",
   },
   { 
-    name: "Microbiology", 
+    name: "Software Development", 
     progress: 72, 
     total: 300, 
     completed: 216, 

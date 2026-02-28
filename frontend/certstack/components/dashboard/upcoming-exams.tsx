@@ -5,27 +5,27 @@ import { Calendar, ArrowRight } from "lucide-react"
 const exams = [
   {
     id: 1,
-    name: "Anatomy Midterm",
+    name: "AWS Solutions Architect",
     date: "Feb 15, 2026",
     daysLeft: 8,
-    questions: 100,
-    duration: "2 hours",
+    questions: 65,
+    duration: "130 minutes",
   },
   {
     id: 2,
-    name: "Pharmacology Final",
+    name: "CompTIA Security+ SY0-701",
     date: "Feb 22, 2026",
     daysLeft: 15,
-    questions: 150,
-    duration: "3 hours",
+    questions: 90,
+    duration: "90 minutes",
   },
   {
     id: 3,
-    name: "Biochemistry Quiz",
+    name: "Certified Kubernetes Admin",
     date: "Mar 1, 2026",
     daysLeft: 22,
-    questions: 50,
-    duration: "1 hour",
+    questions: 17,
+    duration: "2 hours",
   },
 ]
 

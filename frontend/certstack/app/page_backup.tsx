@@ -1,3 +1,4 @@
+// Backup of landing page - can be restored later if needed
 "use client"
 
 import Link from "next/link"

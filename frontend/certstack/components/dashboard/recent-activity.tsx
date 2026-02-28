@@ -5,7 +5,7 @@ import { CheckCircle, Clock, XCircle } from "lucide-react"
 const activities = [
   {
     id: 1,
-    title: "Anatomy - Chapter 5 Quiz",
+    title: "AWS Solutions Architect - Practice Exam",
     status: "completed" as const,
     score: "92%",
     time: "2 hours ago",
@@ -13,7 +13,7 @@ const activities = [
   },
   {
     id: 2,
-    title: "Pharmacology Practice Set",
+    title: "CompTIA Security+ Practice Set",
     status: "in-progress" as const,
     score: "15/30",
     time: "5 hours ago",
@@ -21,7 +21,7 @@ const activities = [
   },
   {
     id: 3,
-    title: "Biochemistry Final Mock",
+    title: "Kubernetes Administration Final Mock",
     status: "completed" as const,
     score: "78%",
     time: "1 day ago",
@@ -29,7 +29,7 @@ const activities = [
   },
   {
     id: 4,
-    title: "Pathology - Unit 3 Review",
+    title: "CCNA Networking - Module 3 Review",
     status: "failed" as const,
     score: "45%",
     time: "2 days ago",
@@ -37,7 +37,7 @@ const activities = [
   },
   {
     id: 5,
-    title: "Microbiology Quick Test",
+    title: "Azure Fundamentals Quick Test",
     status: "completed" as const,
     score: "88%",
     time: "3 days ago",

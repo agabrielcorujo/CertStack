@@ -1,13 +1,17 @@
 "use client"
 
-import { useState } from "react"
-import { AppLayout } from "@/components/app-layout"
-import { AppHeader } from "@/components/app-header"
-import {
-  Search,
-  Filter,
-  Clock,
-  FileText,
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+
+export default function ExamsPage() {
+  const router = useRouter()
+  
+  useEffect(() => {
+    router.replace("/dashboard")
+  }, [router])
+  
+  return null
+}
   CheckCircle,
   Play,
   ChevronDown,
@@ -33,21 +37,21 @@ interface Exam {
 const exams: Exam[] = [
   {
     id: 1,
-    name: "Anatomy Comprehensive Final",
-    subject: "Anatomy",
-    questions: 150,
-    duration: "3 hours",
+    name: "AWS Solutions Architect Practice Exam",
+    subject: "Cloud Computing",
+    questions: 65,
+    duration: "2 hours",
     difficulty: "Hard",
     status: "available",
     attempts: 0,
   },
   {
     id: 2,
-    name: "Pharmacology Midterm Mock",
-    subject: "Pharmacology",
-    questions: 100,
-    duration: "2 hours",
-    difficulty: "Medium",
+    name: "Project Management Professional (PMP) Mock",
+    subject: "Project Management",
+    questions: 180,
+    duration: "4 hours",
+    difficulty: "Hard",
     status: "completed",
     score: 85,
     date: "Jan 28, 2026",
@@ -55,11 +59,11 @@ const exams: Exam[] = [
   },
   {
     id: 3,
-    name: "Biochemistry Unit 3 Test",
-    subject: "Biochemistry",
-    questions: 50,
-    duration: "1 hour",
-    difficulty: "Easy",
+    name: "CompTIA Security+ Practice Test",
+    subject: "Cybersecurity",
+    questions: 90,
+    duration: "90 minutes",
+    difficulty: "Medium",
     status: "completed",
     score: 92,
     date: "Jan 20, 2026",
@@ -67,31 +71,31 @@ const exams: Exam[] = [
   },
   {
     id: 4,
-    name: "Pathology Practice Exam",
-    subject: "Pathology",
-    questions: 120,
-    duration: "2.5 hours",
+    name: "Certified Kubernetes Administrator (CKA)",
+    subject: "DevOps",
+    questions: 15,
+    duration: "2 hours",
     difficulty: "Hard",
     status: "available",
     attempts: 0,
   },
   {
     id: 5,
-    name: "Microbiology Final Review",
-    subject: "Microbiology",
-    questions: 80,
-    duration: "1.5 hours",
+    name: "Google Cloud Professional Exam",
+    subject: "Cloud Computing",
+    questions: 50,
+    duration: "2 hours",
     difficulty: "Medium",
     status: "upcoming",
     date: "Mar 5, 2026",
   },
   {
     id: 6,
-    name: "Physiology Systems Exam",
-    subject: "Physiology",
-    questions: 100,
-    duration: "2 hours",
-    difficulty: "Medium",
+    name: "Microsoft Azure Fundamentals (AZ-900)",
+    subject: "Cloud Computing",
+    questions: 60,
+    duration: "1 hour",
+    difficulty: "Easy",
     status: "completed",
     score: 73,
     date: "Jan 15, 2026",
@@ -99,9 +103,9 @@ const exams: Exam[] = [
   },
   {
     id: 7,
-    name: "Histology Lab Practical",
-    subject: "Histology",
-    questions: 60,
+    name: "Scrum Master Certification Practice",
+    subject: "Agile/Scrum",
+    questions: 80,
     duration: "1 hour",
     difficulty: "Easy",
     status: "available",
@@ -109,9 +113,9 @@ const exams: Exam[] = [
   },
   {
     id: 8,
-    name: "Genetics Comprehensive",
-    subject: "Genetics",
-    questions: 90,
+    name: "Cisco CCNA Comprehensive Exam",
+    subject: "Networking",
+    questions: 120,
     duration: "2 hours",
     difficulty: "Hard",
     status: "upcoming",
@@ -152,7 +156,7 @@ export default function ExamsPage() {
 
   return (
     <AppLayout>
-      <AppHeader title="Exams" subtitle="Browse and take practice exams" />
+      <AppHeader title="Mock Exams" subtitle="Full-length certification practice exams" />
       <main className="flex-1 overflow-y-auto p-8">
         <div className="mx-auto max-w-7xl">
           {/* Filters Row */}

@@ -1,7 +1,17 @@
 "use client"
 
-import { AppLayout } from "@/components/app-layout"
-import { AppHeader } from "@/components/app-header"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+
+export default function HelpPage() {
+  const router = useRouter()
+  
+  useEffect(() => {
+    router.replace("/dashboard")
+  }, [router])
+  
+  return null
+}
 import { Search, BookOpen, MessageCircle, Mail, ChevronRight } from "lucide-react"
 import { useState } from "react"
 

@@ -2,10 +2,42 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { BookOpen, Eye, EyeOff, Mail, Lock } from "lucide-react"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError("")
+    setLoading(true)
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.message || "Login failed")
+      }
+
+      // Redirect to dashboard on success
+      router.push("/dashboard")
+    } catch (err: any) {
+      setError(err.message || "An error occurred")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -15,17 +47,17 @@ export default function LoginPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(255,255,255,0.2)]">
             <BookOpen className="h-6 w-6 text-[#FFFFFF]" />
           </div>
-          <span className="text-xl font-bold text-[#FFFFFF]">ExamPrep</span>
+          <span className="text-xl font-bold text-[#FFFFFF]">CertStack</span>
         </div>
 
         <div>
           <h1 className="text-4xl font-bold leading-tight text-[#FFFFFF]">
-            Ace your exams with
+            Ace your certifications with
             <br />
             confidence
           </h1>
           <p className="mt-4 max-w-md text-lg leading-relaxed text-[rgba(255,255,255,0.8)]">
-            Practice with thousands of questions, track your progress, and master every subject before exam day.
+            Practice with thousands of questions, track your progress, and master every topic before exam day.
           </p>
         </div>
 
@@ -35,11 +67,11 @@ export default function LoginPage() {
             <p className="mt-1 text-sm text-[rgba(255,255,255,0.7)]">Questions</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-[#FFFFFF]">12K+</p>
-            <p className="mt-1 text-sm text-[rgba(255,255,255,0.7)]">Students</p>
+            <p className="text-3xl font-bold text-[#FFFFFF]">15K+</p>
+            <p className="mt-1 text-sm text-[rgba(255,255,255,0.7)]">Learners</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-[#FFFFFF]">95%</p>
+            <p className="text-3xl font-bold text-[#FFFFFF]">92%</p>
             <p className="mt-1 text-sm text-[rgba(255,255,255,0.7)]">Pass Rate</p>
           </div>
         </div>
@@ -53,15 +85,21 @@ export default function LoginPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#4A7FFF]">
               <BookOpen className="h-5 w-5 text-[#FFFFFF]" />
             </div>
-            <span className="text-lg font-bold text-[hsl(var(--text-primary))]">ExamPrep</span>
+            <span className="text-lg font-bold text-[hsl(var(--text-primary))]">CertStack</span>
           </div>
 
           <h2 className="text-2xl font-bold text-[hsl(var(--text-primary))]">Welcome back</h2>
           <p className="mt-2 text-sm text-[hsl(var(--text-secondary))]">
-            Sign in to continue your study journey
+            Sign in to continue your learning journey
           </p>
 
-          <form className="mt-8 flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
+          {error && (
+            <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
+          <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
@@ -71,7 +109,10 @@ export default function LoginPage() {
                 <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
                 <input
                   type="email"
-                  placeholder="john@university.edu"
+                  placeholder="john@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                   className="h-12 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] pl-11 pr-4 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[#4A7FFF] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
                 />
               </div>
@@ -95,6 +136,9 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                   className="h-12 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] pl-11 pr-12 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[#4A7FFF] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
                 />
                 <button
@@ -123,9 +167,10 @@ export default function LoginPage() {
             {/* Submit */}
             <button
               type="submit"
-              className="h-12 w-full rounded-full bg-[#4A7FFF] text-sm font-medium text-[#FFFFFF] transition-all duration-200 hover:bg-[#3D6EE8] hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-none"
+              disabled={loading}
+              className="h-12 w-full rounded-full bg-[#4A7FFF] text-sm font-medium text-[#FFFFFF] transition-all duration-200 hover:bg-[#3D6EE8] hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Sign In
+              {loading ? "Signing In..." : "Sign In"}
             </button>
 
             {/* Divider */}

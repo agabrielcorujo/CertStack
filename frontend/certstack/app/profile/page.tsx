@@ -1,13 +1,17 @@
 "use client"
 
-import { useState } from "react"
-import { AppLayout } from "@/components/app-layout"
-import { AppHeader } from "@/components/app-header"
-import { Camera, Mail, Phone, MapPin, GraduationCap, Calendar } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 
-const tabs = [
-  { label: "Profile", value: "profile" },
+export default function ProfilePage() {
+  const router = useRouter()
+  
+  useEffect(() => {
+    router.replace("/dashboard")
+  }, [router])
+  
+  return null
+}
   { label: "Settings", value: "settings" },
   { label: "Notifications", value: "notifications" },
 ]
@@ -39,10 +43,10 @@ export default function ProfilePage() {
               {/* Info */}
               <div className="flex-1 text-center sm:text-left">
                 <h2 className="text-xl font-bold text-[hsl(var(--text-primary))]">John Doe</h2>
-                <p className="mt-1 text-sm text-[hsl(var(--text-secondary))]">Medical Student - Year 3</p>
+                <p className="mt-1 text-sm text-[hsl(var(--text-secondary))]">IT Professional • Certification Learner</p>
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-4 sm:justify-start">
                   <span className="flex items-center gap-1.5 text-xs text-[hsl(var(--text-tertiary))]">
-                    <Mail className="h-3.5 w-3.5" /> john.doe@university.edu
+                    <Mail className="h-3.5 w-3.5" /> john.doe@company.com
                   </span>
                   <span className="flex items-center gap-1.5 text-xs text-[hsl(var(--text-tertiary))]">
                     <MapPin className="h-3.5 w-3.5" /> New York, USA
@@ -96,20 +100,20 @@ function ProfileTab() {
         <h3 className="mb-5 text-base font-semibold text-[hsl(var(--text-primary))]">Personal Information</h3>
         <div className="flex flex-col gap-4">
           <FormField label="Full Name" value="John Doe" />
-          <FormField label="Email" value="john.doe@university.edu" />
+          <FormField label="Email" value="john.doe@company.com" />
           <FormField label="Phone" value="+1 (555) 123-4567" />
-          <FormField label="Date of Birth" value="March 15, 1999" />
+          <FormField label="Location" value="New York, USA" />
         </div>
       </div>
 
-      {/* Academic Info */}
+      {/* Professional Info */}
       <div className="rounded-2xl border border-[hsl(var(--border-light))] bg-[hsl(var(--surface-elevated))] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
-        <h3 className="mb-5 text-base font-semibold text-[hsl(var(--text-primary))]">Academic Information</h3>
+        <h3 className="mb-5 text-base font-semibold text-[hsl(var(--text-primary))]">Professional Information</h3>
         <div className="flex flex-col gap-4">
-          <FormField label="University" value="Columbia University" />
-          <FormField label="Program" value="Doctor of Medicine (MD)" />
-          <FormField label="Year" value="3rd Year" />
-          <FormField label="Student ID" value="CU-2024-3847" />
+          <FormField label="Company" value="TechCorp Inc." />
+          <FormField label="Role" value="Software Engineer" />
+          <FormField label="Experience" value="3 years" />
+          <FormField label="Target Certification" value="AWS Solutions Architect" />
         </div>
       </div>
 
@@ -134,7 +138,7 @@ function SettingsTab() {
       <div className="rounded-2xl border border-[hsl(var(--border-light))] bg-[hsl(var(--surface-elevated))] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
         <h3 className="mb-5 text-base font-semibold text-[hsl(var(--text-primary))]">Account Settings</h3>
         <div className="flex flex-col gap-5">
-          <InputField label="Email Address" type="email" defaultValue="john.doe@university.edu" />
+          <InputField label="Email Address" type="email" defaultValue="john.doe@company.com" />
           <InputField label="Password" type="password" defaultValue="************" />
           <div>
             <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">

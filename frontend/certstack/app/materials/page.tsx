@@ -1,7 +1,17 @@
 "use client"
 
-import { AppLayout } from "@/components/app-layout"
-import { AppHeader } from "@/components/app-header"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+
+export default function MaterialsPage() {
+  const router = useRouter()
+  
+  useEffect(() => {
+    router.replace("/dashboard")
+  }, [router])
+  
+  return null
+}
 import { BookOpen, Download, FileText, Video, Headphones, Search, Filter, ChevronDown } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
@@ -11,54 +21,54 @@ const categories = ["All", "Textbooks", "Videos", "Audio", "Notes"]
 const materials = [
   {
     id: 1,
-    title: "Gray's Anatomy - Chapter Review Notes",
+    title: "AWS Cloud Practitioner Study Guide",
     type: "notes" as const,
-    subject: "Anatomy",
+    subject: "Cloud Computing",
     size: "2.4 MB",
     date: "Jan 15, 2026",
     downloads: 1240,
   },
   {
     id: 2,
-    title: "Pharmacology Lecture Series - Drug Interactions",
+    title: "Kubernetes Fundamentals Video Series",
     type: "video" as const,
-    subject: "Pharmacology",
+    subject: "DevOps",
     size: "850 MB",
     date: "Jan 22, 2026",
     downloads: 890,
   },
   {
     id: 3,
-    title: "Biochemistry Metabolic Pathways Quick Guide",
+    title: "Network Security Best Practices Guide",
     type: "notes" as const,
-    subject: "Biochemistry",
+    subject: "Cybersecurity",
     size: "1.8 MB",
     date: "Feb 1, 2026",
     downloads: 2100,
   },
   {
     id: 4,
-    title: "Pathology Audio Lectures - Inflammation",
+    title: "Agile & Scrum Methodology Audio Course",
     type: "audio" as const,
-    subject: "Pathology",
+    subject: "Project Management",
     size: "120 MB",
     date: "Jan 28, 2026",
     downloads: 560,
   },
   {
     id: 5,
-    title: "Robbins Basic Pathology - Condensed Notes",
+    title: "Python Programming Complete Textbook",
     type: "textbook" as const,
-    subject: "Pathology",
+    subject: "Programming",
     size: "15 MB",
     date: "Dec 20, 2025",
     downloads: 3200,
   },
   {
     id: 6,
-    title: "Microbiology Lab Techniques Video",
+    title: "Docker Containerization Tutorial Videos",
     type: "video" as const,
-    subject: "Microbiology",
+    subject: "DevOps",
     size: "420 MB",
     date: "Feb 3, 2026",
     downloads: 710,
@@ -91,7 +101,7 @@ export default function MaterialsPage() {
 
   return (
     <AppLayout>
-      <AppHeader title="Study Materials" subtitle="Access your learning resources" />
+      <AppHeader title="Study Resources" subtitle="Access your learning materials" />
       <main className="flex-1 overflow-y-auto p-8">
         <div className="mx-auto max-w-7xl">
           {/* Filters */}

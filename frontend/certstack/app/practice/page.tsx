@@ -1,53 +1,59 @@
 "use client"
 
-import { useState } from "react"
-import { AppLayout } from "@/components/app-layout"
-import { AppHeader } from "@/components/app-header"
-import { QuestionCard } from "@/components/practice/question-card"
-import { QuestionNavigator } from "@/components/practice/question-navigator"
-import { Flag, ChevronLeft, ChevronRight } from "lucide-react"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+
+export default function PracticePage() {
+  const router = useRouter()
+  
+  useEffect(() => {
+    router.replace("/dashboard")
+  }, [router])
+  
+  return null
+}
 
 const questions = [
   {
     id: 1,
     question:
-      "Which of the following structures passes through the foramen ovale of the sphenoid bone?",
+      "Which of the following is a key principle of object-oriented programming?",
     options: [
-      { id: "a", text: "Maxillary nerve (V2)" },
-      { id: "b", text: "Mandibular nerve (V3)" },
-      { id: "c", text: "Middle meningeal artery" },
-      { id: "d", text: "Ophthalmic nerve (V1)" },
+      { id: "a", text: "Procedural abstraction" },
+      { id: "b", text: "Encapsulation" },
+      { id: "c", text: "Linear execution" },
+      { id: "d", text: "Direct memory access" },
     ],
     correctAnswer: "b",
     explanation:
-      "The mandibular nerve (V3) is the third branch of the trigeminal nerve that passes through the foramen ovale. The maxillary nerve passes through the foramen rotundum, the middle meningeal artery passes through the foramen spinosum, and the ophthalmic nerve passes through the superior orbital fissure.",
+      "Encapsulation is one of the four fundamental principles of object-oriented programming, along with abstraction, inheritance, and polymorphism. It refers to bundling data and methods that operate on that data within a single unit (class) and restricting direct access to some components.",
   },
   {
     id: 2,
     question:
-      "A patient presents with inability to abduct the arm beyond 15 degrees. Which muscle is most likely affected?",
+      "What is the primary purpose of a load balancer in a distributed system?",
     options: [
-      { id: "a", text: "Supraspinatus" },
-      { id: "b", text: "Deltoid" },
-      { id: "c", text: "Infraspinatus" },
-      { id: "d", text: "Teres minor" },
-    ],
-    correctAnswer: "a",
-    explanation:
-      "The supraspinatus muscle initiates abduction of the arm (first 15 degrees). Damage to this muscle or the suprascapular nerve would impair the initial phase of arm abduction. The deltoid takes over abduction from 15-90 degrees.",
-  },
-  {
-    id: 3,
-    question: "Which enzyme is the rate-limiting step in cholesterol synthesis?",
-    options: [
-      { id: "a", text: "Acetyl-CoA carboxylase" },
-      { id: "b", text: "HMG-CoA reductase" },
-      { id: "c", text: "HMG-CoA synthase" },
-      { id: "d", text: "Squalene synthase" },
+      { id: "a", text: "Data encryption" },
+      { id: "b", text: "Distributing requests across multiple servers" },
+      { id: "c", text: "Database replication" },
+      { id: "d", text: "Code compilation" },
     ],
     correctAnswer: "b",
     explanation:
-      "HMG-CoA reductase is the rate-limiting enzyme in the mevalonate pathway for cholesterol synthesis. It converts HMG-CoA to mevalonate. Statins work by inhibiting this enzyme, reducing cholesterol synthesis.",
+      "A load balancer distributes incoming network traffic across multiple servers to ensure no single server becomes overwhelmed. This improves application availability, reliability, and scalability by efficiently managing resource utilization.",
+  },
+  {
+    id: 3,
+    question: "In agile methodology, what is the purpose of a sprint retrospective?",
+    options: [
+      { id: "a", text: "Planning the next sprint tasks" },
+      { id: "b", text: "Reviewing and improving team processes" },
+      { id: "c", text: "Demonstrating completed work" },
+      { id: "d", text: "Estimating story points" },
+    ],
+    correctAnswer: "b",
+    explanation:
+      "A sprint retrospective is a meeting held at the end of each sprint where the team reflects on what went well, what didn't, and identifies specific improvements for the next sprint. It focuses on continuous process improvement.",
   },
 ]
 
@@ -81,7 +87,7 @@ export default function PracticePage() {
 
   return (
     <AppLayout>
-      <AppHeader title="Practice" subtitle="Anatomy - Chapter 5" />
+      <AppHeader title="Practice" subtitle="Software Development - Core Concepts" />
       <main className="flex-1 overflow-y-auto p-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">

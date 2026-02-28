@@ -2,10 +2,71 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { BookOpen, Eye, EyeOff, Mail, Lock, User, GraduationCap } from "lucide-react"
 
 export default function SignupPage() {
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    institution: "",
+    password: "",
+  })
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError("")
+    setLoading(true)
+
+    try {
+      // First, register the user
+      const registerResponse = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      })
+
+      if (!registerResponse.ok) {
+        const data = await registerResponse.json()
+        throw new Error(data.message || "Registration failed")
+      }
+
+      // Then, create the user profile
+      const profileResponse = await fetch("/api/auth/create-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          institution: formData.institution,
+        }),
+      })
+
+      if (!profileResponse.ok) {
+        const data = await profileResponse.json()
+        throw new Error(data.message || "Profile creation failed")
+      }
+
+      // Redirect to dashboard on success
+      router.push("/dashboard")
+    } catch (err: any) {
+      setError(err.message || "An error occurred")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function updateField(field: string, value: string) {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -15,7 +76,7 @@ export default function SignupPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(255,255,255,0.2)]">
             <BookOpen className="h-6 w-6 text-[#FFFFFF]" />
           </div>
-          <span className="text-xl font-bold text-[#FFFFFF]">ExamPrep</span>
+          <span className="text-xl font-bold text-[#FFFFFF]">CertStack</span>
         </div>
 
         <div>
@@ -25,7 +86,7 @@ export default function SignupPage() {
             to success
           </h1>
           <p className="mt-4 max-w-md text-lg leading-relaxed text-[rgba(255,255,255,0.8)]">
-            Join thousands of students who use ExamPrep to prepare for their exams and achieve their academic goals.
+            Join thousands of professionals who use CertStack to prepare for certifications and achieve their career goals.
           </p>
           <div className="mt-8 flex flex-col gap-4">
             <div className="flex items-center gap-3">
@@ -55,7 +116,7 @@ export default function SignupPage() {
           </div>
         </div>
 
-        <p className="text-sm text-[rgba(255,255,255,0.5)]">Trusted by 12,000+ students worldwide</p>
+        <p className="text-sm text-[rgba(255,255,255,0.5)]">Trusted by 15,000+ professionals worldwide</p>
       </div>
 
       {/* Right Panel - Form */}
@@ -66,7 +127,7 @@ export default function SignupPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#4A7FFF]">
               <BookOpen className="h-5 w-5 text-[#FFFFFF]" />
             </div>
-            <span className="text-lg font-bold text-[hsl(var(--text-primary))]">ExamPrep</span>
+            <span className="text-lg font-bold text-[hsl(var(--text-primary))]">CertStack</span>
           </div>
 
           <h2 className="text-2xl font-bold text-[hsl(var(--text-primary))]">Create your account</h2>
@@ -74,7 +135,13 @@ export default function SignupPage() {
             Get started with your free account today
           </p>
 
-          <form className="mt-8 flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
+          {error && (
+            <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
+          <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
             {/* Name Row */}
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -86,6 +153,9 @@ export default function SignupPage() {
                   <input
                     type="text"
                     placeholder="John"
+                    value={formData.firstName}
+                    onChange={(e) => updateField("firstName", e.target.value)}
+                    required
                     className="h-12 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] pl-11 pr-4 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[#4A7FFF] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
                   />
                 </div>
@@ -97,6 +167,9 @@ export default function SignupPage() {
                 <input
                   type="text"
                   placeholder="Doe"
+                  value={formData.lastName}
+                  onChange={(e) => updateField("lastName", e.target.value)}
+                  required
                   className="h-12 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] px-4 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[#4A7FFF] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
                 />
               </div>
@@ -111,7 +184,10 @@ export default function SignupPage() {
                 <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
                 <input
                   type="email"
-                  placeholder="john@university.edu"
+                  placeholder="john@company.com"
+                  value={formData.email}
+                  onChange={(e) => updateField("email", e.target.value)}
+                  required
                   className="h-12 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] pl-11 pr-4 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[#4A7FFF] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
                 />
               </div>
@@ -120,13 +196,15 @@ export default function SignupPage() {
             {/* Institution */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
-                Institution
+                Company/Institution (optional)
               </label>
               <div className="relative">
                 <GraduationCap className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
                 <input
                   type="text"
-                  placeholder="University name"
+                  placeholder="Your company or organization"
+                  value={formData.institution}
+                  onChange={(e) => updateField("institution", e.target.value)}
                   className="h-12 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] pl-11 pr-4 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[#4A7FFF] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
                 />
               </div>
@@ -142,6 +220,10 @@ export default function SignupPage() {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a strong password"
+                  value={formData.password}
+                  onChange={(e) => updateField("password", e.target.value)}
+                  required
+                  minLength={8}
                   className="h-12 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] pl-11 pr-12 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[#4A7FFF] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
                 />
                 <button
@@ -180,9 +262,10 @@ export default function SignupPage() {
             {/* Submit */}
             <button
               type="submit"
-              className="h-12 w-full rounded-full bg-[#4A7FFF] text-sm font-medium text-[#FFFFFF] transition-all duration-200 hover:bg-[#3D6EE8] hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-none"
+              disabled={loading}
+              className="h-12 w-full rounded-full bg-[#4A7FFF] text-sm font-medium text-[#FFFFFF] transition-all duration-200 hover:bg-[#3D6EE8] hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Create Account
+              {loading ? "Creating Account..." : "Create Account"}
             </button>
 
             {/* Divider */}
