@@ -8,3 +8,4 @@ upstash-vector
 tiktoken
 requests
 beautifulsoup4
+jwt-auth @ git+https://github.com/agabrielcorujo/jwt-auth.git@main

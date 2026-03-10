@@ -1,0 +1,9 @@
+
+boto3==1.42.48
+botocore==1.42.48
+fastapi==0.128.0
+jwt-auth @ git+https://github.com/agabrielcorujo/jwt-auth.git@6f0b506d4822fd2796ea726df66151a5b7bd3da5
+langchain langchain-text-splitters langchain-community bs4
+-U "langchain[openai]"
+-U "langchain-openai"
+upstash-vector langchain langchain-community python-dotenv

@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain_community.vectorstores import UpstashVectorStore
 from langchain_openai import OpenAIEmbeddings
 from psycopg2 import sql
-import os
+import os,json as j
 from dotenv import load_dotenv
 load_dotenv(".env.llm")
 
@@ -32,6 +32,12 @@ ENVS = {
     "UPSTASH_VECTOR_REST_URL":os.getenv("UPSTASH_VECTOR_REST_URL"),
     "UPSTASH_VECTOR_REST_TOKEN":os.getenv("UPSTASH_VECTOR_REST_TOKEN")
 }
+
+SCHEMA_COLUMNS = [#need specific exam names 
+    "exam_name", "exam_description", "exam_focus", "scoring_model", 
+    "domain_weights", "exam_topics", "expected_depth", 
+    "not_expected_depth", "llm_answering_rules"
+    ]
 
 if not all(ENVS.values()):
 
@@ -98,8 +104,56 @@ def exam_context(exam:str,params:list=None)->dict:
     
     return result
 
+def llm_context(question: str,exam_name:str):
+    
+    first_prompt = f""" given these following database colums: {SCHEMA_COLUMNS}, only return the columns that you understand are needed
+     to answer the question: {question} as a json string ONLY (no need to have '''json''' or anything) with
+     two keys: 'Result', which is either 'None' or 'Success', and 'Columns' which
+     is a comma separated list with the columns necessary.  
+    """
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", first_prompt),
+        ("human", "{question}")
+    ])
 
+    model = ChatOpenAI(model="gpt-4o", temperature=0)
+    
+    chain = prompt | model
+
+    response = chain.invoke({
+        "schema_columns": ",".join(SCHEMA_COLUMNS),
+        "question": question
+    })
+
+    res = j.loads(response.content)
+
+    if res["Result"] == "None":
+        return "Not enough context provided"
+    
+    response_columns = [col.strip() for col in res["Columns"].split(',')]
+
+    context = exam_context(exam_name, response_columns)
+    
+    second_prompt = """
+    Given the context for the {exam_name} exam: {context}
+    Answer the question: {question} appropriately.
+    """
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", second_prompt),
+        ("human", "{question}")
+    ])
+
+    chain = prompt | model
+
+    response = chain.invoke({
+        "exam_name": exam_name,
+        "context": context,
+        "question": question
+    })
+
+    return response.content
 
 if __name__ == "__main__":
-
     print(query_embeddings("What are IAM roles for?"))
+    # print(llm_context("how much about Security and Compliance is on the exam??", exam_name="AWS Certified Cloud Practitioner"))
