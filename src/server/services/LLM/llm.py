@@ -33,6 +33,12 @@ ENVS = {
     "UPSTASH_VECTOR_REST_TOKEN":os.getenv("UPSTASH_VECTOR_REST_TOKEN")
 }
 
+SCHEMA_COLUMNS = [#need specific exam names 
+    "exam_name", "exam_description", "exam_focus", "scoring_model", 
+    "domain_weights", "exam_topics", "expected_depth", 
+    "not_expected_depth", "llm_answering_rules"
+    ]
+
 if not all(ENVS.values()):
 
     raise RuntimeError("LLM configuration error")
@@ -98,14 +104,8 @@ def exam_context(exam:str,params:list=None)->dict:
     
     return result
 
-
-SCHEMA_COLUMNS = [#need specific exam names 
-    "exam_name", "exam_description", "exam_focus", "scoring_model", 
-    "domain_weights", "exam_topics", "expected_depth", 
-    "not_expected_depth", "llm_answering_rules"
-    ]
-
 def llm_context(question: str,exam_name:str):
+    
     first_prompt = f""" given these following database colums: {SCHEMA_COLUMNS}, only return the columns that you understand are needed
      to answer the question: {question} as a json string ONLY (no need to have '''json''' or anything) with
      two keys: 'Result', which is either 'None' or 'Success', and 'Columns' which
@@ -155,4 +155,4 @@ def llm_context(question: str,exam_name:str):
     return response.content
 
 if __name__ == "__main__":
-    print(llm_context("how much time does the exam take to complete??",exam_name = "AWS Certified Cloud Practitioner"))
+    print(llm_context("how much about Security and Compliance is on the exam??",exam_name = "AWS Certified Cloud Practitioner"))
