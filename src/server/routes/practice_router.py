@@ -1,15 +1,18 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jwt_auth.controllers.auth_controller import decode_access_token_controller as decode_access_token
+from typing import Optional
 
 from controllers.practice_controller import (
     complete_session_controller,
+    get_domains_controller,
+    get_history_controller,
     get_results_controller,
     get_session_controller,
     start_practice_controller,
     submit_answer_controller,
 )
-from schemas.schema import StartPracticeRequest, SubmitAnswerRequest
+from schemas.schema import StartPracticeRequest, StartSectionPracticeRequest, SubmitAnswerRequest
 
 router = APIRouter(prefix="/practice", tags=["practice"])
 
@@ -20,6 +23,28 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 def start_practice(request: StartPracticeRequest, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
     return start_practice_controller(user_id, request)
+
+
+@router.post("/start-section")
+def start_section_practice(request: StartSectionPracticeRequest, token: str = Depends(oauth2_scheme)):
+    user_id = decode_access_token(token)
+    # Convenience wrapper: a "section" is a single category/domain.
+    return start_practice_controller(
+        user_id,
+        StartPracticeRequest(exam_name=request.exam_name, categories=[request.section], num_questions=request.num_questions),
+    )
+
+
+@router.get("/domains")
+def list_domains(exam_name: str, token: str = Depends(oauth2_scheme)):
+    user_id = decode_access_token(token)
+    return get_domains_controller(user_id, exam_name)
+
+
+@router.get("/history")
+def get_history(limit: int = 20, exam_name: Optional[str] = None, token: str = Depends(oauth2_scheme)):
+    user_id = decode_access_token(token)
+    return get_history_controller(user_id, limit=limit, exam_name=exam_name)
 
 
 @router.get("/session/{session_id}")

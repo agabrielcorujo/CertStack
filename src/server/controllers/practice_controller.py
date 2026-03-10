@@ -1,10 +1,13 @@
 from fastapi import HTTPException
+from typing import Optional
 
 from schemas.schema import StartPracticeRequest, SubmitAnswerRequest
 from services.practice_services import (
     PracticeError,
     complete_session,
     create_practice_session,
+    get_exam_domains,
+    get_practice_history,
     get_session,
     get_session_results,
     submit_answer,
@@ -54,5 +57,20 @@ def complete_session_controller(user_id: str, session_id: int):
 def get_results_controller(user_id: str, session_id: int):
     try:
         return get_session_results(session_id=session_id, user_id=user_id)
+    except PracticeError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message)
+
+
+def get_domains_controller(user_id: str, exam_name: str):
+    # user_id is currently unused but kept for auth parity.
+    try:
+        return {"exam_name": exam_name, "domains": get_exam_domains(exam_name)}
+    except PracticeError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message)
+
+
+def get_history_controller(user_id: str, limit: int = 20, exam_name: Optional[str] = None):
+    try:
+        return {"history": get_practice_history(user_id=user_id, limit=limit, exam_name=exam_name)}
     except PracticeError as error:
         raise HTTPException(status_code=error.status_code, detail=error.message)

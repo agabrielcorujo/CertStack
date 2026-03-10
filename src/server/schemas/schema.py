@@ -19,6 +19,12 @@ class StartPracticeRequest(BaseModel):
     num_questions: int
 
 
+class StartSectionPracticeRequest(BaseModel):
+    exam_name: str
+    section: str
+    num_questions: int
+
+
 class SubmitAnswerRequest(BaseModel):
     session_id: int
     question_hash: str
