@@ -1,3 +1,6 @@
+# If this file gives any errors, install AWS Toolkit from Extensions, 
+# and change the file type from YAML to CloudFormation on bottom right
+
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ECS Fargate service deployment
 
