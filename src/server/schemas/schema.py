@@ -17,17 +17,24 @@ class StartPracticeRequest(BaseModel):
     exam_name: str
     categories: List[str]
     num_questions: int
+    mode: Optional[str] = "practice"  # "practice" | "exam"
+    time_limit_seconds: Optional[int] = None
+    shuffle_seed: Optional[int] = None
 
 
 class StartSectionPracticeRequest(BaseModel):
     exam_name: str
     section: str
     num_questions: int
+    mode: Optional[str] = "practice"  # "practice" | "exam"
+    time_limit_seconds: Optional[int] = None
+    shuffle_seed: Optional[int] = None
 
 
 class SubmitAnswerRequest(BaseModel):
     session_id: int
     question_hash: str
-    selected_answer: Union[str, List[str]]
+    selected_answer: Optional[Union[str, List[str]]] = None
     time_spent_seconds: Optional[int] = None
     flagged: bool = False
+    is_skipped: bool = False

@@ -9,6 +9,8 @@ from controllers.practice_controller import (
     get_history_controller,
     get_results_controller,
     get_session_controller,
+    pause_session_controller,
+    resume_session_controller,
     start_practice_controller,
     submit_answer_controller,
 )
@@ -31,7 +33,14 @@ def start_section_practice(request: StartSectionPracticeRequest, token: str = De
     # Convenience wrapper: a "section" is a single category/domain.
     return start_practice_controller(
         user_id,
-        StartPracticeRequest(exam_name=request.exam_name, categories=[request.section], num_questions=request.num_questions),
+        StartPracticeRequest(
+            exam_name=request.exam_name,
+            categories=[request.section],
+            num_questions=request.num_questions,
+            mode=request.mode,
+            time_limit_seconds=request.time_limit_seconds,
+            shuffle_seed=request.shuffle_seed,
+        ),
     )
 
 
@@ -57,6 +66,18 @@ def get_session(session_id: int, token: str = Depends(oauth2_scheme)):
 def submit_answer(request: SubmitAnswerRequest, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
     return submit_answer_controller(user_id, request)
+
+
+@router.post("/pause/{session_id}")
+def pause_session(session_id: int, token: str = Depends(oauth2_scheme)):
+    user_id = decode_access_token(token)
+    return pause_session_controller(user_id, session_id)
+
+
+@router.post("/resume/{session_id}")
+def resume_session(session_id: int, token: str = Depends(oauth2_scheme)):
+    user_id = decode_access_token(token)
+    return resume_session_controller(user_id, session_id)
 
 
 @router.post("/complete/{session_id}")
