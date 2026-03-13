@@ -86,7 +86,6 @@ Resources:
 # ECS Service
   ECSService:
     Type: AWS::ECS::Service
-    DependsOn: ECSCluster
     Properties:
       Cluster: !Ref ECSCluster
       LaunchType: FARGATE
