@@ -2,16 +2,17 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_community.vectorstores import UpstashVectorStore
 from langchain_openai import OpenAIEmbeddings
-from langchain_core.messages import HumanMessage, AIMessage
-from langchain_core.prompts import MessagesPlaceholder
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import MessagesPlaceholder, HumanMessagePromptTemplate
+from langchain_core.chat_history import InMemoryChatMessageHistory
 from psycopg2 import sql
 import os,json as j
 from dotenv import load_dotenv
-load_dotenv(".env.llm")
+load_dotenv("src/server/services/LLM/.env.llm")
 
 from jwt_auth.db.db import safe_query,DBError
 
-history = []
+chat_history = InMemoryChatMessageHistory()
 
 class LLMError(Exception):
     def __init__(self, message: str, status_code: int = 400):
@@ -46,19 +47,6 @@ if not all(ENVS.values()):
 
     raise RuntimeError("LLM configuration error")
 
-
-
-#memory alternative, from langgraph.checkpoint.memory import InMemorySaver
-#pass just question and answer and update
-def update_conversation(question: str, answer: str): 
-    global history
-    
-    history.append(HumanMessage(content=question))
-    history.append(AIMessage(content=answer))
-    if len(history) > 10:
-        history = history[-10:]
-
-
 def query_embeddings(query: str):
 
     vector_store = UpstashVectorStore(
@@ -91,7 +79,8 @@ def exam_context(exam:str,params:list=None)->dict:
     if not params:
         raise LLMError(status_code=400,message="no parameters given to extract")
     
-    params.append("llm_answering_rules")
+    #params.append("llm_answering_rules") #does not work because not a parameter in database
+    #uncomment above when added
 
     fields = [sql.Identifier(field) for field in params]
 
@@ -144,37 +133,36 @@ def llm_context(question: str,exam_name:str):
     res = j.loads(response.content)
 
     if res["Result"] == "None":
-        return "Not enough context provided"
+        print("Not enough context provided")
+        #return "Not enough context provided"
     
     response_columns = [col.strip() for col in res["Columns"].split(',')]
-
     context = exam_context(exam_name, response_columns)
 
-    chat_history = "\n".join(#serialize history list into string
-    f"Human: {message.content}" if isinstance(message, HumanMessage) else f"AI: {message.content}" 
-    for message in history
-    )
-
     second_prompt = """
-    Given the context for the {exam_name} exam: {context}
-    And past conversation: {chat_history}
-    Answer the question: {question} appropriately.
+    Given the context for the {exam_name} 
+    exam: {context}. 
+    Answer the question based on this and past conversation.
     """
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", second_prompt),
+        MessagesPlaceholder(variable_name="history"),
         ("human", "{question}")
     ])
 
     chain = prompt | model
+    past_messages = chat_history.messages[-10:]#limit to 5 query/responses
 
     response = chain.invoke({
         "exam_name": exam_name,
         "context": context,
-        "chat_history": chat_history,
+        "history": past_messages,
         "question": question
     })
-    update_conversation(question, response.content)
+
+    chat_history.add_user_message(question)
+    chat_history.add_ai_message(response.content)
 
     return response.content
 
@@ -184,12 +172,13 @@ def llm_context(question: str,exam_name:str):
 
 if __name__ == "__main__":
     print(query_embeddings("What are IAM roles for?"))
+    print("_____________________________________________")
     print(llm_context("how much about Security and Compliance is on the exam??", exam_name="AWS Certified Cloud Practitioner"))
-    question=True
-    for message in history:
-        if(question):
-            print("Question: " + message.content + "\n")
-            question = False
-        else:
-            print("Answer"  + message.content + "\n")
-            question = True
+    print("22222222222222222222222222222222222222")
+    print(llm_context("Give me some hard questions on Cloud Concepts.", exam_name = "AWS Certified Cloud Practitioner"))
+    print("++++++++++++++++++++++++++++++++++++++++++++++")
+    print(llm_context("what was the last question I asked again?", exam_name = "AWS Certified Cloud Practitioner"))
+    print("HISTORY")
+    for msg in chat_history.messages:
+        print("_________________________")
+        print(f"{msg.type}: {msg.content}")
