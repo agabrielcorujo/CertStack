@@ -2,7 +2,7 @@ import hashlib
 import random
 from pathlib import Path
 import json
-from typing import Any, Dict, List, Optional, Sequence, Set, Union
+from typing import Any, Dict, List, Optional, Sequence, Set, Union, Tuple
 
 from services.services import get_exam
 
@@ -68,6 +68,61 @@ def _extract_id(row: Union[Dict[str, Any], Sequence[Any]]) -> Any:
     if isinstance(row, (list, tuple)) and row:
         return row[0]
     return None
+
+
+_DB_COLUMNS_CACHE: Dict[str, Set[str]] = {}
+
+
+def _get_table_columns(table: str) -> Set[str]:
+    if table in _DB_COLUMNS_CACHE:
+        return _DB_COLUMNS_CACHE[table]
+
+    DBError, safe_query = _db()
+    try:
+        rows = safe_query(
+            """
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = %s
+            """,
+            (table,),
+            fetch="all",
+        )
+    except Exception:
+        _DB_COLUMNS_CACHE[table] = set()
+        return _DB_COLUMNS_CACHE[table]
+
+    cols: Set[str] = set()
+    if rows:
+        for row in rows:
+            if isinstance(row, dict):
+                name = row.get("column_name")
+            else:
+                name = row[0] if row else None
+            if name:
+                cols.add(str(name))
+
+    _DB_COLUMNS_CACHE[table] = cols
+    return cols
+
+
+def _has_column(table: str, column: str) -> bool:
+    return column in _get_table_columns(table)
+
+
+def _shuffle_questions(pool: List[Dict[str, Any]], shuffle_seed: Optional[int]) -> None:
+    if shuffle_seed is None:
+        random.shuffle(pool)
+        return
+    rnd = random.Random(int(shuffle_seed))
+    rnd.shuffle(pool)
+
+
+def _normalize_mode(mode: Optional[str]) -> str:
+    value = (mode or "practice").strip().lower()
+    if value not in {"practice", "exam"}:
+        raise PracticeError(message="Invalid mode (expected 'practice' or 'exam')", status_code=400)
+    return value
 
 
 _EXAM_DATA_SOURCES: Dict[str, Dict[str, str]] = {
@@ -254,23 +309,57 @@ def create_practice_session(
     exam_name: str,
     categories: List[str],
     num_questions: int,
+    mode: Optional[str] = "practice",
+    time_limit_seconds: Optional[int] = None,
+    shuffle_seed: Optional[int] = None,
 ) -> Dict[str, Any]:
     pool = _fetch_question_pool(exam_name, categories)
     if not pool:
         raise PracticeError(message="No questions available for the selected categories", status_code=404)
 
-    random.shuffle(pool)
+    mode = _normalize_mode(mode)
+    _shuffle_questions(pool, shuffle_seed)
     questions = pool[: max(1, num_questions)]
 
     DBError, safe_query = _db()
+
+    session_cols = _get_table_columns("practice_sessions")
+    include_mode = "mode" in session_cols
+    include_time_limit = "time_limit_seconds" in session_cols
+    include_seed = "shuffle_seed" in session_cols
+    include_last_activity = "last_activity_at" in session_cols
+
+    columns: List[str] = ["user_id", "exam_name", "selected_categories", "total_questions", "status", "start_time", "question_set"]
+    values_sql: List[str] = ["%s", "%s", "%s", "%s", "%s", "NOW()", "%s"]
+    params: List[Any] = [user_id, exam_name, categories, len(questions), "in_progress", questions]
+
+    if include_mode:
+        columns.insert(5, "mode")
+        values_sql.insert(5, "%s")
+        params.insert(5, mode)
+
+    if include_time_limit:
+        columns.insert(5, "time_limit_seconds")
+        values_sql.insert(5, "%s")
+        params.insert(5, time_limit_seconds)
+
+    if include_seed:
+        columns.insert(5, "shuffle_seed")
+        values_sql.insert(5, "%s")
+        params.insert(5, shuffle_seed)
+
+    if include_last_activity:
+        columns.insert(5, "last_activity_at")
+        values_sql.insert(5, "NOW()")
+
     try:
         res = safe_query(
-            """
-            INSERT INTO practice_sessions (user_id, exam_name, selected_categories, total_questions, status, start_time, question_set)
-            VALUES (%s, %s, %s, %s, %s, NOW(), %s)
+            f"""
+            INSERT INTO practice_sessions ({', '.join(columns)})
+            VALUES ({', '.join(values_sql)})
             RETURNING id
             """,
-            (user_id, exam_name, categories, len(questions), "in_progress", questions),
+            tuple(params),
             insert=True,
             fetch="one",
         )
@@ -287,7 +376,22 @@ def create_practice_session(
 
 
 def get_session(session_id: int, user_id: str, include_answer_key: bool = False) -> Dict[str, Any]:
-    session_keys = [
+    session_cols = _get_table_columns("practice_sessions")
+    optional_cols = [
+        c
+        for c in [
+            "mode",
+            "time_limit_seconds",
+            "shuffle_seed",
+            "last_activity_at",
+            "paused_at",
+            "correct_count",
+            "answered_count",
+        ]
+        if c in session_cols
+    ]
+
+    base_cols = [
         "id",
         "exam_name",
         "selected_categories",
@@ -297,12 +401,13 @@ def get_session(session_id: int, user_id: str, include_answer_key: bool = False)
         "end_time",
         "question_set",
     ]
+    session_keys = base_cols + optional_cols
 
     DBError, safe_query = _db()
     try:
         session_row = safe_query(
-            """
-            SELECT id, exam_name, selected_categories, total_questions, status, start_time, end_time, question_set
+            f"""
+            SELECT {', '.join(session_keys)}
             FROM practice_sessions
             WHERE id = %s AND user_id = %s
             """,
@@ -319,6 +424,10 @@ def get_session(session_id: int, user_id: str, include_answer_key: bool = False)
 
     session = _as_dict(session_row, session_keys)
 
+    # Normalize paused state for clients.
+    if session.get("status") == "paused" and "paused_at" not in session:
+        session["paused_at"] = None
+
     # Do not leak answer keys via the session payload unless explicitly requested.
     if not include_answer_key:
         question_set = session.get("question_set", []) or []
@@ -326,9 +435,23 @@ def get_session(session_id: int, user_id: str, include_answer_key: bool = False)
             session["question_set"] = [_sanitize_question_for_client(q) for q in question_set]
 
     try:
+        answer_cols = _get_table_columns("user_answers")
+        extra_answer_cols = [c for c in ["difficulty", "is_multiselect", "is_skipped"] if c in answer_cols]
+        answer_select = [
+            "question_hash",
+            "question_text",
+            "selected_answer",
+            "correct_answer",
+            "is_correct",
+            "flagged",
+            "time_spent_seconds",
+            "answered_at",
+            "category",
+        ] + extra_answer_cols
+
         answers_rows = safe_query(
-            """
-            SELECT question_hash, question_text, selected_answer, correct_answer, is_correct, flagged, time_spent_seconds, answered_at, category
+            f"""
+            SELECT {', '.join(answer_select)}
             FROM user_answers
             WHERE session_id = %s
             ORDER BY answered_at
@@ -344,20 +467,21 @@ def get_session(session_id: int, user_id: str, include_answer_key: bool = False)
     answers: List[Dict[str, Any]] = []
     if answers_rows:
         for row in answers_rows:
+            keys = [
+                "question_hash",
+                "question_text",
+                "selected_answer",
+                "correct_answer",
+                "is_correct",
+                "flagged",
+                "time_spent_seconds",
+                "answered_at",
+                "category",
+            ] + extra_answer_cols
             answers.append(
                 _as_dict(
                     row,
-                    [
-                        "question_hash",
-                        "question_text",
-                        "selected_answer",
-                        "correct_answer",
-                        "is_correct",
-                        "flagged",
-                        "time_spent_seconds",
-                        "answered_at",
-                        "category",
-                    ],
+                    keys,
                 )
             )
 
@@ -371,9 +495,10 @@ def submit_answer(
     session_id: int,
     user_id: str,
     question_hash: str,
-    selected_answer: Union[str, List[str]],
+    selected_answer: Optional[Union[str, List[str]]],
     time_spent_seconds: Union[int, None],
     flagged: bool,
+    is_skipped: bool = False,
 ) -> Dict[str, Any]:
     session_data = get_session(session_id, user_id, include_answer_key=True)
     session = session_data.get("session", {})
@@ -381,15 +506,23 @@ def submit_answer(
     if session.get("status") == "completed":
         raise PracticeError(message="Session already completed", status_code=400)
 
+    if session.get("status") == "paused":
+        raise PracticeError(message="Session is paused", status_code=400)
+
     question_set: List[Dict[str, Any]] = session.get("question_set", []) or []
     target_question = next((q for q in question_set if q.get("question_hash") == question_hash), None)
     if not target_question:
         raise PracticeError(message="Question not found in session", status_code=404)
 
     correct_answer = target_question.get("answer")
-    is_correct = _compare_answers(selected_answer, correct_answer)
-
-    normalized_selected = selected_answer
+    if is_skipped:
+        is_correct = False
+        normalized_selected = None
+    else:
+        if selected_answer is None:
+            raise PracticeError(message="selected_answer is required unless is_skipped=true", status_code=400)
+        is_correct = _compare_answers(selected_answer, correct_answer)
+        normalized_selected = selected_answer
 
     DBError, safe_query = _db()
     try:
@@ -404,44 +537,90 @@ def submit_answer(
         raise PracticeError(message=str(exc), status_code=500)
 
     try:
+        answer_cols = _get_table_columns("user_answers")
+
         if existing:
+            set_parts: List[str] = [
+                "selected_answer = %s",
+                "is_correct = %s",
+                "flagged = %s",
+                "time_spent_seconds = %s",
+            ]
+            update_params: List[Any] = [normalized_selected, is_correct, flagged, time_spent_seconds]
+
+            if "difficulty" in answer_cols:
+                set_parts.append("difficulty = %s")
+                update_params.append(target_question.get("difficulty"))
+
+            if "is_multiselect" in answer_cols:
+                set_parts.append("is_multiselect = %s")
+                update_params.append(bool(target_question.get("is_multiselect")))
+
+            if "is_skipped" in answer_cols:
+                set_parts.append("is_skipped = %s")
+                update_params.append(bool(is_skipped))
+
+            set_parts.append("answered_at = NOW()")
+
             safe_query(
-                """
+                f"""
                 UPDATE user_answers
-                SET selected_answer = %s, is_correct = %s, flagged = %s, time_spent_seconds = %s, answered_at = NOW()
+                SET {', '.join(set_parts)}
                 WHERE session_id = %s AND question_hash = %s
                 RETURNING id
                 """,
-                (
-                    normalized_selected,
-                    is_correct,
-                    flagged,
-                    time_spent_seconds,
-                    session_id,
-                    question_hash,
-                ),
+                tuple(update_params + [session_id, question_hash]),
                 insert=True,
                 fetch="one",
             )
         else:
+            insert_cols: List[str] = [
+                "session_id",
+                "question_hash",
+                "question_text",
+                "selected_answer",
+                "correct_answer",
+                "is_correct",
+                "flagged",
+                "time_spent_seconds",
+                "answered_at",
+                "category",
+            ]
+            insert_vals: List[str] = ["%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "NOW()", "%s"]
+            insert_params: List[Any] = [
+                session_id,
+                question_hash,
+                target_question.get("question"),
+                normalized_selected,
+                correct_answer,
+                is_correct,
+                flagged,
+                time_spent_seconds,
+                target_question.get("category"),
+            ]
+
+            if "difficulty" in answer_cols:
+                insert_cols.insert(-1, "difficulty")
+                insert_vals.insert(-1, "%s")
+                insert_params.insert(-1, target_question.get("difficulty"))
+
+            if "is_multiselect" in answer_cols:
+                insert_cols.insert(-1, "is_multiselect")
+                insert_vals.insert(-1, "%s")
+                insert_params.insert(-1, bool(target_question.get("is_multiselect")))
+
+            if "is_skipped" in answer_cols:
+                insert_cols.insert(-1, "is_skipped")
+                insert_vals.insert(-1, "%s")
+                insert_params.insert(-1, bool(is_skipped))
+
             safe_query(
-                """
-                INSERT INTO user_answers (
-                    session_id, question_hash, question_text, selected_answer, correct_answer, is_correct, flagged, time_spent_seconds, answered_at, category
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s)
+                f"""
+                INSERT INTO user_answers ({', '.join(insert_cols)})
+                VALUES ({', '.join(insert_vals)})
                 RETURNING id
                 """,
-                (
-                    session_id,
-                    question_hash,
-                    target_question.get("question"),
-                    normalized_selected,
-                    correct_answer,
-                    is_correct,
-                    flagged,
-                    time_spent_seconds,
-                    target_question.get("category"),
-                ),
+                tuple(insert_params),
                 insert=True,
                 fetch="one",
             )
@@ -450,11 +629,105 @@ def submit_answer(
     except Exception as exc:
         raise PracticeError(message=str(exc), status_code=500)
 
-    return {
-        "question_hash": question_hash,
-        "is_correct": is_correct,
-        "correct_answer": correct_answer,
-    }
+    # Best-effort update session activity timestamp if supported.
+    try:
+        if _has_column("practice_sessions", "last_activity_at"):
+            safe_query(
+                "UPDATE practice_sessions SET last_activity_at = NOW() WHERE id = %s AND user_id = %s",
+                (session_id, user_id),
+                insert=True,
+                fetch="one",
+            )
+    except Exception:
+        pass
+
+    return {"question_hash": question_hash, "is_correct": is_correct, "correct_answer": correct_answer}
+
+
+def pause_session(session_id: int, user_id: str) -> Dict[str, Any]:
+    DBError, safe_query = _db()
+    try:
+        has_paused_at = _has_column("practice_sessions", "paused_at")
+        has_last_activity = _has_column("practice_sessions", "last_activity_at")
+
+        if has_paused_at:
+            set_parts = ["status = %s", "paused_at = NOW()"]
+            params: List[Any] = ["paused"]
+            if has_last_activity:
+                set_parts.append("last_activity_at = NOW()")
+
+            safe_query(
+                f"""
+                UPDATE practice_sessions
+                SET {', '.join(set_parts)}
+                WHERE id = %s AND user_id = %s AND status != %s
+                RETURNING id
+                """,
+                tuple(params + [session_id, user_id, "completed"]),
+                insert=True,
+                fetch="one",
+            )
+        else:
+            safe_query(
+                """
+                UPDATE practice_sessions
+                SET status = %s
+                WHERE id = %s AND user_id = %s AND status != %s
+                RETURNING id
+                """,
+                ("paused", session_id, user_id, "completed"),
+                insert=True,
+                fetch="one",
+            )
+    except DBError as error:
+        raise PracticeError(status_code=error.status_code, message=error.message)
+    except Exception as exc:
+        raise PracticeError(message=str(exc), status_code=500)
+
+    return {"session_id": session_id, "status": "paused"}
+
+
+def resume_session(session_id: int, user_id: str) -> Dict[str, Any]:
+    DBError, safe_query = _db()
+    try:
+        has_paused_at = _has_column("practice_sessions", "paused_at")
+        has_last_activity = _has_column("practice_sessions", "last_activity_at")
+
+        if has_paused_at:
+            set_parts = ["status = %s", "paused_at = NULL"]
+            params: List[Any] = ["in_progress"]
+            if has_last_activity:
+                set_parts.append("last_activity_at = NOW()")
+
+            safe_query(
+                f"""
+                UPDATE practice_sessions
+                SET {', '.join(set_parts)}
+                WHERE id = %s AND user_id = %s AND status != %s
+                RETURNING id
+                """,
+                tuple(params + [session_id, user_id, "completed"]),
+                insert=True,
+                fetch="one",
+            )
+        else:
+            safe_query(
+                """
+                UPDATE practice_sessions
+                SET status = %s
+                WHERE id = %s AND user_id = %s AND status != %s
+                RETURNING id
+                """,
+                ("in_progress", session_id, user_id, "completed"),
+                insert=True,
+                fetch="one",
+            )
+    except DBError as error:
+        raise PracticeError(status_code=error.status_code, message=error.message)
+    except Exception as exc:
+        raise PracticeError(message=str(exc), status_code=500)
+
+    return {"session_id": session_id, "status": "in_progress"}
 
 
 def complete_session(session_id: int, user_id: str) -> Dict[str, Any]:
@@ -475,17 +748,31 @@ def complete_session(session_id: int, user_id: str) -> Dict[str, Any]:
 
     DBError, safe_query = _db()
     try:
-        safe_query(
-            """
-            UPDATE practice_sessions
-            SET status = %s, end_time = NOW()
-            WHERE id = %s AND user_id = %s
-            RETURNING id
-            """,
-            ("completed", session_id, user_id),
-            insert=True,
-            fetch="one",
-        )
+        session_cols = _get_table_columns("practice_sessions")
+        if "correct_count" in session_cols or "answered_count" in session_cols:
+            safe_query(
+                """
+                UPDATE practice_sessions
+                SET status = %s, end_time = NOW(), correct_count = %s, answered_count = %s
+                WHERE id = %s AND user_id = %s
+                RETURNING id
+                """,
+                ("completed", correct_count, total_answered, session_id, user_id),
+                insert=True,
+                fetch="one",
+            )
+        else:
+            safe_query(
+                """
+                UPDATE practice_sessions
+                SET status = %s, end_time = NOW()
+                WHERE id = %s AND user_id = %s
+                RETURNING id
+                """,
+                ("completed", session_id, user_id),
+                insert=True,
+                fetch="one",
+            )
     except DBError as error:
         raise PracticeError(status_code=error.status_code, message=error.message)
     except Exception as exc:

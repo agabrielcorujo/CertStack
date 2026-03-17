@@ -10,6 +10,8 @@ from services.practice_services import (
     get_practice_history,
     get_session,
     get_session_results,
+    pause_session,
+    resume_session,
     submit_answer,
 )
 
@@ -21,6 +23,9 @@ def start_practice_controller(user_id: str, request: StartPracticeRequest):
             exam_name=request.exam_name,
             categories=request.categories,
             num_questions=request.num_questions,
+            mode=request.mode,
+            time_limit_seconds=request.time_limit_seconds,
+            shuffle_seed=request.shuffle_seed,
         )
     except PracticeError as error:
         raise HTTPException(status_code=error.status_code, detail=error.message)
@@ -42,7 +47,22 @@ def submit_answer_controller(user_id: str, request: SubmitAnswerRequest):
             selected_answer=request.selected_answer,
             time_spent_seconds=request.time_spent_seconds,
             flagged=request.flagged,
+            is_skipped=request.is_skipped,
         )
+    except PracticeError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message)
+
+
+def pause_session_controller(user_id: str, session_id: int):
+    try:
+        return pause_session(session_id=session_id, user_id=user_id)
+    except PracticeError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message)
+
+
+def resume_session_controller(user_id: str, session_id: int):
+    try:
+        return resume_session(session_id=session_id, user_id=user_id)
     except PracticeError as error:
         raise HTTPException(status_code=error.status_code, detail=error.message)
 
