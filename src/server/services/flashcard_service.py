@@ -136,7 +136,7 @@ def add_question_to_deck(user_id: str, deck_id: int, question_id: str):
     }
 
 def get_user_decks(user_id: str):
-    """returns all decks for a user, including card counts"""
+    """returns all decks for a user including card counts"""
     try:
         rows = safe_query(
             """
@@ -175,8 +175,139 @@ def get_user_decks(user_id: str):
     return {"status": "success", "decks": decks}
 
 def get_progress_stats(user_id: str, exam: str, category: Optional[str] = None):
-    """aggregates user progress for dashboards. to be implemented..."""
-    raise NotImplementedError("get_progress_stats is not implemented yet")
+    """Aggregates flashcard progress and session stats for dashboards."""
+    normalized_exam = exam.strip().lower()
+    normalized_category = (category or "").strip()
+
+    if not normalized_exam:
+        raise FlashcardError("exam is required", 400)
+
+    progress_filter_sql, progress_params = _build_exam_category_filter(
+        user_id=user_id,
+        exam=normalized_exam,
+        category=normalized_category,
+    )
+
+    try:
+        progress_row = safe_query(
+            f"""
+            SELECT
+                COUNT(*) AS tracked_cards,
+                COALESCE(SUM(correct_count), 0) AS correct_reviews,
+                COALESCE(SUM(incorrect_count), 0) AS incorrect_reviews,
+                COALESCE(SUM(repetition_count), 0) AS total_reviews,
+                COALESCE(SUM(CASE WHEN next_review_date <= CURRENT_DATE THEN 1 ELSE 0 END), 0) AS due_cards,
+                COALESCE(AVG(ease_factor), 2.5) AS average_ease_factor,
+                COALESCE(AVG(interval_days), 1) AS average_interval_days
+            FROM flashcard_progress
+            WHERE {progress_filter_sql}
+            """,
+            progress_params,
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    session_filter_sql = "user_id = %s AND exam = %s"
+    session_params: tuple = (user_id, normalized_exam)
+
+    if normalized_category:
+        session_filter_sql += " AND category = %s"
+        session_params = (user_id, normalized_exam, normalized_category)
+
+    try:
+        sessions_row = safe_query(
+            f"""
+            SELECT
+                COUNT(*) AS session_count,
+                COALESCE(SUM(cards_reviewed), 0) AS session_cards_reviewed,
+                COALESCE(SUM(correct_answers), 0) AS session_correct_answers,
+                MAX(ended_at) AS last_session_at
+            FROM flashcard_study_sessions
+            WHERE {session_filter_sql}
+            """,
+            session_params,
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    try:
+        category_rows = safe_query(
+            """
+            SELECT
+                category,
+                COUNT(*) AS tracked_cards,
+                COALESCE(SUM(correct_count), 0) AS correct_reviews,
+                COALESCE(SUM(incorrect_count), 0) AS incorrect_reviews,
+                COALESCE(SUM(CASE WHEN next_review_date <= CURRENT_DATE THEN 1 ELSE 0 END), 0) AS due_cards
+            FROM flashcard_progress
+            WHERE user_id = %s AND exam = %s
+            GROUP BY category
+            ORDER BY category ASC
+            """,
+            (user_id, normalized_exam),
+            fetch="all",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    tracked_cards = int(progress_row[0] or 0)
+    correct_reviews = int(progress_row[1] or 0)
+    incorrect_reviews = int(progress_row[2] or 0)
+    total_reviews = int(progress_row[3] or 0)
+    due_cards = int(progress_row[4] or 0)
+    average_ease_factor = round(float(progress_row[5] or 2.5), 2)
+    average_interval_days = round(float(progress_row[6] or 1), 2)
+
+    session_count = int(sessions_row[0] or 0)
+    session_cards_reviewed = int(sessions_row[1] or 0)
+    session_correct_answers = int(sessions_row[2] or 0)
+    last_session_at = sessions_row[3]
+
+    overall_accuracy = _safe_percentage(correct_reviews, correct_reviews + incorrect_reviews)
+    session_accuracy = _safe_percentage(session_correct_answers, session_cards_reviewed)
+
+    category_breakdown = []
+    for row in category_rows or []:
+        category_name = row[0] or ""
+        category_correct = int(row[2] or 0)
+        category_incorrect = int(row[3] or 0)
+        category_breakdown.append(
+            {
+                "category": category_name,
+                "tracked_cards": int(row[1] or 0),
+                "due_cards": int(row[4] or 0),
+                "accuracy_percent": _safe_percentage(
+                    category_correct,
+                    category_correct + category_incorrect,
+                ),
+            }
+        )
+
+    return {
+        "status": "success",
+        "exam": normalized_exam,
+        "category_filter": normalized_category if normalized_category else None,
+        "summary": {
+            "tracked_cards": tracked_cards,
+            "due_cards": due_cards,
+            "total_reviews": total_reviews,
+            "correct_reviews": correct_reviews,
+            "incorrect_reviews": incorrect_reviews,
+            "overall_accuracy_percent": overall_accuracy,
+            "average_ease_factor": average_ease_factor,
+            "average_interval_days": average_interval_days,
+        },
+        "sessions": {
+            "session_count": session_count,
+            "cards_reviewed": session_cards_reviewed,
+            "correct_answers": session_correct_answers,
+            "session_accuracy_percent": session_accuracy,
+            "last_session_at": str(last_session_at) if last_session_at else None,
+        },
+        "category_breakdown": category_breakdown,
+    }
 
 
 def _ensure_deck_ownership(user_id: str, deck_id: int):
@@ -195,3 +326,20 @@ def _ensure_deck_ownership(user_id: str, deck_id: int):
 
     if not deck:
         raise FlashcardError("deck not found", 404)
+
+
+def _build_exam_category_filter(user_id: str, exam: str, category: str):
+    sql_filter = "user_id = %s AND exam = %s"
+    params: tuple = (user_id, exam)
+
+    if category:
+        sql_filter += " AND category = %s"
+        params = (user_id, exam, category)
+
+    return sql_filter, params
+
+
+def _safe_percentage(numerator: int, denominator: int) -> float:
+    if denominator <= 0:
+        return 0.0
+    return round((numerator / denominator) * 100, 2)
