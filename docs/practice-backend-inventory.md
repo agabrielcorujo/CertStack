@@ -11,6 +11,140 @@ This document captures the *current* practice-exam backend contracts and persist
 
 ## 2) Endpoints
 
+## 2.1) Baseline API Snapshots (Step 1)
+
+Use this section to capture the *current* behavior before any backend changes.
+
+### Setup
+
+- Base URL (local): `http://localhost:8000`
+- Auth header: `Authorization: Bearer <token>`
+
+If you already have a token from your normal flow, set:
+
+```bash
+export BASE_URL="http://localhost:8000"
+export TOKEN="<paste token>"
+```
+
+### Snapshot template: practice mode
+
+#### 1) Start session (practice)
+
+```bash
+curl -sS -X POST "$BASE_URL/practice/start" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "exam_name": "cloud practitioner",
+    "categories": [],
+    "num_questions": 10,
+    "mode": "practice"
+  }'
+```
+
+Paste response JSON here:
+
+```json
+{}
+```
+
+#### 2) Get session
+
+```bash
+curl -sS -X GET "$BASE_URL/practice/session/<session_id>" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Paste response JSON here:
+
+```json
+{}
+```
+
+#### 3) Submit answer
+
+```bash
+curl -sS -X POST "$BASE_URL/practice/submit" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session_id": <session_id>,
+    "question_hash": "<question_hash>",
+    "selected_answer": "<A|B|C|D>",
+    "time_spent_seconds": 12,
+    "flagged": false,
+    "is_skipped": false
+  }'
+```
+
+Paste response JSON here:
+
+```json
+{}
+```
+
+#### 4) Pause / Resume
+
+```bash
+curl -sS -X POST "$BASE_URL/practice/pause/<session_id>" -H "Authorization: Bearer $TOKEN"
+curl -sS -X POST "$BASE_URL/practice/resume/<session_id>" -H "Authorization: Bearer $TOKEN"
+```
+
+Paste response JSON here:
+
+```json
+{}
+```
+
+#### 5) Complete session
+
+```bash
+curl -sS -X POST "$BASE_URL/practice/complete/<session_id>" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Paste response JSON here:
+
+```json
+{}
+```
+
+#### 6) Results
+
+```bash
+curl -sS -X GET "$BASE_URL/practice/results/<session_id>" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Paste response JSON here:
+
+```json
+{}
+```
+
+#### 7) History
+
+```bash
+curl -sS -X GET "$BASE_URL/practice/history?limit=20&exam_name=cloud%20practitioner" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Paste response JSON here:
+
+```json
+{}
+```
+
+### Snapshot template: exam mode
+
+Repeat the exact same sequence, but with `"mode": "exam"` in the start request.
+Paste the full set of responses here, especially `/practice/submit` and `/practice/session/{session_id}`.
+
+```json
+{}
+```
+
 ### Start session
 - `POST /practice/start`
   - Body: `StartPracticeRequest`
