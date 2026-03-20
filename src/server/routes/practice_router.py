@@ -22,16 +22,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 @router.post("/start")
-def start_practice(request: StartPracticeRequest, token: str = Depends(oauth2_scheme)):
+async def start_practice(request: StartPracticeRequest, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
-    return start_practice_controller(user_id, request)
+    return await start_practice_controller(user_id, request)
 
 
 @router.post("/start-section")
-def start_section_practice(request: StartSectionPracticeRequest, token: str = Depends(oauth2_scheme)):
+async def start_section_practice(request: StartSectionPracticeRequest, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
     # Convenience wrapper: a "section" is a single category/domain.
-    return start_practice_controller(
+    return await start_practice_controller(
         user_id,
         StartPracticeRequest(
             exam_name=request.exam_name,
@@ -51,42 +51,42 @@ def list_domains(exam_name: str, token: str = Depends(oauth2_scheme)):
 
 
 @router.get("/history")
-def get_history(limit: int = 20, exam_name: Optional[str] = None, token: str = Depends(oauth2_scheme)):
+async def get_history(limit: int = 20, exam_name: Optional[str] = None, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
-    return get_history_controller(user_id, limit=limit, exam_name=exam_name)
+    return await get_history_controller(user_id, limit=limit, exam_name=exam_name)
 
 
 @router.get("/session/{session_id}")
-def get_session(session_id: int, token: str = Depends(oauth2_scheme)):
+async def get_session(session_id: int, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
-    return get_session_controller(user_id, session_id)
+    return await get_session_controller(user_id, session_id)
 
 
 @router.post("/submit")
-def submit_answer(request: SubmitAnswerRequest, token: str = Depends(oauth2_scheme)):
+async def submit_answer(request: SubmitAnswerRequest, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
-    return submit_answer_controller(user_id, request)
+    return await submit_answer_controller(user_id, request)
 
 
 @router.post("/pause/{session_id}")
-def pause_session(session_id: int, token: str = Depends(oauth2_scheme)):
+async def pause_session(session_id: int, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
-    return pause_session_controller(user_id, session_id)
+    return await pause_session_controller(user_id, session_id)
 
 
 @router.post("/resume/{session_id}")
-def resume_session(session_id: int, token: str = Depends(oauth2_scheme)):
+async def resume_session(session_id: int, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
-    return resume_session_controller(user_id, session_id)
+    return await resume_session_controller(user_id, session_id)
 
 
 @router.post("/complete/{session_id}")
-def complete_session(session_id: int, token: str = Depends(oauth2_scheme)):
+async def complete_session(session_id: int, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
-    return complete_session_controller(user_id, session_id)
+    return await complete_session_controller(user_id, session_id)
 
 
 @router.get("/results/{session_id}")
-def get_results(session_id: int, token: str = Depends(oauth2_scheme)):
+async def get_results(session_id: int, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
-    return get_results_controller(user_id, session_id)
+    return await get_results_controller(user_id, session_id)
