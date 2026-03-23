@@ -15,27 +15,50 @@ export default function SignupPage() {
     institution: "",
     password: "",
   })
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
+  const hasNumber = /\d/.test(formData.password)
+  const hasSpecial = /[^A-Za-z0-9]/.test(formData.password)
+  const passwordStrong = formData.password.length >= 8 && hasNumber && hasSpecial
+  const canSubmit =
+    formData.firstName.trim().length > 0 &&
+    formData.lastName.trim().length > 0 &&
+    emailValid &&
+    passwordStrong &&
+    termsAccepted &&
+    !loading
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (loading) return
+    if (!canSubmit) {
+      setError("Please complete all required fields and accept the terms.")
+      return
+    }
+
     setError("")
     setLoading(true)
 
     try {
+      const normalizedEmail = formData.email.trim().toLowerCase()
+      const normalizedFirstName = formData.firstName.trim()
+      const normalizedLastName = formData.lastName.trim()
+      const normalizedInstitution = formData.institution.trim()
+
       // First, register the user
       const registerResponse = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: formData.email,
+          email: normalizedEmail,
           password: formData.password,
         }),
       })
 
       if (!registerResponse.ok) {
-        const data = await registerResponse.json()
+        const data = await registerResponse.json().catch(() => null)
         throw new Error(data.message || "Registration failed")
       }
 
@@ -44,14 +67,14 @@ export default function SignupPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          institution: formData.institution,
+          firstName: normalizedFirstName,
+          lastName: normalizedLastName,
+          institution: normalizedInstitution,
         }),
       })
 
       if (!profileResponse.ok) {
-        const data = await profileResponse.json()
+        const data = await profileResponse.json().catch(() => null)
         throw new Error(data.message || "Profile creation failed")
       }
 
@@ -136,22 +159,24 @@ export default function SignupPage() {
           </p>
 
           {error && (
-            <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
+            <div role="alert" aria-live="polite" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
               {error}
             </div>
           )}
 
-          <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
+          <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit} aria-busy={loading}>
             {/* Name Row */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
+                <label htmlFor="signup-first-name" className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
                   First name
                 </label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
                   <input
+                    id="signup-first-name"
                     type="text"
+                    autoComplete="given-name"
                     placeholder="John"
                     value={formData.firstName}
                     onChange={(e) => updateField("firstName", e.target.value)}
@@ -161,11 +186,13 @@ export default function SignupPage() {
                 </div>
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
+                <label htmlFor="signup-last-name" className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
                   Last name
                 </label>
                 <input
+                  id="signup-last-name"
                   type="text"
+                  autoComplete="family-name"
                   placeholder="Doe"
                   value={formData.lastName}
                   onChange={(e) => updateField("lastName", e.target.value)}
@@ -177,13 +204,15 @@ export default function SignupPage() {
 
             {/* Email */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
+              <label htmlFor="signup-email" className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
                 Email address
               </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
                 <input
+                  id="signup-email"
                   type="email"
+                  autoComplete="email"
                   placeholder="john@company.com"
                   value={formData.email}
                   onChange={(e) => updateField("email", e.target.value)}
@@ -195,13 +224,15 @@ export default function SignupPage() {
 
             {/* Institution */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
+              <label htmlFor="signup-institution" className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
                 Company/Institution (optional)
               </label>
               <div className="relative">
                 <GraduationCap className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
                 <input
+                  id="signup-institution"
                   type="text"
+                  autoComplete="organization"
                   placeholder="Your company or organization"
                   value={formData.institution}
                   onChange={(e) => updateField("institution", e.target.value)}
@@ -212,13 +243,15 @@ export default function SignupPage() {
 
             {/* Password */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
+              <label htmlFor="signup-password" className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
                 Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
                 <input
+                  id="signup-password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
                   placeholder="Create a strong password"
                   value={formData.password}
                   onChange={(e) => updateField("password", e.target.value)}
@@ -245,6 +278,9 @@ export default function SignupPage() {
               <input
                 type="checkbox"
                 id="terms"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                required
                 className="mt-0.5 h-4 w-4 rounded border-[hsl(var(--border))] text-[#4A7FFF] focus:ring-[#DBEAFE]"
               />
               <label htmlFor="terms" className="text-sm text-[hsl(var(--text-secondary))]">
@@ -262,7 +298,7 @@ export default function SignupPage() {
             {/* Submit */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={!canSubmit}
               className="h-12 w-full rounded-full bg-[#4A7FFF] text-sm font-medium text-[#FFFFFF] transition-all duration-200 hover:bg-[#3D6EE8] hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "Creating Account..." : "Create Account"}

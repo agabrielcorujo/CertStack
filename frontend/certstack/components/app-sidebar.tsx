@@ -59,6 +59,7 @@ export function AppSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-all duration-150",
                 isActive
@@ -81,6 +82,7 @@ export function AppSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-all duration-150",
                 isActive
@@ -94,7 +96,9 @@ export function AppSidebar() {
           )
         })}
         <button
+          type="button"
           onClick={handleLogout}
+          aria-label="Log out"
           className="flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-[hsl(var(--text-secondary))] transition-all duration-150 hover:bg-[hsl(var(--background-hover))] hover:text-[hsl(var(--text-primary))]"
         >
           <LogOut className="h-5 w-5" strokeWidth={2} />

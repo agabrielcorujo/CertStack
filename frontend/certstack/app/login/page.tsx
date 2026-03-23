@@ -10,23 +10,33 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+  const canSubmit = emailValid && password.length > 0 && !loading
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (loading) return
+    if (!emailValid || password.length === 0) {
+      setError("Please enter a valid email and password.")
+      return
+    }
+
     setError("")
     setLoading(true)
 
     try {
+      const normalizedEmail = email.trim().toLowerCase()
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: normalizedEmail, password, rememberMe }),
       })
 
       if (!response.ok) {
-        const data = await response.json()
+        const data = await response.json().catch(() => null)
         throw new Error(data.message || "Login failed")
       }
 
@@ -94,21 +104,23 @@ export default function LoginPage() {
           </p>
 
           {error && (
-            <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
+            <div role="alert" aria-live="polite" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
               {error}
             </div>
           )}
 
-          <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
+          <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit} aria-busy={loading}>
             {/* Email */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
+              <label htmlFor="login-email" className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
                 Email address
               </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
                 <input
+                  id="login-email"
                   type="email"
+                  autoComplete="email"
                   placeholder="john@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -121,7 +133,7 @@ export default function LoginPage() {
             {/* Password */}
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="text-sm font-medium text-[hsl(var(--text-primary))]">
+                <label htmlFor="login-password" className="text-sm font-medium text-[hsl(var(--text-primary))]">
                   Password
                 </label>
                 <button
@@ -134,7 +146,9 @@ export default function LoginPage() {
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
                 <input
+                  id="login-password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -157,6 +171,8 @@ export default function LoginPage() {
               <input
                 type="checkbox"
                 id="remember"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 rounded border-[hsl(var(--border))] text-[#4A7FFF] focus:ring-[#DBEAFE]"
               />
               <label htmlFor="remember" className="text-sm text-[hsl(var(--text-secondary))]">
@@ -167,7 +183,7 @@ export default function LoginPage() {
             {/* Submit */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={!canSubmit}
               className="h-12 w-full rounded-full bg-[#4A7FFF] text-sm font-medium text-[#FFFFFF] transition-all duration-200 hover:bg-[#3D6EE8] hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "Signing In..." : "Sign In"}

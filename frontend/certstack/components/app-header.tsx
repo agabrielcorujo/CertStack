@@ -20,9 +20,14 @@ export function AppHeader({ title, subtitle }: AppHeaderProps) {
       <div className="flex items-center gap-4">
         {/* Search */}
         <div className="relative">
+          <label htmlFor="app-header-search" className="sr-only">
+            Search
+          </label>
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
           <input
-            type="text"
+            id="app-header-search"
+            type="search"
+            autoComplete="off"
             placeholder="Search..."
             className="h-10 w-64 rounded-xl border border-transparent bg-[hsl(var(--surface))] pl-10 pr-4 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[hsl(var(--border))] focus:bg-[hsl(var(--surface-elevated))] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
           />
