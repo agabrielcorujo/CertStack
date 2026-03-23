@@ -1,6 +1,3 @@
 data/
-.venv
-services/LLM/llmreqs.txt
 .env.*
-services/LLM/chatbot.ipynb
-services/LLM/scraper.py
+services/LLM

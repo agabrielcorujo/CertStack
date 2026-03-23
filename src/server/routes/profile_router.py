@@ -13,16 +13,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 @router.post("/create-profile")
-def sample_endpoint(Request:CreateProfileRequest,token:str = Depends(oauth2_scheme)):
+async def sample_endpoint(Request:CreateProfileRequest,token:str = Depends(oauth2_scheme)):
 
     user_id = decode_access_token(token) #this automatically raises 401 unauthorized if the token is invalid
 
-    return create_profile_controller(user_id,Request)
+    return await create_profile_controller(user_id,Request)
 
 @router.post("/update-profile")
-def sample_endpoint(Request:UpdateProfileRequest,token:str = Depends(oauth2_scheme)):
+async def sample_endpoint(Request:UpdateProfileRequest,token:str = Depends(oauth2_scheme)):
 
     user_id = decode_access_token(token) #this automatically raises 401 unauthorized if the token is invalid
 
-    return update_profile_controller(user_id,Request)
+    return await update_profile_controller(user_id,Request)
 

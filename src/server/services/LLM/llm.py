@@ -23,7 +23,9 @@ class LLMError(Exception):
 PROMPT_TEMPLATE="""
 Answer the question based only on the following context:
 
-{context}
+Chat History (Past 10 Messages and Responses): {chat_history}
+
+Context: {context}
 
 ---
 

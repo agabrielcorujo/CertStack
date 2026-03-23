@@ -6,10 +6,10 @@ class ProfileError(Exception):
         self.status_code = status_code
         super().__init__(message)
 
-def create_profile(user_id:str,certs:list=[]):
+async def create_profile(user_id:str,certs:list=[]):
 
     try:
-        res = safe_query("UPDATE users SET certs = %s WHERE id = %s RETURNING id",(certs,user_id),insert=True,fetch="one")
+        res = await safe_query("UPDATE users SET certs = $1 WHERE id = $2 RETURNING id",(certs,user_id),fetch="one")
 
     except DBError as error:
 
@@ -21,10 +21,10 @@ def create_profile(user_id:str,certs:list=[]):
     
     return {"status":"success"}
     
-def update_profile(user_id:str,cert:str):
+async def update_profile(user_id:str,cert:str):
 
     try:
-        res = safe_query("UPDATE users SET certs = array_append(certs,%s) WHERE id = %s RETURNING id",(cert,user_id),insert=True,fetch="one")
+        res = await safe_query("UPDATE users SET certs = array_append(certs,$1) WHERE id = $2 RETURNING id",(cert,user_id),fetch="one")
 
     except DBError as error:
         
