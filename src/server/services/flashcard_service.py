@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from typing import Optional
 from jwt_auth.db.db import DBError, safe_query
 
@@ -29,8 +29,143 @@ def record_review(
     time_taken_ms: Optional[int] = None,
     today: Optional[date] = None,
 ):
-    """records a review outcome and updates scheduling. to be implemented..."""
-    raise NotImplementedError("record_review is not implemented yet")
+    """records a review result and updates spaced-repetition fields"""
+    normalized_question_id = question_id.strip()
+
+    if not normalized_question_id:
+        raise FlashcardError("question_id is required", 400)
+
+    if confidence is not None and (confidence < 1 or confidence > 5):
+        raise FlashcardError("confidence must be between 1 and 5", 400)
+
+    if time_taken_ms is not None and time_taken_ms < 0:
+        raise FlashcardError("time_taken_ms must be >= 0", 400)
+
+    review_day = today or date.today()
+
+    try:
+        existing = safe_query(
+            """
+            SELECT
+                exam,
+                category,
+                ease_factor,
+                interval_days,
+                repetition_count,
+                correct_count,
+                incorrect_count
+            FROM flashcard_progress
+            WHERE user_id = %s AND question_id = %s
+            """,
+            (user_id, normalized_question_id),
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    quality = _calculate_quality_score(was_correct, confidence)
+
+    if existing:
+        current_exam = existing[0]
+        current_category = existing[1] or ""
+        ease_factor = float(existing[2] or 2.5)
+        interval_days = int(existing[3] or 1)
+        repetition_count = int(existing[4] or 0)
+        correct_count = int(existing[5] or 0)
+        incorrect_count = int(existing[6] or 0)
+    else:
+        current_exam, current_category = _resolve_exam_and_category_for_question(
+            user_id=user_id,
+            question_id=normalized_question_id,
+        )
+        ease_factor = 2.5
+        interval_days = 1
+        repetition_count = 0
+        correct_count = 0
+        incorrect_count = 0
+
+    next_ease_factor = _next_ease_factor(ease_factor, quality)
+    next_interval = _next_interval_days(repetition_count, interval_days, next_ease_factor, was_correct)
+    next_repetition_count = repetition_count + 1
+    next_correct_count = correct_count + (1 if was_correct else 0)
+    next_incorrect_count = incorrect_count + (0 if was_correct else 1)
+    next_review_date = review_day + timedelta(days=next_interval)
+
+    if existing:
+        query = """
+            UPDATE flashcard_progress
+            SET
+                ease_factor = %s,
+                interval_days = %s,
+                repetition_count = %s,
+                correct_count = %s,
+                incorrect_count = %s,
+                next_review_date = %s,
+                last_reviewed_at = NOW()
+            WHERE user_id = %s AND question_id = %s
+        """
+        params = (
+            next_ease_factor,
+            next_interval,
+            next_repetition_count,
+            next_correct_count,
+            next_incorrect_count,
+            next_review_date,
+            user_id,
+            normalized_question_id,
+        )
+    else:
+        query = """
+            INSERT INTO flashcard_progress (
+                user_id,
+                question_id,
+                exam,
+                category,
+                ease_factor,
+                interval_days,
+                repetition_count,
+                correct_count,
+                incorrect_count,
+                next_review_date,
+                last_reviewed_at
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        """
+        params = (
+            user_id,
+            normalized_question_id,
+            current_exam,
+            current_category,
+            next_ease_factor,
+            next_interval,
+            next_repetition_count,
+            next_correct_count,
+            next_incorrect_count,
+            next_review_date,
+        )
+
+    try:
+        safe_query(query, params, insert=True)
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    return {
+        "status": "success",
+        "question_id": normalized_question_id,
+        "schedule": {
+            "exam": current_exam,
+            "category": current_category,
+            "quality": quality,
+            "ease_factor": round(next_ease_factor, 4),
+            "interval_days": next_interval,
+            "next_review_date": str(next_review_date),
+        },
+        "counts": {
+            "repetition_count": next_repetition_count,
+            "correct_count": next_correct_count,
+            "incorrect_count": next_incorrect_count,
+        },
+    }
 
 def create_deck(user_id: str, deck_name: str, exam: str, description: Optional[str] = None):
     """creates a custom deck for a user and returns the new deck id"""
@@ -343,3 +478,54 @@ def _safe_percentage(numerator: int, denominator: int) -> float:
     if denominator <= 0:
         return 0.0
     return round((numerator / denominator) * 100, 2)
+
+
+def _calculate_quality_score(was_correct: bool, confidence: Optional[int]) -> int:
+    if confidence is None:
+        return 4 if was_correct else 2
+
+    clamped = max(1, min(5, confidence))
+    if was_correct:
+        return clamped
+    return min(2, clamped)
+
+
+def _next_ease_factor(current_ease_factor: float, quality: int) -> float:
+    adjustment = 0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)
+    return max(1.3, current_ease_factor + adjustment)
+
+
+def _next_interval_days(repetition_count: int, current_interval_days: int, ease_factor: float, was_correct: bool) -> int:
+    if not was_correct:
+        return 1
+
+    if repetition_count == 0:
+        return 1
+    if repetition_count == 1:
+        return 6
+
+    grown_interval = int(round(current_interval_days * ease_factor))
+    return max(1, grown_interval)
+
+
+def _resolve_exam_and_category_for_question(user_id: str, question_id: str):
+    try:
+        row = safe_query(
+            """
+            SELECT d.exam
+            FROM flashcard_deck_questions q
+            JOIN user_flashcard_decks d ON d.id = q.deck_id
+            WHERE d.user_id = %s AND q.question_id = %s
+            ORDER BY q.created_at ASC
+            LIMIT 1
+            """,
+            (user_id, question_id),
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    if row:
+        return row[0], ""
+
+    return "unknown", ""
