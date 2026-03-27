@@ -1,278 +1,226 @@
-# Practice Backend Inventory (Current State)
+# Practice Backend Inventory (Current Runtime Behavior)
 
-This document captures the *current* practice-exam backend contracts and persistence model, as implemented today. It’s intended to be a stable baseline before adding “exam-mode”, analytics, review queues, etc.
+This document is a quick onboarding reference for how the practice-exam backend works today.
+It describes current runtime behavior only.
 
-## 1) Routing + Auth
+## Scope
 
-- Router: `src/server/routes/practice_router.py` (prefix: `/practice`)
-- App mounts router in `src/server/server.py`.
-- All practice endpoints require `Authorization: Bearer <token>`.
-- Token is validated by `jwt_auth.controllers.auth_controller.decode_access_token_controller`.
+- Backend service: FastAPI app in src/server
+- Practice endpoints: /practice/*
+- Auth endpoints: /auth/* (provided by jwt-auth package)
+- Persistence: PostgreSQL
+- Cache/token support: Redis
 
-## 2) Endpoints
+## Service Layout
 
-## 2.1) Baseline API Snapshots (Step 1)
+- App entrypoint: src/server/server.py
+- Practice router: src/server/routes/practice_router.py
+- Practice controller layer: src/server/controllers/practice_controller.py
+- Practice service/business logic: src/server/services/practice_services.py
+- Request schemas: src/server/schemas/schema.py
 
-Use this section to capture the *current* behavior before any backend changes.
+Runtime call path for practice APIs:
+router -> controller -> service -> DB/helpers
 
-### Setup
+## Startup and Dependencies
 
-- Base URL (local): `http://localhost:8000`
-- Auth header: `Authorization: Bearer <token>`
+On startup, the app initializes:
 
-If you already have a token from your normal flow, set:
+- PostgreSQL pool (jwt-auth DB helper)
+- Auth users table
+- Redis cache
 
-```bash
-export BASE_URL="http://localhost:8000"
-export TOKEN="<paste token>"
-```
+On shutdown, cache and DB pool are closed.
 
-### Snapshot template: practice mode
+Required runtime dependencies:
 
-#### 1) Start session (practice)
+- PostgreSQL reachable by DB_* env vars
+- Redis reachable by REDIS_URL
 
-```bash
-curl -sS -X POST "$BASE_URL/practice/start" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "exam_name": "cloud practitioner",
-    "categories": [],
-    "num_questions": 10,
-    "mode": "practice"
-  }'
-```
+## Authentication Model
 
-Paste response JSON here:
+All /practice endpoints require bearer auth:
 
-```json
-{}
-```
+- Header: Authorization: Bearer <token>
+- Token decoding is done via jwt-auth
+- Practice sessions are user-scoped by user_id
 
-#### 2) Get session
+## Practice Modes
 
-```bash
-curl -sS -X GET "$BASE_URL/practice/session/<session_id>" \
-  -H "Authorization: Bearer $TOKEN"
-```
+Two modes are supported in start requests:
 
-Paste response JSON here:
+- practice
+- exam
 
-```json
-{}
-```
+Mode affects answer-key visibility.
 
-#### 3) Submit answer
+## Endpoint Behavior (Current)
 
-```bash
-curl -sS -X POST "$BASE_URL/practice/submit" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "session_id": <session_id>,
-    "question_hash": "<question_hash>",
-    "selected_answer": "<A|B|C|D>",
-    "time_spent_seconds": 12,
-    "flagged": false,
-    "is_skipped": false
-  }'
-```
+### Start Session
 
-Paste response JSON here:
+POST /practice/start
 
-```json
-{}
-```
+- Creates a session
+- Stores selected question set in DB
+- Returns sanitized question payloads (never includes answer key)
 
-#### 4) Pause / Resume
+POST /practice/start-section
 
-```bash
-curl -sS -X POST "$BASE_URL/practice/pause/<session_id>" -H "Authorization: Bearer $TOKEN"
-curl -sS -X POST "$BASE_URL/practice/resume/<session_id>" -H "Authorization: Bearer $TOKEN"
-```
+- Convenience wrapper over /practice/start
+- Uses a single selected section/category
 
-Paste response JSON here:
+### Domains
 
-```json
-{}
-```
+GET /practice/domains?exam_name=...
 
-#### 5) Complete session
+- Returns available domains/categories for an exam
+- For cloud practitioner, uses cp_context.json ordering/weights when available
 
-```bash
-curl -sS -X POST "$BASE_URL/practice/complete/<session_id>" \
-  -H "Authorization: Bearer $TOKEN"
-```
+### Session and History
 
-Paste response JSON here:
+GET /practice/session/{session_id}
 
-```json
-{}
-```
+- Returns session metadata and user answers
+- session.question_set is sanitized (no answer field)
+- For exam mode before completion, answers omit correct_answer and is_correct
 
-#### 6) Results
+GET /practice/history?limit=...&exam_name=...
 
-```bash
-curl -sS -X GET "$BASE_URL/practice/results/<session_id>" \
-  -H "Authorization: Bearer $TOKEN"
-```
+- Returns recent user sessions with computed score_percent
+- Ordered by most recent start_time
 
-Paste response JSON here:
+### Submit
 
-```json
-{}
-```
+POST /practice/submit
 
-#### 7) History
+- Records or updates answer for a question in the session
+- Rejects submit when session is completed
+- Rejects submit when session is paused
 
-```bash
-curl -sS -X GET "$BASE_URL/practice/history?limit=20&exam_name=cloud%20practitioner" \
-  -H "Authorization: Bearer $TOKEN"
-```
+Response visibility by mode/status:
 
-Paste response JSON here:
+- Practice mode: returns question_hash, is_correct, correct_answer
+- Exam mode before completion: returns question_hash only
 
-```json
-{}
-```
+### Pause/Resume
 
-### Snapshot template: exam mode
+POST /practice/pause/{session_id}
+POST /practice/resume/{session_id}
 
-Repeat the exact same sequence, but with `"mode": "exam"` in the start request.
-Paste the full set of responses here, especially `/practice/submit` and `/practice/session/{session_id}`.
+- Updates session status between paused and in_progress
+- Completed sessions are not transitioned back
 
-```json
-{}
-```
+### Complete
 
-### Start session
-- `POST /practice/start`
-  - Body: `StartPracticeRequest`
-  - Returns: `{ session_id: number, questions: QuestionForClient[] }`
+POST /practice/complete/{session_id}
 
-- `POST /practice/start-section`
-  - Body: `StartSectionPracticeRequest`
-  - Convenience wrapper around `/practice/start` with `categories=[section]`.
+- Marks session completed
+- Sets end_time
+- Returns summary: total_questions, answered, correct, score_percent
 
-### Domain discovery
-- `GET /practice/domains?exam_name=...`
-  - Returns: `{ exam_name: string, domains: DomainInfo[] }`
+### Results
 
-### Session state + history
-- `GET /practice/history?limit=20&exam_name=...`
-  - Returns: `{ history: PracticeHistoryItem[] }`
+GET /practice/results/{session_id}
 
-- `GET /practice/session/{session_id}`
-  - Returns: `{ session: PracticeSession, answers: UserAnswer[] }`
-  - Note: `session.question_set` is sanitized (no answer keys).
+- Practice mode: returns results payload (including answer correctness fields)
+- Exam mode before completion: returns 400
+- Exam mode after completion: returns full results with answer correctness fields
 
-### Answering + completion
-- `POST /practice/submit`
-  - Body: `SubmitAnswerRequest`
-  - Returns: `{ question_hash: string, is_correct: boolean, correct_answer: string | string[] }`
+## Data Sources
 
-- `POST /practice/complete/{session_id}`
-  - Returns: `{ session_id, total_questions, answered, correct, score_percent }`
+For exam_name "cloud practitioner":
 
-- `GET /practice/results/{session_id}`
-  - Returns: `{ session, answers, score_percent, category_breakdown }`
+- Primary questions: src/server/data/cloudpractitioner/cp_questions.json
+- Domain metadata: src/server/data/cloudpractitioner/cp_context.json
 
-## 3) Request Schemas (Pydantic)
+Fallback path (if local question file is unavailable): vector retrieval via services.services.get_exam.
 
-Defined in `src/server/schemas/schema.py`:
+## Request Schemas (Current)
 
-- `StartPracticeRequest`
-  - `exam_name: str`
-  - `categories: List[str]`
-  - `num_questions: int`
+Defined in src/server/schemas/schema.py.
 
-- `StartSectionPracticeRequest`
-  - `exam_name: str`
-  - `section: str`
-  - `num_questions: int`
+- StartPracticeRequest
+- StartSectionPracticeRequest
+- SubmitAnswerRequest
 
-- `SubmitAnswerRequest`
-  - `session_id: int`
-  - `question_hash: str`
-  - `selected_answer: str | List[str]`
-  - `time_spent_seconds: Optional[int] = None`
-  - `flagged: bool = False`
+Current fields include:
 
-## 4) Question Payload Rules
+- exam_name, categories/section, num_questions
+- mode
+- time_limit_seconds
+- shuffle_seed
+- submit payload fields: session_id, question_hash, selected_answer, time_spent_seconds, flagged, is_skipped
 
-### Source question object (internal)
-Built in `src/server/services/practice_services.py` and stored in `practice_sessions.question_set` as a JSON blob:
+## Persistence Model (Current)
 
-- `question_hash` (md5 of question text)
-- `question` (text)
-- `choices` (list)
-- `answer` (string or list)  ← stored server-side
-- `is_multiselect` (bool)
-- `category` (domain)
-- `difficulty` (optional)
+Primary tables used by practice service:
 
-### Question returned to clients
-`_sanitize_question_for_client()` strips answer keys from the question payload. Returned fields:
+### practice_sessions
 
-- `question_hash`, `question`, `choices`, `is_multiselect`, `category`, `difficulty`
+Current expected columns include:
 
-## 5) Data Sources
+- id
+- user_id
+- exam_name
+- selected_categories
+- total_questions
+- mode
+- status
+- start_time
+- end_time
+- question_set
 
-For `exam_name == "cloud practitioner"`:
+Optional columns may also be used when present (service checks dynamically), such as:
 
-- Primary: `src/server/data/cloudpractitioner/cp_questions.json`
-- Metadata: `src/server/data/cloudpractitioner/cp_context.json` (domain weights + ordering)
+- time_limit_seconds
+- shuffle_seed
+- last_activity_at
+- paused_at
+- correct_count
+- answered_count
 
-Fallback (when local JSON isn’t available): `services.services.get_exam()` (vector-store retrieval).
+### user_answers
 
-## 6) Persistence Model (DB)
+Current expected columns include:
 
-The code assumes two tables exist (names are hardcoded in queries):
+- id
+- session_id
+- question_hash
+- question_text
+- selected_answer
+- correct_answer
+- is_correct
+- flagged
+- time_spent_seconds
+- answered_at
+- category
 
-### `practice_sessions`
-Used by `create_practice_session()` and `get_session()`.
+Optional columns may also be used when present:
 
-Implied columns:
-- `id` (PK)
-- `user_id`
-- `exam_name`
-- `selected_categories` (array)
-- `total_questions` (int)
-- `status` (e.g. `in_progress`, `completed`)
-- `start_time` (timestamp)
-- `end_time` (timestamp nullable)
-- `question_set` (JSON)
+- difficulty
+- is_multiselect
+- is_skipped
 
-### `user_answers`
-Written by `submit_answer()`, read by `get_session()`.
+## Environment Configuration
 
-Implied columns:
-- `id` (PK)
-- `session_id` (FK)
-- `question_hash`
-- `question_text`
-- `selected_answer` (JSON)
-- `correct_answer` (JSON)
-- `is_correct` (bool)
-- `flagged` (bool)
-- `time_spent_seconds` (int nullable)
-- `answered_at` (timestamp)
-- `category` (text)
+See src/server/.env.example for baseline variables.
 
-## 7) Env + Local Dev
+Common required variables:
 
-See `src/server/.env.example` for required environment variables:
-- DB: `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`
-- JWT: `JWT_KEY`
+- DB_USER
+- DB_PASSWORD
+- DB_HOST
+- DB_PORT
+- DB_NAME
+- JWT_KEY
+- REDIS_URL
 
-The backend runs via docker compose from `src/infrastructure/docker-compose.yml`.
+## Local Run (Current Team Workflow)
 
-## 8) Known Behavior Notes
+The most reliable local workflow is Docker Compose from src/infrastructure/docker-compose.yml:
 
-- Sessions are user-scoped: session lookup uses `WHERE id = %s AND user_id = %s`.
-- Answer-key leakage is prevented in session/results by sanitizing `question_set` before returning.
-- `/practice/submit` currently returns immediate feedback (correctness + correct answer).
+- postgres service
+- redis service
+- server service
 
-## 9) Next Step (What we’ll change next)
-
-Step 2 will add explicit DB migrations/DDL for the above tables and extend them for exam-mode timing + analytics fields.
+API is exposed on localhost:8000.
