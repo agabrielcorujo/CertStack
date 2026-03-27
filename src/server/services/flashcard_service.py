@@ -1,6 +1,8 @@
 from datetime import date, timedelta
+import hashlib
 from typing import Optional
 from jwt_auth.db.db import DBError, safe_query
+from services.services import get_exam
 
 #flashcard service skeleton
 #implements flashcard flow for upcoming iterations
@@ -18,8 +20,155 @@ def get_flashcards_for_review(
     deck_id: Optional[int],
     limit: int = 20,
 ):
-    """selects flashcards for a user session. to be implemented..."""
-    raise NotImplementedError("get_flashcards_for_review is not implemented yet")
+    """returns cards for a review session, prioritized by due cards then new cards"""
+    normalized_exam = exam.strip().lower()
+    normalized_category = (category or "").strip()
+
+    if not normalized_exam:
+        raise FlashcardError("exam is required", 400)
+
+    if limit <= 0:
+        raise FlashcardError("limit must be greater than 0", 400)
+
+    max_limit = min(limit, 100)
+    today = date.today()
+
+    deck_question_ids = None
+    if deck_id is not None:
+        deck_question_ids = _get_user_deck_question_ids(user_id, deck_id, normalized_exam)
+        if not deck_question_ids:
+            return {
+                "status": "success",
+                "exam": normalized_exam,
+                "category_filter": normalized_category if normalized_category else None,
+                "deck_id": deck_id,
+                "cards": [],
+            }
+
+    try:
+        exam_cards = get_exam(normalized_exam, normalized_category)
+    except Exception as error:
+        raise FlashcardError(status_code=500, message=f"error loading exam cards: {error}")
+
+    if not exam_cards:
+        return {
+            "status": "success",
+            "exam": normalized_exam,
+            "category_filter": normalized_category if normalized_category else None,
+            "deck_id": deck_id,
+            "cards": [],
+        }
+
+    progress_filter_sql, progress_params = _build_exam_category_filter(
+        user_id=user_id,
+        exam=normalized_exam,
+        category=normalized_category,
+    )
+
+    try:
+        progress_rows = safe_query(
+            f"""
+            SELECT
+                question_id,
+                next_review_date,
+                ease_factor,
+                interval_days,
+                repetition_count,
+                correct_count,
+                incorrect_count,
+                last_reviewed_at
+            FROM flashcard_progress
+            WHERE {progress_filter_sql}
+            """,
+            progress_params,
+            fetch="all",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    progress_by_question = {}
+    for row in progress_rows or []:
+        progress_by_question[row[0]] = {
+            "next_review_date": row[1],
+            "ease_factor": float(row[2] or 2.5),
+            "interval_days": int(row[3] or 1),
+            "repetition_count": int(row[4] or 0),
+            "correct_count": int(row[5] or 0),
+            "incorrect_count": int(row[6] or 0),
+            "last_reviewed_at": row[7],
+        }
+
+    due_cards = []
+    new_cards = []
+    review_fallback_cards = []
+
+    for card in exam_cards:
+        question_text = (card.get("question") or "").strip()
+        if not question_text:
+            continue
+
+        question_id = hashlib.md5(question_text.encode("utf-8")).hexdigest()
+        if deck_question_ids is not None and question_id not in deck_question_ids:
+            continue
+
+        progress = progress_by_question.get(question_id)
+        card_payload = {
+            "question_id": question_id,
+            "question": question_text,
+            "choices": card.get("choices"),
+            "answer": card.get("answer"),
+            "difficulty": card.get("difficulty"),
+            "category": card.get("category") or "",
+            "progress": {
+                "next_review_date": str(progress["next_review_date"]) if progress else None,
+                "ease_factor": round(progress["ease_factor"], 4) if progress else None,
+                "interval_days": progress["interval_days"] if progress else None,
+                "repetition_count": progress["repetition_count"] if progress else 0,
+                "correct_count": progress["correct_count"] if progress else 0,
+                "incorrect_count": progress["incorrect_count"] if progress else 0,
+            },
+        }
+
+        if not progress:
+            new_cards.append(card_payload)
+            continue
+
+        if progress["next_review_date"] and progress["next_review_date"] <= today:
+            due_cards.append(card_payload)
+        else:
+            review_fallback_cards.append(card_payload)
+
+    due_cards.sort(
+        key=lambda card: (
+            card["progress"]["next_review_date"] or "9999-12-31",
+            card["progress"]["repetition_count"],
+        )
+    )
+
+    selected_cards = []
+    selected_cards.extend(due_cards[:max_limit])
+
+    remaining = max_limit - len(selected_cards)
+    if remaining > 0:
+        selected_cards.extend(new_cards[:remaining])
+
+    remaining = max_limit - len(selected_cards)
+    if remaining > 0:
+        selected_cards.extend(review_fallback_cards[:remaining])
+
+    return {
+        "status": "success",
+        "exam": normalized_exam,
+        "category_filter": normalized_category if normalized_category else None,
+        "deck_id": deck_id,
+        "counts": {
+            "due": len(due_cards),
+            "new": len(new_cards),
+            "fallback": len(review_fallback_cards),
+            "selected": len(selected_cards),
+        },
+        "cards": selected_cards,
+    }
 
 def record_review(
     user_id: str,
@@ -529,3 +678,38 @@ def _resolve_exam_and_category_for_question(user_id: str, question_id: str):
         return row[0], ""
 
     return "unknown", ""
+
+
+def _get_user_deck_question_ids(user_id: str, deck_id: int, exam: str):
+    _ensure_deck_ownership(user_id, deck_id)
+
+    try:
+        deck = safe_query(
+            """
+            SELECT exam
+            FROM user_flashcard_decks
+            WHERE id = %s AND user_id = %s
+            """,
+            (deck_id, user_id),
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    if deck and (deck[0] or "").strip().lower() != exam:
+        raise FlashcardError("deck exam does not match requested exam", 400)
+
+    try:
+        rows = safe_query(
+            """
+            SELECT question_id
+            FROM flashcard_deck_questions
+            WHERE deck_id = %s
+            """,
+            (deck_id,),
+            fetch="all",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    return {row[0] for row in rows or []}
