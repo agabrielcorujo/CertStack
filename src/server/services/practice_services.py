@@ -18,6 +18,21 @@ def _hash_question(question_text: str) -> str:
     return hashlib.md5(question_text.encode("utf-8")).hexdigest()
 
 
+def _to_json_param(value: Any) -> Any:
+    if value is None:
+        return None
+    return json.dumps(value)
+
+
+def _from_json_value(value: Any) -> Any:
+    if isinstance(value, str):
+        try:
+            return json.loads(value)
+        except Exception:
+            return value
+    return value
+
+
 def _db():
     """Import DB helpers lazily.
 
@@ -73,17 +88,17 @@ def _extract_id(row: Union[Dict[str, Any], Sequence[Any]]) -> Any:
 _DB_COLUMNS_CACHE: Dict[str, Set[str]] = {}
 
 
-def _get_table_columns(table: str) -> Set[str]:
+async def _get_table_columns(table: str) -> Set[str]:
     if table in _DB_COLUMNS_CACHE:
         return _DB_COLUMNS_CACHE[table]
 
     DBError, safe_query = _db()
     try:
-        rows = safe_query(
+        rows = await safe_query(
             """
             SELECT column_name
             FROM information_schema.columns
-            WHERE table_schema = 'public' AND table_name = %s
+            WHERE table_schema = 'public' AND table_name = $1
             """,
             (table,),
             fetch="all",
@@ -106,8 +121,8 @@ def _get_table_columns(table: str) -> Set[str]:
     return cols
 
 
-def _has_column(table: str, column: str) -> bool:
-    return column in _get_table_columns(table)
+async def _has_column(table: str, column: str) -> bool:
+    return column in (await _get_table_columns(table))
 
 
 def _shuffle_questions(pool: List[Dict[str, Any]], shuffle_seed: Optional[int]) -> None:
@@ -304,7 +319,7 @@ def _fetch_question_pool(exam_name: str, categories: List[str]) -> List[Dict[str
     return list(pool.values())
 
 
-def create_practice_session(
+async def create_practice_session(
     user_id: str,
     exam_name: str,
     categories: List[str],
@@ -323,44 +338,53 @@ def create_practice_session(
 
     DBError, safe_query = _db()
 
-    session_cols = _get_table_columns("practice_sessions")
+    session_cols = await _get_table_columns("practice_sessions")
     include_mode = "mode" in session_cols
     include_time_limit = "time_limit_seconds" in session_cols
     include_seed = "shuffle_seed" in session_cols
     include_last_activity = "last_activity_at" in session_cols
 
-    columns: List[str] = ["user_id", "exam_name", "selected_categories", "total_questions", "status", "start_time", "question_set"]
-    values_sql: List[str] = ["%s", "%s", "%s", "%s", "%s", "NOW()", "%s"]
-    params: List[Any] = [user_id, exam_name, categories, len(questions), "in_progress", questions]
+    columns: List[str] = []
+    values_sql: List[str] = []
+    params: List[Any] = []
+
+    def add_value(column: str, value: Any = None, *, literal_sql: Optional[str] = None) -> None:
+        columns.append(column)
+        if literal_sql is not None:
+            values_sql.append(literal_sql)
+            return
+        params.append(value)
+        values_sql.append(f"${len(params)}")
+
+    add_value("user_id", user_id)
+    add_value("exam_name", exam_name)
+    add_value("selected_categories", categories)
+    add_value("total_questions", len(questions))
+    add_value("status", "in_progress")
+    add_value("start_time", literal_sql="NOW()")
+    add_value("question_set", _to_json_param(questions))
+    values_sql[-1] = f"{values_sql[-1]}::jsonb"
 
     if include_mode:
-        columns.insert(5, "mode")
-        values_sql.insert(5, "%s")
-        params.insert(5, mode)
+        add_value("mode", mode)
 
     if include_time_limit:
-        columns.insert(5, "time_limit_seconds")
-        values_sql.insert(5, "%s")
-        params.insert(5, time_limit_seconds)
+        add_value("time_limit_seconds", time_limit_seconds)
 
     if include_seed:
-        columns.insert(5, "shuffle_seed")
-        values_sql.insert(5, "%s")
-        params.insert(5, shuffle_seed)
+        add_value("shuffle_seed", shuffle_seed)
 
     if include_last_activity:
-        columns.insert(5, "last_activity_at")
-        values_sql.insert(5, "NOW()")
+        add_value("last_activity_at", literal_sql="NOW()")
 
     try:
-        res = safe_query(
+        res = await safe_query(
             f"""
             INSERT INTO practice_sessions ({', '.join(columns)})
             VALUES ({', '.join(values_sql)})
             RETURNING id
             """,
             tuple(params),
-            insert=True,
             fetch="one",
         )
     except DBError as error:
@@ -375,8 +399,8 @@ def create_practice_session(
     return {"session_id": session_id, "questions": [_sanitize_question_for_client(q) for q in questions]}
 
 
-def get_session(session_id: int, user_id: str, include_answer_key: bool = False) -> Dict[str, Any]:
-    session_cols = _get_table_columns("practice_sessions")
+async def get_session(session_id: int, user_id: str, include_answer_key: bool = False) -> Dict[str, Any]:
+    session_cols = await _get_table_columns("practice_sessions")
     optional_cols = [
         c
         for c in [
@@ -405,11 +429,11 @@ def get_session(session_id: int, user_id: str, include_answer_key: bool = False)
 
     DBError, safe_query = _db()
     try:
-        session_row = safe_query(
+        session_row = await safe_query(
             f"""
             SELECT {', '.join(session_keys)}
             FROM practice_sessions
-            WHERE id = %s AND user_id = %s
+            WHERE id = $1 AND user_id = $2
             """,
             (session_id, user_id),
             fetch="one",
@@ -424,6 +448,8 @@ def get_session(session_id: int, user_id: str, include_answer_key: bool = False)
 
     session = _as_dict(session_row, session_keys)
 
+    session["question_set"] = _from_json_value(session.get("question_set"))
+
     # Normalize paused state for clients.
     if session.get("status") == "paused" and "paused_at" not in session:
         session["paused_at"] = None
@@ -435,7 +461,7 @@ def get_session(session_id: int, user_id: str, include_answer_key: bool = False)
             session["question_set"] = [_sanitize_question_for_client(q) for q in question_set]
 
     try:
-        answer_cols = _get_table_columns("user_answers")
+        answer_cols = await _get_table_columns("user_answers")
         extra_answer_cols = [c for c in ["difficulty", "is_multiselect", "is_skipped"] if c in answer_cols]
         answer_select = [
             "question_hash",
@@ -449,11 +475,11 @@ def get_session(session_id: int, user_id: str, include_answer_key: bool = False)
             "category",
         ] + extra_answer_cols
 
-        answers_rows = safe_query(
+        answers_rows = await safe_query(
             f"""
             SELECT {', '.join(answer_select)}
             FROM user_answers
-            WHERE session_id = %s
+            WHERE session_id = $1
             ORDER BY answered_at
             """,
             (session_id,),
@@ -479,11 +505,12 @@ def get_session(session_id: int, user_id: str, include_answer_key: bool = False)
                 "category",
             ] + extra_answer_cols
             answers.append(
-                _as_dict(
-                    row,
-                    keys,
-                )
+                _as_dict(row, keys)
             )
+
+    for ans in answers:
+        ans["selected_answer"] = _from_json_value(ans.get("selected_answer"))
+        ans["correct_answer"] = _from_json_value(ans.get("correct_answer"))
 
     return {
         "session": session,
@@ -491,7 +518,7 @@ def get_session(session_id: int, user_id: str, include_answer_key: bool = False)
     }
 
 
-def submit_answer(
+async def submit_answer(
     session_id: int,
     user_id: str,
     question_hash: str,
@@ -500,7 +527,7 @@ def submit_answer(
     flagged: bool,
     is_skipped: bool = False,
 ) -> Dict[str, Any]:
-    session_data = get_session(session_id, user_id, include_answer_key=True)
+    session_data = await get_session(session_id, user_id, include_answer_key=True)
     session = session_data.get("session", {})
 
     if session.get("status") == "completed":
@@ -526,8 +553,8 @@ def submit_answer(
 
     DBError, safe_query = _db()
     try:
-        existing = safe_query(
-            "SELECT id FROM user_answers WHERE session_id = %s AND question_hash = %s",
+        existing = await safe_query(
+            "SELECT id FROM user_answers WHERE session_id = $1 AND question_hash = $2",
             (session_id, question_hash),
             fetch="one",
         )
@@ -537,91 +564,94 @@ def submit_answer(
         raise PracticeError(message=str(exc), status_code=500)
 
     try:
-        answer_cols = _get_table_columns("user_answers")
+        answer_cols = await _get_table_columns("user_answers")
 
         if existing:
-            set_parts: List[str] = [
-                "selected_answer = %s",
-                "is_correct = %s",
-                "flagged = %s",
-                "time_spent_seconds = %s",
-            ]
-            update_params: List[Any] = [normalized_selected, is_correct, flagged, time_spent_seconds]
+            set_parts: List[str] = []
+            update_params: List[Any] = []
+
+            def add_set(column: str, value: Any, *, cast_jsonb: bool = False) -> None:
+                update_params.append(value)
+                placeholder = f"${len(update_params)}"
+                if cast_jsonb:
+                    placeholder = f"{placeholder}::jsonb"
+                set_parts.append(f"{column} = {placeholder}")
+
+            add_set("selected_answer", _to_json_param(normalized_selected), cast_jsonb=True)
+            add_set("is_correct", is_correct)
+            add_set("flagged", flagged)
+            add_set("time_spent_seconds", time_spent_seconds)
 
             if "difficulty" in answer_cols:
-                set_parts.append("difficulty = %s")
-                update_params.append(target_question.get("difficulty"))
+                add_set("difficulty", target_question.get("difficulty"))
 
             if "is_multiselect" in answer_cols:
-                set_parts.append("is_multiselect = %s")
-                update_params.append(bool(target_question.get("is_multiselect")))
+                add_set("is_multiselect", bool(target_question.get("is_multiselect")))
 
             if "is_skipped" in answer_cols:
-                set_parts.append("is_skipped = %s")
-                update_params.append(bool(is_skipped))
+                add_set("is_skipped", bool(is_skipped))
 
             set_parts.append("answered_at = NOW()")
 
-            safe_query(
+            update_params.extend([session_id, question_hash])
+            where_session = f"${len(update_params) - 1}"
+            where_hash = f"${len(update_params)}"
+
+            await safe_query(
                 f"""
                 UPDATE user_answers
                 SET {', '.join(set_parts)}
-                WHERE session_id = %s AND question_hash = %s
+                WHERE session_id = {where_session} AND question_hash = {where_hash}
                 RETURNING id
                 """,
-                tuple(update_params + [session_id, question_hash]),
-                insert=True,
+                tuple(update_params),
                 fetch="one",
             )
         else:
-            insert_cols: List[str] = [
-                "session_id",
-                "question_hash",
-                "question_text",
-                "selected_answer",
-                "correct_answer",
-                "is_correct",
-                "flagged",
-                "time_spent_seconds",
-                "answered_at",
-                "category",
-            ]
-            insert_vals: List[str] = ["%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "NOW()", "%s"]
-            insert_params: List[Any] = [
-                session_id,
-                question_hash,
-                target_question.get("question"),
-                normalized_selected,
-                correct_answer,
-                is_correct,
-                flagged,
-                time_spent_seconds,
-                target_question.get("category"),
-            ]
+            insert_cols: List[str] = []
+            insert_vals: List[str] = []
+            insert_params: List[Any] = []
+
+            def add_insert(
+                column: str, value: Any = None, *, literal_sql: Optional[str] = None, cast_jsonb: bool = False
+            ) -> None:
+                insert_cols.append(column)
+                if literal_sql is not None:
+                    insert_vals.append(literal_sql)
+                    return
+                insert_params.append(value)
+                placeholder = f"${len(insert_params)}"
+                if cast_jsonb:
+                    placeholder = f"{placeholder}::jsonb"
+                insert_vals.append(placeholder)
+
+            add_insert("session_id", session_id)
+            add_insert("question_hash", question_hash)
+            add_insert("question_text", target_question.get("question"))
+            add_insert("selected_answer", _to_json_param(normalized_selected), cast_jsonb=True)
+            add_insert("correct_answer", _to_json_param(correct_answer), cast_jsonb=True)
+            add_insert("is_correct", is_correct)
+            add_insert("flagged", flagged)
+            add_insert("time_spent_seconds", time_spent_seconds)
+            add_insert("answered_at", literal_sql="NOW()")
+            add_insert("category", target_question.get("category"))
 
             if "difficulty" in answer_cols:
-                insert_cols.insert(-1, "difficulty")
-                insert_vals.insert(-1, "%s")
-                insert_params.insert(-1, target_question.get("difficulty"))
+                add_insert("difficulty", target_question.get("difficulty"))
 
             if "is_multiselect" in answer_cols:
-                insert_cols.insert(-1, "is_multiselect")
-                insert_vals.insert(-1, "%s")
-                insert_params.insert(-1, bool(target_question.get("is_multiselect")))
+                add_insert("is_multiselect", bool(target_question.get("is_multiselect")))
 
             if "is_skipped" in answer_cols:
-                insert_cols.insert(-1, "is_skipped")
-                insert_vals.insert(-1, "%s")
-                insert_params.insert(-1, bool(is_skipped))
+                add_insert("is_skipped", bool(is_skipped))
 
-            safe_query(
+            await safe_query(
                 f"""
                 INSERT INTO user_answers ({', '.join(insert_cols)})
                 VALUES ({', '.join(insert_vals)})
                 RETURNING id
                 """,
                 tuple(insert_params),
-                insert=True,
                 fetch="one",
             )
     except DBError as error:
@@ -631,12 +661,10 @@ def submit_answer(
 
     # Best-effort update session activity timestamp if supported.
     try:
-        if _has_column("practice_sessions", "last_activity_at"):
-            safe_query(
-                "UPDATE practice_sessions SET last_activity_at = NOW() WHERE id = %s AND user_id = %s",
+        if await _has_column("practice_sessions", "last_activity_at"):
+            await safe_query(
+                "UPDATE practice_sessions SET last_activity_at = NOW() WHERE id = $1 AND user_id = $2",
                 (session_id, user_id),
-                insert=True,
-                fetch="one",
             )
     except Exception:
         pass
@@ -644,39 +672,46 @@ def submit_answer(
     return {"question_hash": question_hash, "is_correct": is_correct, "correct_answer": correct_answer}
 
 
-def pause_session(session_id: int, user_id: str) -> Dict[str, Any]:
+async def pause_session(session_id: int, user_id: str) -> Dict[str, Any]:
     DBError, safe_query = _db()
     try:
-        has_paused_at = _has_column("practice_sessions", "paused_at")
-        has_last_activity = _has_column("practice_sessions", "last_activity_at")
+        has_paused_at = await _has_column("practice_sessions", "paused_at")
+        has_last_activity = await _has_column("practice_sessions", "last_activity_at")
 
         if has_paused_at:
-            set_parts = ["status = %s", "paused_at = NOW()"]
-            params: List[Any] = ["paused"]
+            set_parts: List[str] = []
+            params: List[Any] = []
+
+            params.append("paused")
+            set_parts.append(f"status = ${len(params)}")
+            set_parts.append("paused_at = NOW()")
             if has_last_activity:
                 set_parts.append("last_activity_at = NOW()")
 
-            safe_query(
+            params.extend([session_id, user_id, "completed"])
+            where_id = f"${len(params) - 2}"
+            where_user = f"${len(params) - 1}"
+            where_completed = f"${len(params)}"
+
+            await safe_query(
                 f"""
                 UPDATE practice_sessions
                 SET {', '.join(set_parts)}
-                WHERE id = %s AND user_id = %s AND status != %s
+                WHERE id = {where_id} AND user_id = {where_user} AND status != {where_completed}
                 RETURNING id
                 """,
-                tuple(params + [session_id, user_id, "completed"]),
-                insert=True,
+                tuple(params),
                 fetch="one",
             )
         else:
-            safe_query(
+            await safe_query(
                 """
                 UPDATE practice_sessions
-                SET status = %s
-                WHERE id = %s AND user_id = %s AND status != %s
+                SET status = $1
+                WHERE id = $2 AND user_id = $3 AND status != $4
                 RETURNING id
                 """,
                 ("paused", session_id, user_id, "completed"),
-                insert=True,
                 fetch="one",
             )
     except DBError as error:
@@ -687,39 +722,46 @@ def pause_session(session_id: int, user_id: str) -> Dict[str, Any]:
     return {"session_id": session_id, "status": "paused"}
 
 
-def resume_session(session_id: int, user_id: str) -> Dict[str, Any]:
+async def resume_session(session_id: int, user_id: str) -> Dict[str, Any]:
     DBError, safe_query = _db()
     try:
-        has_paused_at = _has_column("practice_sessions", "paused_at")
-        has_last_activity = _has_column("practice_sessions", "last_activity_at")
+        has_paused_at = await _has_column("practice_sessions", "paused_at")
+        has_last_activity = await _has_column("practice_sessions", "last_activity_at")
 
         if has_paused_at:
-            set_parts = ["status = %s", "paused_at = NULL"]
-            params: List[Any] = ["in_progress"]
+            set_parts: List[str] = []
+            params: List[Any] = []
+
+            params.append("in_progress")
+            set_parts.append(f"status = ${len(params)}")
+            set_parts.append("paused_at = NULL")
             if has_last_activity:
                 set_parts.append("last_activity_at = NOW()")
 
-            safe_query(
+            params.extend([session_id, user_id, "completed"])
+            where_id = f"${len(params) - 2}"
+            where_user = f"${len(params) - 1}"
+            where_completed = f"${len(params)}"
+
+            await safe_query(
                 f"""
                 UPDATE practice_sessions
                 SET {', '.join(set_parts)}
-                WHERE id = %s AND user_id = %s AND status != %s
+                WHERE id = {where_id} AND user_id = {where_user} AND status != {where_completed}
                 RETURNING id
                 """,
-                tuple(params + [session_id, user_id, "completed"]),
-                insert=True,
+                tuple(params),
                 fetch="one",
             )
         else:
-            safe_query(
+            await safe_query(
                 """
                 UPDATE practice_sessions
-                SET status = %s
-                WHERE id = %s AND user_id = %s AND status != %s
+                SET status = $1
+                WHERE id = $2 AND user_id = $3 AND status != $4
                 RETURNING id
                 """,
                 ("in_progress", session_id, user_id, "completed"),
-                insert=True,
                 fetch="one",
             )
     except DBError as error:
@@ -730,13 +772,13 @@ def resume_session(session_id: int, user_id: str) -> Dict[str, Any]:
     return {"session_id": session_id, "status": "in_progress"}
 
 
-def complete_session(session_id: int, user_id: str) -> Dict[str, Any]:
-    data = get_session(session_id, user_id)
+async def complete_session(session_id: int, user_id: str) -> Dict[str, Any]:
+    data = await get_session(session_id, user_id)
     session = data.get("session", {})
     answers = data.get("answers", [])
 
     if session.get("status") == "completed":
-        return get_session_results(session_id, user_id)
+        return await get_session_results(session_id, user_id)
 
     total_questions = session.get("total_questions", len(session.get("question_set", [])))
     total_answered = len(answers)
@@ -748,29 +790,27 @@ def complete_session(session_id: int, user_id: str) -> Dict[str, Any]:
 
     DBError, safe_query = _db()
     try:
-        session_cols = _get_table_columns("practice_sessions")
+        session_cols = await _get_table_columns("practice_sessions")
         if "correct_count" in session_cols or "answered_count" in session_cols:
-            safe_query(
+            await safe_query(
                 """
                 UPDATE practice_sessions
-                SET status = %s, end_time = NOW(), correct_count = %s, answered_count = %s
-                WHERE id = %s AND user_id = %s
+                SET status = $1, end_time = NOW(), correct_count = $2, answered_count = $3
+                WHERE id = $4 AND user_id = $5
                 RETURNING id
                 """,
                 ("completed", correct_count, total_answered, session_id, user_id),
-                insert=True,
                 fetch="one",
             )
         else:
-            safe_query(
+            await safe_query(
                 """
                 UPDATE practice_sessions
-                SET status = %s, end_time = NOW()
-                WHERE id = %s AND user_id = %s
+                SET status = $1, end_time = NOW()
+                WHERE id = $2 AND user_id = $3
                 RETURNING id
                 """,
                 ("completed", session_id, user_id),
-                insert=True,
                 fetch="one",
             )
     except DBError as error:
@@ -787,8 +827,8 @@ def complete_session(session_id: int, user_id: str) -> Dict[str, Any]:
     }
 
 
-def get_session_results(session_id: int, user_id: str) -> Dict[str, Any]:
-    data = get_session(session_id, user_id)
+async def get_session_results(session_id: int, user_id: str) -> Dict[str, Any]:
+    data = await get_session(session_id, user_id)
     session = data.get("session", {})
     answers = data.get("answers", [])
 
@@ -819,18 +859,22 @@ def get_session_results(session_id: int, user_id: str) -> Dict[str, Any]:
     }
 
 
-def get_practice_history(user_id: str, limit: int = 20, exam_name: Optional[str] = None) -> List[Dict[str, Any]]:
+async def get_practice_history(user_id: str, limit: int = 20, exam_name: Optional[str] = None) -> List[Dict[str, Any]]:
     limit = max(1, min(int(limit), 100))
-    params: List[Any] = [user_id]
+    params: List[Any] = []
     exam_filter_sql = ""
+
+    params.append(user_id)
     if exam_name:
-        exam_filter_sql = " AND ps.exam_name = %s"
         params.append(exam_name)
+        exam_filter_sql = f" AND ps.exam_name = ${len(params)}"
+
     params.append(limit)
+    limit_placeholder = f"${len(params)}"
 
     DBError, safe_query = _db()
     try:
-        rows = safe_query(
+        rows = await safe_query(
             f"""
             SELECT
                 ps.id,
@@ -844,10 +888,10 @@ def get_practice_history(user_id: str, limit: int = 20, exam_name: Optional[str]
                 COALESCE(COUNT(ua.question_hash), 0) AS answered
             FROM practice_sessions ps
             LEFT JOIN user_answers ua ON ua.session_id = ps.id
-            WHERE ps.user_id = %s{exam_filter_sql}
+            WHERE ps.user_id = $1{exam_filter_sql}
             GROUP BY ps.id
             ORDER BY ps.start_time DESC
-            LIMIT %s
+            LIMIT {limit_placeholder}
             """,
             tuple(params),
             fetch="all",
