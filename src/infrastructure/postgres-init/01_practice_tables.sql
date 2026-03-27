@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS practice_sessions (
   exam_name TEXT NOT NULL,
   selected_categories TEXT[] NOT NULL DEFAULT '{}',
   total_questions INT NOT NULL,
+  mode TEXT NOT NULL DEFAULT 'practice',
   status TEXT NOT NULL,
   start_time TIMESTAMP NOT NULL DEFAULT NOW(),
   end_time TIMESTAMP NULL,

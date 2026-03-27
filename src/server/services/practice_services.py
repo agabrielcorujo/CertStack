@@ -140,6 +140,40 @@ def _normalize_mode(mode: Optional[str]) -> str:
     return value
 
 
+def _is_exam_mode(session: Dict[str, Any]) -> bool:
+    return str(session.get("mode") or "practice").strip().lower() == "exam"
+
+
+def _should_reveal_answer_key(session: Dict[str, Any]) -> bool:
+    if not _is_exam_mode(session):
+        return True
+    return str(session.get("status") or "").strip().lower() == "completed"
+
+
+async def _ensure_practice_sessions_mode_column() -> None:
+    """Best-effort schema shim until Alembic migrations land.
+
+    Some dev DBs may not have a `mode` column yet, which makes it impossible to
+    enforce exam-mode secrecy. This adds the column safely when missing.
+    """
+
+    if await _has_column("practice_sessions", "mode"):
+        return
+
+    DBError, safe_query = _db()
+    try:
+        await safe_query(
+            "ALTER TABLE practice_sessions ADD COLUMN IF NOT EXISTS mode TEXT NOT NULL DEFAULT 'practice'",
+            (),
+        )
+    except DBError:
+        return
+    except Exception:
+        return
+
+    _DB_COLUMNS_CACHE.pop("practice_sessions", None)
+
+
 _EXAM_DATA_SOURCES: Dict[str, Dict[str, str]] = {
     "cloud practitioner": {
         "folder": "cloudpractitioner",
@@ -336,6 +370,8 @@ async def create_practice_session(
     _shuffle_questions(pool, shuffle_seed)
     questions = pool[: max(1, num_questions)]
 
+    await _ensure_practice_sessions_mode_column()
+
     DBError, safe_query = _db()
 
     session_cols = await _get_table_columns("practice_sessions")
@@ -399,7 +435,15 @@ async def create_practice_session(
     return {"session_id": session_id, "questions": [_sanitize_question_for_client(q) for q in questions]}
 
 
-async def get_session(session_id: int, user_id: str, include_answer_key: bool = False) -> Dict[str, Any]:
+async def get_session(
+    session_id: int,
+    user_id: str,
+    include_answer_key: bool = False,
+    *,
+    sanitize_answers: bool = True,
+) -> Dict[str, Any]:
+    await _ensure_practice_sessions_mode_column()
+
     session_cols = await _get_table_columns("practice_sessions")
     optional_cols = [
         c
@@ -512,6 +556,11 @@ async def get_session(session_id: int, user_id: str, include_answer_key: bool = 
         ans["selected_answer"] = _from_json_value(ans.get("selected_answer"))
         ans["correct_answer"] = _from_json_value(ans.get("correct_answer"))
 
+    if sanitize_answers and (not _should_reveal_answer_key(session)):
+        for ans in answers:
+            ans.pop("correct_answer", None)
+            ans.pop("is_correct", None)
+
     return {
         "session": session,
         "answers": answers,
@@ -527,7 +576,7 @@ async def submit_answer(
     flagged: bool,
     is_skipped: bool = False,
 ) -> Dict[str, Any]:
-    session_data = await get_session(session_id, user_id, include_answer_key=True)
+    session_data = await get_session(session_id, user_id, include_answer_key=True, sanitize_answers=False)
     session = session_data.get("session", {})
 
     if session.get("status") == "completed":
@@ -669,6 +718,9 @@ async def submit_answer(
     except Exception:
         pass
 
+    if not _should_reveal_answer_key(session):
+        return {"question_hash": question_hash}
+
     return {"question_hash": question_hash, "is_correct": is_correct, "correct_answer": correct_answer}
 
 
@@ -773,7 +825,7 @@ async def resume_session(session_id: int, user_id: str) -> Dict[str, Any]:
 
 
 async def complete_session(session_id: int, user_id: str) -> Dict[str, Any]:
-    data = await get_session(session_id, user_id)
+    data = await get_session(session_id, user_id, sanitize_answers=False)
     session = data.get("session", {})
     answers = data.get("answers", [])
 
@@ -828,9 +880,12 @@ async def complete_session(session_id: int, user_id: str) -> Dict[str, Any]:
 
 
 async def get_session_results(session_id: int, user_id: str) -> Dict[str, Any]:
-    data = await get_session(session_id, user_id)
+    data = await get_session(session_id, user_id, sanitize_answers=False)
     session = data.get("session", {})
     answers = data.get("answers", [])
+
+    if _is_exam_mode(session) and str(session.get("status") or "").strip().lower() != "completed":
+        raise PracticeError(message="Results are only available after exam completion", status_code=400)
 
     total_questions = session.get("total_questions", len(session.get("question_set", [])))
     correct_count = len([a for a in answers if a.get("is_correct")])
