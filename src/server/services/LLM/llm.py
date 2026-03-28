@@ -6,6 +6,14 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import MessagesPlaceholder, HumanMessagePromptTemplate
 from langchain_core.chat_history import InMemoryChatMessageHistory
 from psycopg2 import sql
+
+from services import (
+    ALLOWED_READ_COLUMNS,
+    ALLOWED_WRITE_COLUMNS,
+    ToolError,
+    sql_read_tool,
+)
+
 import os,json as j
 from dotenv import load_dotenv
 load_dotenv("src/server/services/LLM/.env.llm")
@@ -43,6 +51,9 @@ SCHEMA_COLUMNS = [#need specific exam names
     "not_expected_depth", "llm_answering_rules"
     ]
 
+TOOL_MAP = {
+    "sql_read_tool" = sql_read_tool
+}
 if not all(ENVS.values()):
 
     raise RuntimeError("LLM configuration error")

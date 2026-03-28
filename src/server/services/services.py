@@ -19,6 +19,14 @@ from langchain_openai import OpenAIEmbeddings
 from langchain.tools import tool
 
 
+ALLOWED_READ_COLUMNS = {  # {"table": [...], ...}
+       #"users":["email","first_name","last_name","phone","major","graduation_date","resume","minor"]
+} 
+
+ALLOWED_WRITE_COLUMNS = { # {"ta": [...], ...}
+        #"users":["email","phone","mbleajor","graduation_date","minor"]
+}  
+
 def initialize_config():
     load_dotenv()
     os.environ["UPSTASH_VECTOR_REST_URL"] = "https://loving-kingfish-56853-us1-vector.upstash.io"
@@ -132,6 +140,42 @@ def get_metadata(query: str, k: int = 1)->list[dict]:
         
     return formatted_results
 
+
+
+'''LLM TOOLs'''
+
+async def sql_read_tool(table: str, columns: list, id: str) -> dict:
+
+    if table not in ALLOWED_READ_COLUMNS:
+        raise ToolError("Unauthorized", 403)
+
+    if not columns:
+        raise ToolError("No columns requested", 400)
+
+    for col in columns:
+        if col not in ALLOWED_READ_COLUMNS[table]:
+            raise ToolError("Unauthorized column", 403)
+
+    query = f"""
+        SELECT {', '.join(columns)}
+        FROM {table}
+        WHERE id = $1
+    """
+
+    try:
+        results = await safe_query(query, (id,), fetch="one")
+    except DBError as e:
+        print(e)
+        raise ToolError("Error fetching solicited data", 500)
+
+    if not results:
+        return {"status":"nothing returned"}
+
+    return {"status": "success",
+            "result": {
+        column: results[index]
+        for index, column in enumerate(columns)
+    }}
 
 
 
