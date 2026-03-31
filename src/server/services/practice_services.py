@@ -285,19 +285,28 @@ def _assert_session_operation_allowed(operation: str, session: Dict[str, Any]) -
 async def _ensure_practice_sessions_mode_column() -> None:
     """Best-effort schema shim until Alembic migrations land.
 
-    Some dev DBs may not have a `mode` column yet, which makes it impossible to
-    enforce exam-mode secrecy. This adds the column safely when missing.
+    Some dev DBs may not have newer columns yet. Add the minimum set needed for
+    exam-mode secrecy and exam time-limit behavior.
     """
 
-    if await _has_column("practice_sessions", "mode"):
+    needs_mode = not (await _has_column("practice_sessions", "mode"))
+    needs_time_limit = not (await _has_column("practice_sessions", "time_limit_seconds"))
+
+    if not needs_mode and not needs_time_limit:
         return
 
     DBError, safe_query = _db()
     try:
-        await safe_query(
-            "ALTER TABLE practice_sessions ADD COLUMN IF NOT EXISTS mode TEXT NOT NULL DEFAULT 'practice'",
-            (),
-        )
+        if needs_mode:
+            await safe_query(
+                "ALTER TABLE practice_sessions ADD COLUMN IF NOT EXISTS mode TEXT NOT NULL DEFAULT 'practice'",
+                (),
+            )
+        if needs_time_limit:
+            await safe_query(
+                "ALTER TABLE practice_sessions ADD COLUMN IF NOT EXISTS time_limit_seconds INTEGER",
+                (),
+            )
     except DBError:
         return
     except Exception:

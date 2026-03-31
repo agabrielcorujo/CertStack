@@ -54,6 +54,12 @@ Two modes are supported in start requests:
 
 Mode affects answer-key visibility.
 
+Additional mode guarantees implemented:
+
+- Practice mode can reveal correctness immediately after submit.
+- Exam mode never reveals answer keys or correctness until the session is completed.
+- Exam mode can enforce a time limit when time_limit_seconds is provided.
+
 ## Endpoint Behavior (Current)
 
 ### Start Session
@@ -83,6 +89,8 @@ GET /practice/session/{session_id}
 - Returns session metadata and user answers
 - session.question_set is sanitized (no answer field)
 - For exam mode before completion, answers omit correct_answer and is_correct
+- For exam mode with time_limit_seconds set, session fetch applies expiry check:
+	if now >= start_time + time_limit_seconds, session is auto-marked completed
 
 GET /practice/history?limit=...&exam_name=...
 
@@ -94,21 +102,28 @@ GET /practice/history?limit=...&exam_name=...
 POST /practice/submit
 
 - Records or updates answer for a question in the session
-- Rejects submit when session is completed
-- Rejects submit when session is paused
+- State guardrails:
+	- Allowed only when status is in_progress
+	- Rejects submit when session is paused (400)
+	- Rejects submit when session is completed (400)
+	- Rejects submit for any non-in_progress state (400)
 
 Response visibility by mode/status:
 
 - Practice mode: returns question_hash, is_correct, correct_answer
 - Exam mode before completion: returns question_hash only
+- Exam mode after completion: returns correctness fields in results/session views (not pre-completion submit responses)
 
 ### Pause/Resume
 
 POST /practice/pause/{session_id}
 POST /practice/resume/{session_id}
 
-- Updates session status between paused and in_progress
-- Completed sessions are not transitioned back
+- State guardrails:
+	- pause is allowed only from in_progress
+	- resume is allowed only from paused
+	- completed sessions are terminal and cannot pause/resume
+	- invalid transitions return 400 consistently
 
 ### Complete
 
@@ -117,6 +132,10 @@ POST /practice/complete/{session_id}
 - Marks session completed
 - Sets end_time
 - Returns summary: total_questions, answered, correct, score_percent
+- State guardrails:
+	- complete is allowed from in_progress or paused
+	- completed is terminal
+	- complete on an already completed session is idempotent (returns current results)
 
 ### Results
 
@@ -125,6 +144,7 @@ GET /practice/results/{session_id}
 - Practice mode: returns results payload (including answer correctness fields)
 - Exam mode before completion: returns 400
 - Exam mode after completion: returns full results with answer correctness fields
+- For expired timed exam sessions, results become available once auto-completion occurs.
 
 ## Data Sources
 
@@ -142,6 +162,13 @@ Defined in src/server/schemas/schema.py.
 - StartPracticeRequest
 - StartSectionPracticeRequest
 - SubmitAnswerRequest
+
+Validation guardrails currently enforced by schema:
+
+- mode must be one of: practice | exam
+- num_questions must be in [1, 100]
+- time_spent_seconds must be >= 0 when provided
+- selected_answer is required unless is_skipped=true
 
 Current fields include:
 
@@ -178,6 +205,12 @@ Optional columns may also be used when present (service checks dynamically), suc
 - paused_at
 - correct_count
 - answered_count
+
+Compatibility behavior (important for onboarding):
+
+- Service includes best-effort schema shims for pre-migration dev DBs.
+- On runtime access, missing mode and time_limit_seconds columns are added if absent.
+- This preserves exam secrecy and exam-expiry behavior even before Alembic rollout.
 
 ### user_answers
 
@@ -224,3 +257,14 @@ The most reliable local workflow is Docker Compose from src/infrastructure/docke
 - server service
 
 API is exposed on localhost:8000.
+
+Quick smoke expectations for new members (state + expiry rules):
+
+- pause from in_progress -> 200
+- pause from paused -> 400
+- resume from paused -> 200
+- resume from in_progress -> 400
+- submit from paused/completed -> 400
+- complete from in_progress or paused -> 200
+- complete on completed session -> 200 (idempotent)
+- exam session with short time_limit_seconds auto-completes after expiry window
