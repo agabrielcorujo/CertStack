@@ -150,6 +150,35 @@ def _should_reveal_answer_key(session: Dict[str, Any]) -> bool:
     return str(session.get("status") or "").strip().lower() == "completed"
 
 
+def _current_session_status(session: Dict[str, Any]) -> str:
+    return str(session.get("status") or "").strip().lower()
+
+
+def _assert_session_operation_allowed(operation: str, session: Dict[str, Any]) -> None:
+    """Centralized state guard for session operations.
+    """
+
+    status = _current_session_status(session)
+
+    if operation == "submit":
+        if status == "completed":
+            raise PracticeError(message="Session already completed", status_code=400)
+        if status == "paused":
+            raise PracticeError(message="Session is paused", status_code=400)
+        return
+
+    if operation in {"pause", "resume"}:
+        if status == "completed":
+            raise PracticeError(message="Session already completed", status_code=400)
+        return
+
+    if operation == "complete":
+        # Current behavior: completed sessions are idempotent and return results.
+        return
+
+    raise PracticeError(message=f"Unsupported session operation: {operation}", status_code=500)
+
+
 async def _ensure_practice_sessions_mode_column() -> None:
     """Best-effort schema shim until Alembic migrations land.
 
@@ -578,12 +607,7 @@ async def submit_answer(
 ) -> Dict[str, Any]:
     session_data = await get_session(session_id, user_id, include_answer_key=True, sanitize_answers=False)
     session = session_data.get("session", {})
-
-    if session.get("status") == "completed":
-        raise PracticeError(message="Session already completed", status_code=400)
-
-    if session.get("status") == "paused":
-        raise PracticeError(message="Session is paused", status_code=400)
+    _assert_session_operation_allowed("submit", session)
 
     question_set: List[Dict[str, Any]] = session.get("question_set", []) or []
     target_question = next((q for q in question_set if q.get("question_hash") == question_hash), None)
@@ -725,6 +749,10 @@ async def submit_answer(
 
 
 async def pause_session(session_id: int, user_id: str) -> Dict[str, Any]:
+    session_data = await get_session(session_id, user_id, sanitize_answers=False)
+    session = session_data.get("session", {})
+    _assert_session_operation_allowed("pause", session)
+
     DBError, safe_query = _db()
     try:
         has_paused_at = await _has_column("practice_sessions", "paused_at")
@@ -775,6 +803,10 @@ async def pause_session(session_id: int, user_id: str) -> Dict[str, Any]:
 
 
 async def resume_session(session_id: int, user_id: str) -> Dict[str, Any]:
+    session_data = await get_session(session_id, user_id, sanitize_answers=False)
+    session = session_data.get("session", {})
+    _assert_session_operation_allowed("resume", session)
+
     DBError, safe_query = _db()
     try:
         has_paused_at = await _has_column("practice_sessions", "paused_at")
@@ -829,7 +861,9 @@ async def complete_session(session_id: int, user_id: str) -> Dict[str, Any]:
     session = data.get("session", {})
     answers = data.get("answers", [])
 
-    if session.get("status") == "completed":
+    _assert_session_operation_allowed("complete", session)
+
+    if _current_session_status(session) == "completed":
         return await get_session_results(session_id, user_id)
 
     total_questions = session.get("total_questions", len(session.get("question_set", [])))
