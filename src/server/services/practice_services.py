@@ -2,6 +2,7 @@ import hashlib
 import random
 from pathlib import Path
 import json
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Sequence, Set, Union, Tuple
 
 from services.services import get_exam
@@ -154,6 +155,90 @@ def _current_session_status(session: Dict[str, Any]) -> str:
     return str(session.get("status") or "").strip().lower()
 
 
+def _coerce_utc_datetime(value: Any) -> Optional[datetime]:
+    if value is None:
+        return None
+
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
+
+    if isinstance(value, str):
+        candidate = value.strip()
+        if not candidate:
+            return None
+        if candidate.endswith("Z"):
+            candidate = candidate[:-1] + "+00:00"
+        try:
+            parsed = datetime.fromisoformat(candidate)
+        except ValueError:
+            return None
+        if parsed.tzinfo is None:
+            return parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+
+    return None
+
+
+def _is_exam_session_expired(session: Dict[str, Any]) -> bool:
+    # Minimum viable rule: exam timer is absolute wall-clock from start_time.
+    if not _is_exam_mode(session):
+        return False
+
+    status = _current_session_status(session)
+    if status == "completed":
+        return False
+
+    raw_limit = session.get("time_limit_seconds")
+    try:
+        time_limit_seconds = int(raw_limit)
+    except (TypeError, ValueError):
+        return False
+
+    if time_limit_seconds <= 0:
+        return False
+
+    start_time = _coerce_utc_datetime(session.get("start_time"))
+    if start_time is None:
+        return False
+
+    expires_at = start_time + timedelta(seconds=time_limit_seconds)
+    return datetime.now(timezone.utc) >= expires_at
+
+
+async def _expire_exam_session_if_needed(session_id: int, user_id: str, session: Dict[str, Any]) -> None:
+    if not _is_exam_session_expired(session):
+        return
+
+    DBError, safe_query = _db()
+    try:
+        session_cols = await _get_table_columns("practice_sessions")
+
+        set_parts: List[str] = ["status = 'completed'", "end_time = COALESCE(end_time, NOW())"]
+        if "paused_at" in session_cols:
+            set_parts.append("paused_at = NULL")
+
+        await safe_query(
+            f"""
+            UPDATE practice_sessions
+            SET {', '.join(set_parts)}
+            WHERE id = $1 AND user_id = $2 AND status != 'completed'
+            """,
+            (session_id, user_id),
+        )
+    except DBError as error:
+        raise PracticeError(status_code=error.status_code, message=error.message)
+    except Exception as exc:
+        raise PracticeError(message=str(exc), status_code=500)
+
+    session["status"] = "completed"
+    if session.get("end_time") is None:
+        session["end_time"] = datetime.now(timezone.utc)
+    if "paused_at" in session:
+        session["paused_at"] = None
+
+
 def _assert_session_operation_allowed(operation: str, session: Dict[str, Any]) -> None:
     """Centralized state guard for session operations.
     """
@@ -165,15 +250,33 @@ def _assert_session_operation_allowed(operation: str, session: Dict[str, Any]) -
             raise PracticeError(message="Session already completed", status_code=400)
         if status == "paused":
             raise PracticeError(message="Session is paused", status_code=400)
+        if status != "in_progress":
+            raise PracticeError(message="Session can only accept submissions while in_progress", status_code=400)
         return
 
-    if operation in {"pause", "resume"}:
+    if operation == "pause":
         if status == "completed":
             raise PracticeError(message="Session already completed", status_code=400)
+        if status != "in_progress":
+            raise PracticeError(message="Session can only be paused from in_progress", status_code=400)
+        return
+
+    if operation == "resume":
+        if status == "completed":
+            raise PracticeError(message="Session already completed", status_code=400)
+        if status != "paused":
+            raise PracticeError(message="Session can only be resumed from paused", status_code=400)
         return
 
     if operation == "complete":
-        # Current behavior: completed sessions are idempotent and return results.
+        if status == "completed":
+            # Current behavior: completed sessions are terminal and completion is idempotent.
+            return
+        if status not in {"in_progress", "paused"}:
+            raise PracticeError(
+                message="Session can only be completed from in_progress or paused",
+                status_code=400,
+            )
         return
 
     raise PracticeError(message=f"Unsupported session operation: {operation}", status_code=500)
@@ -522,6 +625,8 @@ async def get_session(
     session = _as_dict(session_row, session_keys)
 
     session["question_set"] = _from_json_value(session.get("question_set"))
+
+    await _expire_exam_session_if_needed(session_id, user_id, session)
 
     # Normalize paused state for clients.
     if session.get("status") == "paused" and "paused_at" not in session:
