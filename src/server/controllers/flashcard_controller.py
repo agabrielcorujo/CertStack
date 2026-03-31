@@ -11,10 +11,12 @@ from services.flashcard_service import (
     FlashcardError,
     add_question_to_deck,
     create_deck,
+    end_study_session,
     get_flashcards_for_review,
     get_progress_stats,
     get_user_decks,
     record_review,
+    start_study_session,
 )
 
 
@@ -82,6 +84,42 @@ def get_user_decks_controller(user_id: str):
 def get_progress_controller(user_id: str, exam: str, category: str | None = None):
     try:
         return get_progress_stats(user_id=user_id, exam=exam, category=category)
+    except FlashcardError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message)
+    except NotImplementedError as error:
+        raise HTTPException(status_code=501, detail=str(error))
+
+
+def start_study_session_controller(
+    user_id: str,
+    exam: str,
+    category: str | None = None,
+    deck_id: int | None = None,
+):
+    try:
+        return start_study_session(
+            user_id=user_id,
+            exam=exam,
+            category=category,
+            deck_id=deck_id,
+        )
+    except FlashcardError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message)
+    except NotImplementedError as error:
+        raise HTTPException(status_code=501, detail=str(error))
+
+
+def end_study_session_controller(
+    user_id: str,
+    request,
+):
+    try:
+        return end_study_session(
+            user_id=user_id,
+            session_id=request.session_id,
+            cards_reviewed=request.cards_reviewed,
+            correct_answers=request.correct_answers,
+        )
     except FlashcardError as error:
         raise HTTPException(status_code=error.status_code, detail=error.message)
     except NotImplementedError as error:

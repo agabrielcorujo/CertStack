@@ -36,3 +36,13 @@ class AddQuestionToDeckRequest(BaseModel):
 class GetProgressRequest(BaseModel):
     exam: str
     category: Optional[str] = None
+
+class StartStudySessionRequest(BaseModel):
+    exam: str
+    category: Optional[str] = None
+    deck_id: Optional[int] = None
+
+class EndStudySessionRequest(BaseModel):
+    session_id: int
+    cards_reviewed: int
+    correct_answers: int

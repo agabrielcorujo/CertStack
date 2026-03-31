@@ -680,6 +680,122 @@ def _resolve_exam_and_category_for_question(user_id: str, question_id: str):
     return "unknown", ""
 
 
+def start_study_session(
+    user_id: str,
+    exam: str,
+    category: Optional[str] = None,
+    deck_id: Optional[int] = None,
+):
+    """Creates a study session record and returns session_id"""
+    normalized_exam = exam.strip().lower()
+    normalized_category = (category or "").strip()
+
+    if not normalized_exam:
+        raise FlashcardError("exam is required", 400)
+
+    if deck_id is not None:
+        _ensure_deck_ownership(user_id, deck_id)
+
+    try:
+        session = safe_query(
+            """
+            INSERT INTO flashcard_study_sessions
+            (user_id, exam, category, deck_id, started_at)
+            VALUES (%s, %s, %s, %s, NOW())
+            RETURNING id, started_at
+            """,
+            (user_id, normalized_exam, normalized_category, deck_id),
+            insert=True,
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    if not session:
+        raise FlashcardError("error starting session", 500)
+
+    return {
+        "status": "success",
+        "session_id": session[0],
+        "exam": normalized_exam,
+        "category": normalized_category if normalized_category else None,
+        "deck_id": deck_id,
+        "started_at": str(session[1]),
+    }
+
+
+def end_study_session(
+    user_id: str,
+    session_id: int,
+    cards_reviewed: int,
+    correct_answers: int,
+):
+    """Finishes a session record with review counts and return stats."""
+    if cards_reviewed < 0:
+        raise FlashcardError("cards_reviewed must be >= 0", 400)
+
+    if correct_answers < 0:
+        raise FlashcardError("correct_answers must be >= 0", 400)
+
+    if correct_answers > cards_reviewed:
+        raise FlashcardError("correct_answers cannot exceed cards_reviewed", 400)
+
+    try:
+        session = safe_query(
+            """
+            SELECT user_id, exam, category, deck_id, started_at
+            FROM flashcard_study_sessions
+            WHERE id = %s
+            """,
+            (session_id,),
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    if not session:
+        raise FlashcardError("session not found", 404)
+
+    if session[0] != user_id:
+        raise FlashcardError("session does not belong to user", 403)
+
+    try:
+        updated = safe_query(
+            """
+            UPDATE flashcard_study_sessions
+            SET
+                cards_reviewed = %s,
+                correct_answers = %s,
+                ended_at = NOW()
+            WHERE id = %s
+            RETURNING id, exam, category, deck_id, started_at, cards_reviewed, correct_answers, ended_at
+            """,
+            (cards_reviewed, correct_answers, session_id),
+            insert=True,
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    if not updated:
+        raise FlashcardError("error updating session", 500)
+
+    session_accuracy = _safe_percentage(correct_answers, cards_reviewed)
+
+    return {
+        "status": "success",
+        "session_id": updated[0],
+        "exam": updated[1],
+        "category": updated[2] if updated[2] else None,
+        "deck_id": updated[3],
+        "started_at": str(updated[4]),
+        "ended_at": str(updated[7]),
+        "cards_reviewed": updated[5],
+        "correct_answers": updated[6],
+        "accuracy_percent": session_accuracy,
+    }
+
+
 def _get_user_deck_question_ids(user_id: str, deck_id: int, exam: str):
     _ensure_deck_ownership(user_id, deck_id)
 

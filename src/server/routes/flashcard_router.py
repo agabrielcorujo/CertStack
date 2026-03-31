@@ -5,17 +5,21 @@ from jwt_auth.controllers.auth_controller import decode_access_token_controller 
 from controllers.flashcard_controller import (
     add_question_to_deck_controller,
     create_deck_controller,
+    end_study_session_controller,
     get_flashcards_controller,
     get_progress_controller,
     get_user_decks_controller,
     review_flashcard_controller,
+    start_study_session_controller,
 )
 
 from schemas.schema import (
     AddQuestionToDeckRequest,
     CreateDeckRequest,
+    EndStudySessionRequest,
     GetFlashcardsRequest,
     ReviewFlashcardRequest,
+    StartStudySessionRequest,
 )
 
 router = APIRouter(prefix="/flashcards", tags=["flashcards"])
@@ -59,3 +63,26 @@ def get_flashcard_progress(
 ):
     user_id = decode_access_token(token)
     return get_progress_controller(user_id, exam, category)
+
+
+@router.post("/sessions/start")
+def start_review_session(
+    request: StartStudySessionRequest,
+    token: str = Depends(oauth2_scheme),
+):
+    user_id = decode_access_token(token)
+    return start_study_session_controller(
+        user_id=user_id,
+        exam=request.exam,
+        category=request.category,
+        deck_id=request.deck_id,
+    )
+
+
+@router.post("/sessions/end")
+def end_review_session(
+    request: EndStudySessionRequest,
+    token: str = Depends(oauth2_scheme),
+):
+    user_id = decode_access_token(token)
+    return end_study_session_controller(user_id=user_id, request=request)
