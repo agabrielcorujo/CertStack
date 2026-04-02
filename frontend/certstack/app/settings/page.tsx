@@ -12,8 +12,6 @@ export default function SettingsPage() {
   
   return null
 }
-import { Bell, Lock, Palette, Globe, Download, Trash2 } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 type SettingSection = "account" | "notifications" | "appearance" | "data"
 

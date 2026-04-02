@@ -12,11 +12,6 @@ export default function ExamsPage() {
   
   return null
 }
-  CheckCircle,
-  Play,
-  ChevronDown,
-  Calendar,
-} from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type ExamStatus = "all" | "available" | "completed" | "upcoming"

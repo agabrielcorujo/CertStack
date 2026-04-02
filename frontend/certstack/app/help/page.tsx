@@ -12,8 +12,6 @@ export default function HelpPage() {
   
   return null
 }
-import { Search, BookOpen, MessageCircle, Mail, ChevronRight } from "lucide-react"
-import { useState } from "react"
 
 const faqs = [
   {

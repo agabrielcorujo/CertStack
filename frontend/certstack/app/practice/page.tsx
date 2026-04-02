@@ -12,8 +12,6 @@ export default function PracticePage() {
   
   return null
 }
-
-const questions = [
   {
     id: 1,
     question:

@@ -12,9 +12,6 @@ export default function MaterialsPage() {
   
   return null
 }
-import { BookOpen, Download, FileText, Video, Headphones, Search, Filter, ChevronDown } from "lucide-react"
-import { useState } from "react"
-import { cn } from "@/lib/utils"
 
 const categories = ["All", "Textbooks", "Videos", "Audio", "Notes"]
 

@@ -12,7 +12,6 @@ export default function ProfilePage() {
   
   return null
 }
-  { label: "Settings", value: "settings" },
   { label: "Notifications", value: "notifications" },
 ]
 
