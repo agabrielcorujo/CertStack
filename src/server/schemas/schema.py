@@ -23,6 +23,7 @@ class ReviewFlashcardRequest(BaseModel):
     was_correct: bool
     confidence: Optional[int] = None #optional 1-5 self rating
     time_taken_ms: Optional[int] = None
+    session_id: Optional[int] = None
 
 class CreateDeckRequest(BaseModel):
     deck_name: str

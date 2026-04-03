@@ -176,6 +176,7 @@ def record_review(
     was_correct: bool,
     confidence: Optional[int] = None,
     time_taken_ms: Optional[int] = None,
+    session_id: Optional[int] = None,
     today: Optional[date] = None,
 ):
     """records a review result and updates spaced-repetition fields"""
@@ -189,6 +190,9 @@ def record_review(
 
     if time_taken_ms is not None and time_taken_ms < 0:
         raise FlashcardError("time_taken_ms must be >= 0", 400)
+
+    if session_id is not None and session_id <= 0:
+        raise FlashcardError("session_id must be > 0", 400)
 
     review_day = today or date.today()
 
@@ -298,7 +302,15 @@ def record_review(
     except DBError as error:
         raise FlashcardError(status_code=error.status_code, message=error.message)
 
-    return {
+    session_stats = None
+    if session_id is not None:
+        session_stats = _increment_session_counters(
+            user_id=user_id,
+            session_id=session_id,
+            was_correct=was_correct,
+        )
+
+    result = {
         "status": "success",
         "question_id": normalized_question_id,
         "schedule": {
@@ -315,6 +327,11 @@ def record_review(
             "incorrect_count": next_incorrect_count,
         },
     }
+
+    if session_stats is not None:
+        result["session"] = session_stats
+
+    return result
 
 def create_deck(user_id: str, deck_name: str, exam: str, description: Optional[str] = None):
     """creates a custom deck for a user and returns the new deck id"""
@@ -829,3 +846,51 @@ def _get_user_deck_question_ids(user_id: str, deck_id: int, exam: str):
         raise FlashcardError(status_code=error.status_code, message=error.message)
 
     return {row[0] for row in rows or []}
+
+
+def _increment_session_counters(user_id: str, session_id: int, was_correct: bool):
+    try:
+        session = safe_query(
+            """
+            SELECT id, ended_at
+            FROM flashcard_study_sessions
+            WHERE id = %s AND user_id = %s
+            """,
+            (session_id, user_id),
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    if not session:
+        raise FlashcardError("session not found", 404)
+
+    if session[1] is not None:
+        raise FlashcardError("cannot record reviews to a finished session", 400)
+
+    try:
+        updated = safe_query(
+            """
+            UPDATE flashcard_study_sessions
+            SET
+                cards_reviewed = cards_reviewed + 1,
+                correct_answers = correct_answers + %s
+            WHERE id = %s
+            RETURNING cards_reviewed, correct_answers
+            """,
+            (1 if was_correct else 0, session_id),
+            insert=True,
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    if not updated:
+        raise FlashcardError("error updating session counters", 500)
+
+    return {
+        "session_id": session_id,
+        "cards_reviewed": int(updated[0]),
+        "correct_answers": int(updated[1]),
+        "accuracy_percent": _safe_percentage(int(updated[1]), int(updated[0])),
+    }

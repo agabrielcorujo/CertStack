@@ -42,6 +42,7 @@ def review_flashcard_controller(user_id: str, request: ReviewFlashcardRequest):
             was_correct=request.was_correct,
             confidence=request.confidence,
             time_taken_ms=request.time_taken_ms,
+            session_id=request.session_id,
         )
     except FlashcardError as error:
         raise HTTPException(status_code=error.status_code, detail=error.message)
