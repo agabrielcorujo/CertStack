@@ -308,6 +308,8 @@ def record_review(
             user_id=user_id,
             session_id=session_id,
             was_correct=was_correct,
+            review_exam=current_exam,
+            review_category=current_category,
         )
 
     result = {
@@ -711,7 +713,9 @@ def start_study_session(
         raise FlashcardError("exam is required", 400)
 
     if deck_id is not None:
-        _ensure_deck_ownership(user_id, deck_id)
+        deck_exam = _get_user_deck_exam(user_id, deck_id)
+        if deck_exam != normalized_exam:
+            raise FlashcardError("deck exam does not match requested exam", 400)
 
     try:
         session = safe_query(
@@ -814,22 +818,9 @@ def end_study_session(
 
 
 def _get_user_deck_question_ids(user_id: str, deck_id: int, exam: str):
-    _ensure_deck_ownership(user_id, deck_id)
+    deck_exam = _get_user_deck_exam(user_id, deck_id)
 
-    try:
-        deck = safe_query(
-            """
-            SELECT exam
-            FROM user_flashcard_decks
-            WHERE id = %s AND user_id = %s
-            """,
-            (deck_id, user_id),
-            fetch="one",
-        )
-    except DBError as error:
-        raise FlashcardError(status_code=error.status_code, message=error.message)
-
-    if deck and (deck[0] or "").strip().lower() != exam:
+    if deck_exam != exam:
         raise FlashcardError("deck exam does not match requested exam", 400)
 
     try:
@@ -848,11 +839,17 @@ def _get_user_deck_question_ids(user_id: str, deck_id: int, exam: str):
     return {row[0] for row in rows or []}
 
 
-def _increment_session_counters(user_id: str, session_id: int, was_correct: bool):
+def _increment_session_counters(
+    user_id: str,
+    session_id: int,
+    was_correct: bool,
+    review_exam: str,
+    review_category: str,
+):
     try:
         session = safe_query(
             """
-            SELECT id, ended_at
+            SELECT id, exam, category, ended_at
             FROM flashcard_study_sessions
             WHERE id = %s AND user_id = %s
             """,
@@ -865,7 +862,16 @@ def _increment_session_counters(user_id: str, session_id: int, was_correct: bool
     if not session:
         raise FlashcardError("session not found", 404)
 
-    if session[1] is not None:
+    session_exam = (session[1] or "").strip().lower()
+    session_category = (session[2] or "").strip()
+
+    if session_exam and session_exam != review_exam:
+        raise FlashcardError("review exam does not match active session exam", 400)
+
+    if session_category and session_category != (review_category or ""):
+        raise FlashcardError("review category does not match active session category", 400)
+
+    if session[3] is not None:
         raise FlashcardError("cannot record reviews to a finished session", 400)
 
     try:
@@ -894,3 +900,23 @@ def _increment_session_counters(user_id: str, session_id: int, was_correct: bool
         "correct_answers": int(updated[1]),
         "accuracy_percent": _safe_percentage(int(updated[1]), int(updated[0])),
     }
+
+
+def _get_user_deck_exam(user_id: str, deck_id: int) -> str:
+    try:
+        deck = safe_query(
+            """
+            SELECT exam
+            FROM user_flashcard_decks
+            WHERE id = %s AND user_id = %s
+            """,
+            (deck_id, user_id),
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    if not deck:
+        raise FlashcardError("deck not found", 404)
+
+    return (deck[0] or "").strip().lower()
