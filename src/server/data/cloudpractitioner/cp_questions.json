@@ -7760,7 +7760,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -7777,7 +7777,7 @@
       "B.",
       "E."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Security"
   },
   {
@@ -7794,7 +7794,7 @@
       "C.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -7811,7 +7811,7 @@
       "C.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Security"
   },
   {
@@ -7826,7 +7826,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -7843,7 +7843,7 @@
       "A.",
       "D."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -7890,7 +7890,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -7905,7 +7905,7 @@
     "answer": [
       "B."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -7920,7 +7920,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -7935,7 +7935,7 @@
     "answer": [
       "C."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -7950,7 +7950,7 @@
     "answer": [
       "C."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -7965,7 +7965,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -7982,7 +7982,7 @@
       "B.",
       "C."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -7997,7 +7997,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -8012,7 +8012,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -8027,7 +8027,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Networking"
   },
   {
@@ -8042,7 +8042,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -8059,7 +8059,7 @@
       "A.",
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -8074,7 +8074,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Storage"
   },
   {
@@ -8089,7 +8089,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -8104,7 +8104,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8119,7 +8119,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -8134,7 +8134,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8151,7 +8151,7 @@
       "B.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -8166,7 +8166,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -8196,7 +8196,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -8226,7 +8226,7 @@
     "answer": [
       "C."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -8241,7 +8241,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "General"
   },
   {
@@ -8256,7 +8256,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8271,7 +8271,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8286,7 +8286,7 @@
     "answer": [
       "B."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -8301,7 +8301,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8318,7 +8318,7 @@
       "B.",
       "E."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -8335,7 +8335,7 @@
       "B.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -8350,7 +8350,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8365,7 +8365,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -8395,7 +8395,7 @@
     "answer": [
       "D."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -8425,7 +8425,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -8440,7 +8440,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -8472,7 +8472,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -8502,7 +8502,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Developer Tools",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -8519,7 +8519,7 @@
       "B.",
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -8549,7 +8549,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8581,7 +8581,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -8613,7 +8613,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "IAM"
   },
   {
@@ -8628,7 +8628,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8643,7 +8643,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -8673,7 +8673,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8705,7 +8705,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -8722,7 +8722,7 @@
       "D.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -8737,7 +8737,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -8752,7 +8752,7 @@
     "answer": [
       "A."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -8782,7 +8782,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8799,7 +8799,7 @@
       "B.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -8814,7 +8814,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -8831,7 +8831,7 @@
       "B.",
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -8848,7 +8848,7 @@
       "A.",
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -8863,7 +8863,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -8908,7 +8908,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -8923,7 +8923,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8938,7 +8938,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -8953,7 +8953,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -8968,7 +8968,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -8983,7 +8983,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -8998,7 +8998,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -9013,7 +9013,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -9030,7 +9030,7 @@
       "B.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -9045,7 +9045,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -9062,7 +9062,7 @@
       "B.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -9111,7 +9111,7 @@
       "B.",
       "C."
     ],
-    "domain": "Developer Tools",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -9141,7 +9141,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -9158,7 +9158,7 @@
       "A.",
       "D."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9173,7 +9173,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9188,7 +9188,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9203,7 +9203,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -9218,7 +9218,7 @@
     "answer": [
       "C."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -9233,7 +9233,7 @@
     "answer": [
       "C."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -9265,7 +9265,7 @@
       "A.",
       "B."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -9280,7 +9280,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9295,7 +9295,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9312,7 +9312,7 @@
       "C.",
       "D."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "High Availability"
   },
   {
@@ -9327,7 +9327,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -9344,7 +9344,7 @@
       "B.",
       "E."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Networking"
   },
   {
@@ -9361,7 +9361,7 @@
       "A.",
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -9376,7 +9376,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9391,7 +9391,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9424,7 +9424,7 @@
       "C.",
       "D."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9441,7 +9441,7 @@
       "A.",
       "D."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9456,7 +9456,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9471,7 +9471,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9486,7 +9486,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -9501,7 +9501,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -9516,7 +9516,7 @@
     "answer": [
       "C."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9531,7 +9531,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9546,7 +9546,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9561,7 +9561,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -9576,7 +9576,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -9593,7 +9593,7 @@
       "B.",
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Networking"
   },
   {
@@ -9640,7 +9640,7 @@
       "D.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -9657,7 +9657,7 @@
       "B.",
       "E."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -9672,7 +9672,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -9687,7 +9687,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -9717,7 +9717,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Storage"
   },
   {
@@ -9762,7 +9762,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9777,7 +9777,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -9792,7 +9792,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -9822,7 +9822,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -9852,7 +9852,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -9882,7 +9882,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -9897,7 +9897,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9914,7 +9914,7 @@
       "D.",
       "E."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -9929,7 +9929,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Networking"
   },
   {
@@ -9961,7 +9961,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9976,7 +9976,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -9991,7 +9991,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Storage"
   },
   {
@@ -10006,7 +10006,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -10021,7 +10021,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -10036,7 +10036,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Networking"
   },
   {
@@ -10085,7 +10085,7 @@
       "B.",
       "E."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -10130,7 +10130,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -10145,7 +10145,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -10162,7 +10162,7 @@
       "B.",
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -10177,7 +10177,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -10192,7 +10192,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -10222,7 +10222,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -10237,7 +10237,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -10252,7 +10252,7 @@
     "answer": [
       "A."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -10282,7 +10282,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -10297,7 +10297,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -10312,7 +10312,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -10327,7 +10327,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Security"
   },
   {
@@ -10342,7 +10342,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "General"
   },
   {
@@ -10359,7 +10359,7 @@
       "B.",
       "C."
     ],
-    "domain": "Developer Tools",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -10374,7 +10374,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -10406,7 +10406,7 @@
     "answer": [
       "B."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -10421,7 +10421,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "General"
   },
   {
@@ -10436,7 +10436,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -10451,7 +10451,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -10466,7 +10466,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -10481,7 +10481,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -10496,7 +10496,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -10511,7 +10511,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -10528,7 +10528,7 @@
       "B.",
       "E."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -10560,7 +10560,7 @@
       "B.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -10575,7 +10575,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -10590,7 +10590,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -10620,7 +10620,7 @@
     "answer": [
       "B."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -10635,7 +10635,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -10650,7 +10650,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -10665,7 +10665,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "General"
   },
   {
@@ -10682,7 +10682,7 @@
       "B.",
       "E."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Security"
   },
   {
@@ -10699,7 +10699,7 @@
       "C.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Security"
   },
   {
@@ -10714,7 +10714,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -10729,7 +10729,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Scaling"
   },
   {
@@ -10746,7 +10746,7 @@
       "C.",
       "E."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -10778,7 +10778,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -10808,7 +10808,7 @@
     "answer": [
       "A."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -10823,7 +10823,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -10855,7 +10855,7 @@
       "B.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -10870,7 +10870,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -10900,7 +10900,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -10915,7 +10915,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -10930,7 +10930,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -10945,7 +10945,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Serverless"
   },
   {
@@ -10960,7 +10960,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -10975,7 +10975,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -10992,7 +10992,7 @@
       "B.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -11007,7 +11007,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -11039,7 +11039,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Serverless"
   },
   {
@@ -11056,7 +11056,7 @@
       "A.",
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -11071,7 +11071,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -11086,7 +11086,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -11103,7 +11103,7 @@
       "A.",
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -11118,7 +11118,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -11134,7 +11134,7 @@
       "A.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Networking"
   },
   {
@@ -11149,7 +11149,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -11164,7 +11164,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -11181,7 +11181,7 @@
       "A.",
       "D."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -11196,7 +11196,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -11211,7 +11211,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "General"
   },
   {
@@ -11226,7 +11226,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -11241,7 +11241,7 @@
     "answer": [
       "B."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -11256,7 +11256,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -11271,7 +11271,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -11303,7 +11303,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "General"
   },
   {
@@ -11335,7 +11335,7 @@
       "A.",
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -11350,7 +11350,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -11365,7 +11365,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -11382,7 +11382,7 @@
       "C.",
       "D."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -11399,7 +11399,7 @@
       "B.",
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "High Availability"
   },
   {
@@ -11431,7 +11431,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -11448,7 +11448,7 @@
       "B.",
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Scaling"
   },
   {
@@ -11463,7 +11463,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -11478,7 +11478,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -11508,7 +11508,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -11523,7 +11523,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -11538,7 +11538,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -11553,7 +11553,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -11568,7 +11568,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "General"
   },
   {
@@ -11583,7 +11583,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -11598,7 +11598,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -11613,7 +11613,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -11630,7 +11630,7 @@
       "B.",
       "D."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -11645,7 +11645,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Networking"
   },
   {
@@ -11660,7 +11660,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Security"
   },
   {
@@ -11675,7 +11675,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Compute"
   },
   {
@@ -11692,7 +11692,7 @@
       "C.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -11707,7 +11707,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -11722,7 +11722,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -11752,7 +11752,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -11782,7 +11782,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Security"
   },
   {
@@ -11814,7 +11814,7 @@
       "B.",
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -11829,7 +11829,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -11844,7 +11844,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -11859,7 +11859,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -11874,7 +11874,7 @@
     "answer": [
       "A."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -11904,7 +11904,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -11934,7 +11934,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Compute"
   },
   {
@@ -11964,7 +11964,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Developer Tools",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -11979,7 +11979,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -11994,7 +11994,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -12009,7 +12009,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -12024,7 +12024,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Developer Tools",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -12039,7 +12039,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12054,7 +12054,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Migration & Transfer",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -12071,7 +12071,7 @@
       "B.",
       "E."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12088,7 +12088,7 @@
       "C.",
       "E."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -12118,7 +12118,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -12133,7 +12133,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "General"
   },
   {
@@ -12148,7 +12148,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -12163,7 +12163,7 @@
     "answer": [
       "B."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -12193,7 +12193,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12223,7 +12223,7 @@
     "answer": [
       "D."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -12240,7 +12240,7 @@
       "A.",
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -12259,7 +12259,7 @@
       "C.",
       "D."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12274,7 +12274,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Machine Learning",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -12289,7 +12289,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12304,7 +12304,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Networking"
   },
   {
@@ -12319,7 +12319,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12334,7 +12334,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -12349,7 +12349,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -12364,7 +12364,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12379,7 +12379,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -12409,7 +12409,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -12426,7 +12426,7 @@
       "A.",
       "D."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -12441,7 +12441,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12475,7 +12475,7 @@
       "A.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -12505,7 +12505,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -12520,7 +12520,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12535,7 +12535,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -12552,7 +12552,7 @@
       "A.",
       "E."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -12567,7 +12567,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -12582,7 +12582,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12597,7 +12597,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Compute"
   },
   {
@@ -12614,7 +12614,7 @@
       "A.",
       "B."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Serverless"
   },
   {
@@ -12629,7 +12629,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -12646,7 +12646,7 @@
       "B.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -12661,7 +12661,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -12678,7 +12678,7 @@
       "A.",
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Security"
   },
   {
@@ -12693,7 +12693,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Networking"
   },
   {
@@ -12708,7 +12708,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12725,7 +12725,7 @@
       "A.",
       "B."
     ],
-    "domain": "Marketplace",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -12757,7 +12757,7 @@
       "B.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -12772,7 +12772,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -12787,7 +12787,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -12802,7 +12802,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "General"
   },
   {
@@ -12817,7 +12817,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -12847,7 +12847,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -12879,7 +12879,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -12894,7 +12894,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12909,7 +12909,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -12924,7 +12924,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -12956,7 +12956,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -12971,7 +12971,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -13001,7 +13001,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13016,7 +13016,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -13031,7 +13031,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13046,7 +13046,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -13061,7 +13061,7 @@
     "answer": [
       "D."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -13093,7 +13093,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13123,7 +13123,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13140,7 +13140,7 @@
       "B.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -13155,7 +13155,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -13170,7 +13170,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -13185,7 +13185,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Networking"
   },
   {
@@ -13200,7 +13200,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Analytics",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -13215,7 +13215,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13230,7 +13230,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -13245,7 +13245,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -13277,7 +13277,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -13292,7 +13292,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13307,7 +13307,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -13322,7 +13322,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13354,7 +13354,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -13369,7 +13369,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -13414,7 +13414,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -13429,7 +13429,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -13444,7 +13444,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -13459,7 +13459,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Storage"
   },
   {
@@ -13476,7 +13476,7 @@
       "A.",
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Serverless"
   },
   {
@@ -13508,7 +13508,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -13523,7 +13523,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13540,7 +13540,7 @@
       "B.",
       "C."
     ],
-    "domain": "Marketplace",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -13570,7 +13570,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -13585,7 +13585,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13600,7 +13600,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -13634,7 +13634,7 @@
       "B.",
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13649,7 +13649,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13664,7 +13664,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -13679,7 +13679,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -13709,7 +13709,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -13724,7 +13724,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -13739,7 +13739,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -13754,7 +13754,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -13784,7 +13784,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13799,7 +13799,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -13814,7 +13814,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Marketplace",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -13829,7 +13829,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Networking"
   },
   {
@@ -13844,7 +13844,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "General"
   },
   {
@@ -13859,7 +13859,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -13874,7 +13874,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -13889,7 +13889,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -13904,7 +13904,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -13919,7 +13919,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -13934,7 +13934,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Scaling"
   },
   {
@@ -13951,7 +13951,7 @@
       "A.",
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -13983,7 +13983,7 @@
       "A.",
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -14000,7 +14000,7 @@
       "C.",
       "D."
     ],
-    "domain": "Migration & Transfer",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Networking"
   },
   {
@@ -14015,7 +14015,7 @@
     "answer": [
       "C."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -14045,7 +14045,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -14060,7 +14060,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -14075,7 +14075,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -14090,7 +14090,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "High Availability"
   },
   {
@@ -14107,7 +14107,7 @@
       "B.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -14122,7 +14122,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Compute"
   },
   {
@@ -14139,7 +14139,7 @@
       "B.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Networking"
   },
   {
@@ -14154,7 +14154,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "IAM"
   },
   {
@@ -14171,7 +14171,7 @@
       "C.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -14188,7 +14188,7 @@
       "A.",
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -14203,7 +14203,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -14220,7 +14220,7 @@
       "B.",
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -14252,7 +14252,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -14269,7 +14269,7 @@
       "A.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -14284,7 +14284,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -14314,7 +14314,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -14329,7 +14329,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -14344,7 +14344,7 @@
     "answer": [
       "C."
     ],
-    "domain": "AWS Services & Support",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -14359,7 +14359,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -14389,7 +14389,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -14406,7 +14406,7 @@
       "C.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "General"
   },
   {
@@ -14421,7 +14421,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -14438,7 +14438,7 @@
       "B.",
       "D."
     ],
-    "domain": "Migration & Transfer",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Networking"
   },
   {
@@ -14453,7 +14453,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -14470,7 +14470,7 @@
       "B.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -14485,7 +14485,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Compute"
   },
   {
@@ -14500,7 +14500,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "IAM"
   },
   {
@@ -14515,7 +14515,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -14530,7 +14530,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -14562,7 +14562,7 @@
       "A.",
       "D."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -14577,7 +14577,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -14592,7 +14592,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "General"
   },
   {
@@ -14607,7 +14607,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Marketplace",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -14622,7 +14622,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -14637,7 +14637,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -14652,7 +14652,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -14667,7 +14667,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -14684,7 +14684,7 @@
       "A.",
       "D."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -14699,7 +14699,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -14714,7 +14714,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -14731,7 +14731,7 @@
       "A.",
       "C."
     ],
-    "domain": "Management & Governance",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -14746,7 +14746,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -14778,7 +14778,7 @@
       "A.",
       "D."
     ],
-    "domain": "Migration & Transfer",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -14793,7 +14793,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Compute"
   },
   {
@@ -14808,7 +14808,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -14838,7 +14838,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -14853,7 +14853,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -14868,7 +14868,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -14883,7 +14883,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "IAM"
   },
   {
@@ -14913,7 +14913,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -14928,7 +14928,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -14945,7 +14945,7 @@
       "C.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -14977,7 +14977,7 @@
       "A.",
       "E."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -14992,7 +14992,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Storage"
   },
   {
@@ -15009,7 +15009,7 @@
       "B.",
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -15039,7 +15039,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Scaling"
   },
   {
@@ -15054,7 +15054,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Storage",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Monitoring and Logging"
   },
   {
@@ -15069,7 +15069,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -15084,7 +15084,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -15099,7 +15099,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Database",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Databases"
   },
   {
@@ -15116,7 +15116,7 @@
       "A.",
       "B."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Scaling"
   },
   {
@@ -15133,7 +15133,7 @@
       "B.",
       "D."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -15148,7 +15148,7 @@
     "answer": [
       "D."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -15178,7 +15178,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Cloud Economics",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -15193,7 +15193,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -15210,7 +15210,7 @@
       "B.",
       "C."
     ],
-    "domain": "Billing & Cost Management",
+    "domain": "Billing, Pricing, and Support",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -15225,7 +15225,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -15240,7 +15240,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -15255,7 +15255,7 @@
     "answer": [
       "B."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Security"
   },
   {
@@ -15270,7 +15270,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Machine Learning",
+    "domain": "Cloud Technology and Services",
     "subdomain": "General"
   },
   {
@@ -15300,7 +15300,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "IAM"
   },
   {
@@ -15315,7 +15315,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Compute",
+    "domain": "Cloud Technology and Services",
     "subdomain": "Billing and Pricing"
   },
   {
@@ -15330,7 +15330,7 @@
     "answer": [
       "C."
     ],
-    "domain": "Networking & Content Delivery",
+    "domain": "Cloud Technology and Services",
     "subdomain": "High Availability"
   },
   {
@@ -15345,7 +15345,7 @@
     "answer": [
       "A."
     ],
-    "domain": "Security & Compliance",
+    "domain": "Security and Compliance",
     "subdomain": "Billing and Pricing"
   }
 ]

@@ -13,12 +13,23 @@ class FlashcardError(Exception):
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-async def get_5_flaschards_service(exam_id:str,domain:str,topic:str):
+async def get_5_flaschards_service(exam_id:str,domain:str,subdomain:str=None):
     
-    query =  "SELECT question,choices,answer,explanation FROM questions WHERE exam_id = $1 AND domain = $2 AND topic = $3 ORDER BY RANDOM() LIMIT 5"
+    query =  f"""
+            SELECT question, choices, answer, explanation
+            FROM questions
+            WHERE exam_id = $1 AND domain = $2
+            {'AND subdomain = $3 ' if subdomain else ''}
+            ORDER BY RANDOM()
+            LIMIT 5
+            """
+    if subdomain:
+        params = (exam_id,domain,subdomain,)
+    else:
+        params = (exam_id,domain)
 
     try:
-        results = await safe_query(query,(exam_id,domain,topic,),fetch="all")
+        results = await safe_query(query,params,fetch="all")
 
         res = [{"question":result[0],"choices":result[1],"answer":result[2]} for result in results]
 

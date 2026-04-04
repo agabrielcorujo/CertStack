@@ -8,11 +8,11 @@ router = APIRouter(prefix="/flashcards",tags=["flashcards"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 @router.get("/")
-async def get_5_cards(exam_id:str,domain:str,topic:str,token:str = Depends(oauth2_scheme)):
+async def get_5_cards(exam_id:str,domain:str,subdomain:str=None,token:str = Depends(oauth2_scheme)):
 
     decode_access_token(token)
 
-    return await get_5_flaschards_controller(exam_id,domain,topic)
+    return await get_5_flaschards_controller(exam_id,domain,subdomain)
 
 @router.get("/ai/")
 async def ask_ai_about_question(question:str,exam:str,user_question:str,token:str = Depends(oauth2_scheme)):

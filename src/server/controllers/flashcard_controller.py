@@ -1,10 +1,10 @@
 from services.flashcard_services import *
 from fastapi import HTTPException
 
-async def get_5_flaschards_controller(exam_id:str,domain:str,topic:str):
+async def get_5_flaschards_controller(exam_id:str,domain:str,subdomain:str=None):
     
     try:
-        return await get_5_flaschards_service(exam_id,domain,topic)
+        return await get_5_flaschards_service(exam_id,domain,subdomain)
 
     except FlashcardError as error:
 
