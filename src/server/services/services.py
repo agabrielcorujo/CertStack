@@ -144,40 +144,63 @@ def get_metadata(query: str, k: int = 1)->list[dict]:
 
 '''LLM TOOLs'''
 
+
 async def sql_read_tool(table: str, columns: list, id: str) -> dict:
-
     if table not in ALLOWED_READ_COLUMNS:
-        raise ToolError("Unauthorized", 403)
-
-    if not columns:
-        raise ToolError("No columns requested", 400)
-
+        raise ToolError("Unauthorized table", 403)
+    
     for col in columns:
         if col not in ALLOWED_READ_COLUMNS[table]:
-            raise ToolError("Unauthorized column", 403)
+            raise ToolError(f"Unauthorized column: {col}", 403)
 
-    query = f"""
-        SELECT {', '.join(columns)}
-        FROM {table}
-        WHERE id = $1
-    """
+    query = sql.SQL("SELECT {fields} FROM {table_name} WHERE id = %s").format(
+        fields=sql.SQL(",").join(map(sql.Identifier, columns)),
+        table_name=sql.Identifier(table)
+    )
 
     try:
         results = await safe_query(query, (id,), fetch="one")
+        if not results:
+            return {"status": "nothing returned"}
+        return {
+            "status": "success",
+            "result": {column: results[index] for index, column in enumerate(columns)}
+        }
     except DBError as e:
-        print(e)
-        raise ToolError("Error fetching solicited data", 500)
+        raise ToolError(f"Database error: {e.message}", 500)
 
-    if not results:
-        return {"status":"nothing returned"}
+async def sql_update_tool(table: str, columns: dict, id: str) -> dict:
+    if table not in ALLOWED_WRITE_COLUMNS:
+        raise ToolError("Unauthorized table", 403)
 
-    return {"status": "success",
-            "result": {
-        column: results[index]
-        for index, column in enumerate(columns)
-    }}
+    set_parts = []
+    values = []
+    for col, val in columns.items():
+        if col not in ALLOWED_WRITE_COLUMNS[table]:
+            raise ToolError(f"Unauthorized column: {col}", 403)
+        set_parts.append(sql.SQL("{} = %s").format(sql.Identifier(col)))
+        values.append(val)
+    
+    values.append(id)
+    query = sql.SQL("UPDATE {table_name} SET {sets} WHERE id = %s RETURNING id").format(
+        table_name=sql.Identifier(table),
+        sets=sql.SQL(", ").join(set_parts)
+    )
 
+    try:
+        results = await safe_query(query, tuple(values), fetch="one")
+        return {"status": "success" if results else "nothing updated"}
+    except DBError as e:
+        raise ToolError(f"Update error: {e.message}", 500)
 
+async def query_vector_store_tool(query: str) -> dict:
+    try:
+        store = get_vector_store()
+        results = store.similarity_search(query, k=5)
+        context = "\n\n---\n\n".join([doc.page_content for doc in results])
+        return {"status": "success", "context": context if results else "No matches found"}
+    except Exception as e:
+        raise ToolError(f"Vector search failed: {str(e)}", 500)
 
 if __name__ == "__main__":
     initialize_config()
