@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from jwt_auth.auth_routes import router as auth_router
 from routes.profile_router import router as profile_router
 from routes.flashcard_router import router as flashcard_router
+from routes.exam_router import router as exam_router
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from jwt_auth.db.db import close_pool, init_pool
@@ -34,13 +35,13 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(profile_router)
 app.include_router(flashcard_router)
+app.include_router(exam_router)
 
 @app.get("/")
 def health_check():
     return {
         "status":"healthy"
     }
-
 
 
 
