@@ -9,3 +9,6 @@ upstash-vector
 tiktoken
 fastapi
 uvicorn[standard]
+alembic
+SQLAlchemy
+psycopg2-binary
