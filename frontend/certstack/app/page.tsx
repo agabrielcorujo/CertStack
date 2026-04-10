@@ -1,166 +1,325 @@
 "use client"
 
+import { motion } from "framer-motion"
 import Link from "next/link"
-import { BookOpen, CheckCircle, TrendingUp, Award, ArrowRight, Sparkles } from "lucide-react"
+import { Icons } from "@/components/icons"
 
-export default function Home() {
+const SparklesIcon = Icons.sparkles
+const TargetIcon = Icons.practice
+const BookOpenIcon = Icons.materials
+const TrophyIcon = Icons.trophy
+const CheckIcon = Icons.check
+
+// ============================================================================
+// ANIMATION VARIANTS
+// ============================================================================
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const }
+  }
+}
+
+const floatVariants = {
+  initial: { y: 0 },
+  animate: { 
+    y: [-8, 8, -8],
+    transition: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+  }
+}
+
+// ============================================================================
+// FEATURE CARDS
+// ============================================================================
+
+const features = [
+  {
+    icon: TargetIcon,
+    title: "Adaptive Practice",
+    description: "Questions that evolve with your skill level for optimal learning retention.",
+    color: "primary"
+  },
+  {
+    icon: BookOpenIcon,
+    title: "Curated Library",
+    description: "Expert-crafted content spanning FE, PE, and AWS exam prep.",
+    color: "accent"
+  },
+  {
+    icon: TrophyIcon,
+    title: "Track Progress",
+    description: "Visual insights into your learning journey with detailed analytics.",
+    color: "chart-3"
+  }
+]
+
+// ============================================================================
+// STATS
+// ============================================================================
+
+const stats = [
+  { value: "500+", label: "Questions" },
+  { value: "12", label: "Topics" },
+  { value: "98%", label: "Accuracy Rate" },
+]
+
+// ============================================================================
+// MAIN HOME PAGE
+// ============================================================================
+
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#4A7FFF]/5 via-white to-[#4A7FFF]/5">
-      {/* Navigation */}
-      <nav className="border-b border-[hsl(var(--border-light))] bg-white/80 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#4A7FFF]">
-              <BookOpen className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-[hsl(var(--text-primary))]">CertStack</span>
-          </div>
-          <div className="flex gap-3">
-            <Link
-              href="/login"
-              className="flex h-10 items-center rounded-xl px-5 text-sm font-medium text-[hsl(var(--text-secondary))] transition-colors hover:text-[hsl(var(--text-primary))]"
+    <div className="relative min-h-screen overflow-hidden bg-background">
+      {/* Subtle background elements */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <motion.div 
+          className="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-primary/5 blur-3xl"
+          variants={floatVariants}
+          initial="initial"
+          animate="animate"
+        />
+        <motion.div 
+          className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-accent/5 blur-3xl"
+          variants={floatVariants}
+          initial="initial"
+          animate="animate"
+          style={{ animationDelay: "2s" }}
+        />
+      </div>
+
+      {/* Header */}
+      <header className="relative z-10 border-b border-border/50">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
+          <motion.div 
+            className="flex items-center gap-3"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div 
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary"
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              whileTap={{ scale: 0.95 }}
             >
-              Sign In
+              <SparklesIcon className="h-5 w-5 text-primary-foreground" />
+            </motion.div>
+            <span className="text-xl font-bold tracking-tight text-foreground">
+                  CertStack
+            </span>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <Link href="/practice">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 glow-primary hover:shadow-lg"
+              >
+                Start Practice
+              </motion.button>
             </Link>
-            <Link
-              href="/signup"
-              className="flex h-10 items-center rounded-full bg-[#4A7FFF] px-5 text-sm font-medium text-white transition-all hover:bg-[#3D6EE8] hover:-translate-y-0.5 hover:shadow-lg"
-            >
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </nav>
+          </motion.div>
+        </nav>
+      </header>
 
       {/* Hero Section */}
-      <section className="mx-auto max-w-7xl px-6 py-20 text-center">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#4A7FFF]/10 px-4 py-2 text-sm font-medium text-[#4A7FFF]">
-            <Sparkles className="h-4 w-4" />
-            AI-Powered Certification Prep
-          </div>
-          <h1 className="text-5xl font-bold leading-tight text-[hsl(var(--text-primary))] sm:text-6xl">
-            Master Your Certifications with Confidence
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-[hsl(var(--text-secondary))]">
-            Prepare for professional certification exams with adaptive practice, comprehensive study materials,
-            and detailed performance analytics. Your path to certification success starts here.
-          </p>
-          <div className="mt-8 flex justify-center gap-4">
-            <Link
-              href="/signup"
-              className="flex h-12 items-center gap-2 rounded-full bg-[#4A7FFF] px-8 text-sm font-medium text-white transition-all hover:bg-[#3D6EE8] hover:-translate-y-0.5 hover:shadow-lg"
-            >
-              Start Free Trial
-              <ArrowRight className="h-4 w-4" />
+      <motion.section 
+        className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8 lg:py-36"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="text-center">
+          <motion.div 
+            variants={itemVariants}
+            className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary"
+          >
+            <SparklesIcon className="h-4 w-4" />
+            <span>Elevate Your Technical Skills</span>
+          </motion.div>
+          
+          <motion.h1 
+            variants={itemVariants}
+            className="mx-auto max-w-4xl text-4xl font-bold leading-tight tracking-tight text-foreground text-balance sm:text-5xl lg:text-6xl"
+          >
+                Master FE, PE, and AWS exams with{" "}
+                <span className="text-gradient-brand">guided practice</span>
+          </motion.h1>
+          
+          <motion.p 
+            variants={itemVariants}
+            className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground text-pretty"
+          >
+                Practice real exam-style questions, get step-by-step tutor guidance, and track your progress by topic.
+          </motion.p>
+          
+          <motion.div 
+            variants={itemVariants}
+            className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <Link href="/practice">
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-semibold text-primary-foreground shadow-md transition-all duration-200 glow-primary hover:shadow-xl"
+              >
+                <TargetIcon className="h-5 w-5" />
+                    Start Practice Session
+              </motion.button>
             </Link>
-            <Link
-              href="/login"
-              className="flex h-12 items-center rounded-full border-2 border-[hsl(var(--border))] bg-white px-8 text-sm font-medium text-[hsl(var(--text-primary))] transition-all hover:border-[hsl(var(--text-tertiary))]"
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex h-12 items-center gap-2 rounded-xl border-2 border-border px-8 text-sm font-semibold text-foreground transition-all duration-200 hover:border-muted-foreground/40 hover:bg-secondary"
             >
-              Sign In
-            </Link>
-          </div>
+              <BookOpenIcon className="h-5 w-5" />
+              Explore Library
+            </motion.button>
+          </motion.div>
         </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-2xl border border-[hsl(var(--border-light))] bg-white p-6 shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EFF6FF]">
-              <CheckCircle className="h-6 w-6 text-[#4A7FFF]" />
-            </div>
-            <h3 className="mt-4 font-semibold text-[hsl(var(--text-primary))]">
-              Adaptive Practice
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-[hsl(var(--text-secondary))]">
-              AI-powered question selection that adapts to your skill level and focuses on your weak areas.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-[hsl(var(--border-light))] bg-white p-6 shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F0FDF4]">
-              <TrendingUp className="h-6 w-6 text-[#10B981]" />
-            </div>
-            <h3 className="mt-4 font-semibold text-[hsl(var(--text-primary))]">
-              Progress Tracking
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-[hsl(var(--text-secondary))]">
-              Detailed analytics and insights to monitor your progress and identify areas for improvement.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-[hsl(var(--border-light))] bg-white p-6 shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FEF3C7]">
-              <Award className="h-6 w-6 text-[#F59E0B]" />
-            </div>
-            <h3 className="mt-4 font-semibold text-[hsl(var(--text-primary))]">
-              Mock Exams
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-[hsl(var(--text-secondary))]">
-              Full-length practice exams that simulate real test conditions to build confidence.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-[hsl(var(--border-light))] bg-white p-6 shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F5F3FF]">
-              <BookOpen className="h-6 w-6 text-[#8B5CF6]" />
-            </div>
-            <h3 className="mt-4 font-semibold text-[hsl(var(--text-primary))]">
-              Study Resources
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-[hsl(var(--text-secondary))]">
-              Access comprehensive study materials, notes, and video tutorials for every topic.
-            </p>
-          </div>
-        </div>
-      </section>
+      </motion.section>
 
       {/* Stats Section */}
-      <section className="mx-auto max-w-7xl px-6 py-16">
-        <div className="rounded-3xl border border-[hsl(var(--border-light))] bg-gradient-to-br from-[#4A7FFF] to-[#3D6EE8] p-12 text-center text-white shadow-xl">
-          <h2 className="text-3xl font-bold">Trusted by Professionals Worldwide</h2>
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
-            <div>
-              <p className="text-5xl font-bold">50K+</p>
-              <p className="mt-2 text-white/80">Practice Questions</p>
-            </div>
-            <div>
-              <p className="text-5xl font-bold">15K+</p>
-              <p className="mt-2 text-white/80">Active Users</p>
-            </div>
-            <div>
-              <p className="text-5xl font-bold">92%</p>
-              <p className="mt-2 text-white/80">Pass Rate</p>
-            </div>
+      <motion.section 
+        className="relative z-10 border-y border-border bg-card/50"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-3 gap-8">
+            {stats.map((stat, index) => (
+              <motion.div 
+                key={stat.label}
+                className="text-center"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <div className="text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">
+                  {stat.value}
+                </div>
+                <div className="mt-2 text-sm font-medium text-muted-foreground">
+                  {stat.label}
+                </div>
+              </motion.div>
+            ))}
           </div>
+        </div>
+      </motion.section>
+
+      {/* Features Section */}
+      <section className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+        <motion.div 
+          className="mb-12 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
+            Designed for Mastery
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+            Every interaction is crafted to optimize your learning experience.
+          </p>
+        </motion.div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          {features.map((feature, index) => (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <motion.div
+                whileHover={{ y: -4 }}
+                className="group h-full rounded-2xl border border-border bg-card p-8 transition-all duration-300 elevation-1 hover:elevation-2"
+              >
+                <motion.div 
+                  className={`mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-${feature.color}/10`}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
+                  <feature.icon className={`h-6 w-6 text-${feature.color}`} />
+                </motion.div>
+                <h3 className="mb-3 text-xl font-semibold text-foreground">
+                  {feature.title}
+                </h3>
+                <p className="leading-relaxed text-muted-foreground">
+                      FE, PE, and AWS-aligned practice built for exam readiness.
+                </p>
+              </motion.div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="mx-auto max-w-7xl px-6 py-20 text-center">
-        <h2 className="text-4xl font-bold text-[hsl(var(--text-primary))]">
-          Ready to start your journey?
-        </h2>
-        <p className="mt-4 text-lg text-[hsl(var(--text-secondary))]">
-          Join thousands of professionals achieving their certification goals.
-        </p>
-        <Link
-          href="/signup"
-          className="mt-8 inline-flex h-12 items-center gap-2 rounded-full bg-[#4A7FFF] px-8 text-sm font-medium text-white transition-all hover:bg-[#3D6EE8] hover:-translate-y-0.5 hover:shadow-lg"
+      <section className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="overflow-hidden rounded-3xl bg-primary p-8 text-center sm:p-12 lg:p-16"
         >
-          Get Started Free
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            <h2 className="mb-4 text-3xl font-bold text-primary-foreground sm:text-4xl">
+              Ready to Level Up?
+            </h2>
+            <p className="mx-auto mb-8 max-w-xl text-primary-foreground/80">
+                  Build exam confidence through guided problem solving, not answer dumping.
+            </p>
+            <Link href="/practice">
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex h-12 items-center gap-2 rounded-xl bg-background px-8 text-sm font-semibold text-foreground shadow-lg transition-all duration-200 hover:shadow-xl"
+              >
+                <CheckIcon className="h-5 w-5" />
+                Start Your Journey
+              </motion.button>
+            </Link>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[hsl(var(--border-light))] bg-[hsl(var(--surface))] py-8">
-        <div className="mx-auto max-w-7xl px-6 text-center">
-          <p className="text-sm text-[hsl(var(--text-tertiary))]">
-            © 2026 CertStack. All rights reserved.
-          </p>
+      <footer className="relative z-10 border-t border-border">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                <SparklesIcon className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <span className="text-sm font-semibold text-foreground">CertStack</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Crafted with care for developers who demand excellence.
+            </p>
+          </div>
         </div>
       </footer>
     </div>

@@ -1,246 +1,326 @@
 "use client"
 
-import { useState } from "react"
+import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { BookOpen, Eye, EyeOff, Mail, Lock } from "lucide-react"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Icons } from "@/components/icons"
+import { getErrorMessage, postJson } from "@/lib/api"
+
+// ============================================================================
+// ANIMATION VARIANTS
+// ============================================================================
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const },
+  },
+}
+
+// ============================================================================
+// LOGIN PAGE
+// ============================================================================
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-  const canSubmit = emailValid && password.length > 0 && !loading
+  const [showPassword, setShowPassword] = React.useState(false)
+  const [isLoading, setIsLoading] = React.useState(false)
+  const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
 
-  async function handleSubmit(e: React.FormEvent) {
+  type LoginResponse = {
+    access_token?: string
+    token?: string
+    token_type?: string
+    message?: string
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (loading) return
-    if (!emailValid || password.length === 0) {
-      setError("Please enter a valid email and password.")
-      return
-    }
-
-    setError("")
-    setLoading(true)
+    setIsLoading(true)
+    setErrorMessage(null)
 
     try {
-      const normalizedEmail = email.trim().toLowerCase()
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: normalizedEmail, password, rememberMe }),
+      const result = await postJson<LoginResponse>("/auth/login", {
+        email,
+        password,
       })
 
-      if (!response.ok) {
-        const data = await response.json().catch(() => null)
-        throw new Error(data.message || "Login failed")
+      const token = result.access_token ?? result.token
+      if (token) {
+        localStorage.setItem("certstack_access_token", token)
       }
-
-      // Redirect to dashboard on success
-      router.push("/dashboard")
-    } catch (err: any) {
-      setError(err.message || "An error occurred")
+      window.location.href = "/dashboard"
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error))
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left Panel - Branding */}
-      <div className="hidden w-1/2 flex-col justify-between bg-[#4A7FFF] p-12 lg:flex">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(255,255,255,0.2)]">
-            <BookOpen className="h-6 w-6 text-[#FFFFFF]" />
-          </div>
-          <span className="text-xl font-bold text-[#FFFFFF]">CertStack</span>
-        </div>
-
-        <div>
-          <h1 className="text-4xl font-bold leading-tight text-[#FFFFFF]">
-            Ace your certifications with
-            <br />
-            confidence
-          </h1>
-          <p className="mt-4 max-w-md text-lg leading-relaxed text-[rgba(255,255,255,0.8)]">
-            Practice with thousands of questions, track your progress, and master every topic before exam day.
-          </p>
-        </div>
-
-        <div className="flex gap-8">
-          <div>
-            <p className="text-3xl font-bold text-[#FFFFFF]">50K+</p>
-            <p className="mt-1 text-sm text-[rgba(255,255,255,0.7)]">Questions</p>
-          </div>
-          <div>
-            <p className="text-3xl font-bold text-[#FFFFFF]">15K+</p>
-            <p className="mt-1 text-sm text-[rgba(255,255,255,0.7)]">Learners</p>
-          </div>
-          <div>
-            <p className="text-3xl font-bold text-[#FFFFFF]">92%</p>
-            <p className="mt-1 text-sm text-[rgba(255,255,255,0.7)]">Pass Rate</p>
-          </div>
-        </div>
+    <div className="relative min-h-screen bg-background">
+      {/* Background decoration */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-1/4 -top-1/4 h-[600px] w-[600px] rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute -bottom-1/4 -right-1/4 h-[500px] w-[500px] rounded-full bg-accent/5 blur-3xl" />
       </div>
 
-      {/* Right Panel - Form */}
-      <div className="flex flex-1 items-center justify-center bg-[#FFFFFF] px-8">
-        <div className="w-full max-w-md">
-          {/* Mobile Logo */}
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#4A7FFF]">
-              <BookOpen className="h-5 w-5 text-[#FFFFFF]" />
-            </div>
-            <span className="text-lg font-bold text-[hsl(var(--text-primary))]">CertStack</span>
-          </div>
+      <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12">
+        {/* Logo */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8 flex items-center gap-3"
+        >
+          <motion.div
+            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary"
+            whileHover={{ scale: 1.05, rotate: 5 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Icons.sparkles className="h-6 w-6 text-primary-foreground" />
+          </motion.div>
+          <span className="text-2xl font-bold tracking-tight text-foreground">
+            CertStack
+          </span>
+        </motion.div>
 
-          <h2 className="text-2xl font-bold text-[hsl(var(--text-primary))]">Welcome back</h2>
-          <p className="mt-2 text-sm text-[hsl(var(--text-secondary))]">
-            Sign in to continue your learning journey
-          </p>
-
-          {error && (
-            <div role="alert" aria-live="polite" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
-
-          <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit} aria-busy={loading}>
-            {/* Email */}
-            <div>
-              <label htmlFor="login-email" className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
-                Email address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
-                <input
-                  id="login-email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="john@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="h-12 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] pl-11 pr-4 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[#4A7FFF] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <div className="mb-1.5 flex items-center justify-between">
-                <label htmlFor="login-password" className="text-sm font-medium text-[hsl(var(--text-primary))]">
-                  Password
-                </label>
-                <button
-                  type="button"
-                  className="text-xs font-medium text-[#4A7FFF] hover:text-[#3D6EE8]"
-                >
-                  Forgot password?
-                </button>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
-                <input
-                  id="login-password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="h-12 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] pl-11 pr-12 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[#4A7FFF] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[hsl(var(--text-tertiary))] hover:text-[hsl(var(--text-secondary))]"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Remember Me */}
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="remember"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 rounded border-[hsl(var(--border))] text-[#4A7FFF] focus:ring-[#DBEAFE]"
-              />
-              <label htmlFor="remember" className="text-sm text-[hsl(var(--text-secondary))]">
-                Remember me for 30 days
-              </label>
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={!canSubmit}
-              className="h-12 w-full rounded-full bg-[#4A7FFF] text-sm font-medium text-[#FFFFFF] transition-all duration-200 hover:bg-[#3D6EE8] hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loading ? "Signing In..." : "Sign In"}
-            </button>
-
-            {/* Divider */}
-            <div className="flex items-center gap-4">
-              <div className="h-px flex-1 bg-[hsl(var(--border-light))]" />
-              <span className="text-xs text-[hsl(var(--text-tertiary))]">or continue with</span>
-              <div className="h-px flex-1 bg-[hsl(var(--border-light))]" />
-            </div>
-
-            {/* Social Buttons */}
-            <div className="flex gap-3">
-              <button
-                type="button"
-                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] text-sm font-medium text-[hsl(var(--text-primary))] transition-all duration-200 hover:bg-[hsl(var(--surface))]"
+        {/* Login Card */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="w-full max-w-md"
+        >
+          <motion.div
+            variants={itemVariants}
+            className="rounded-2xl border border-border bg-card p-8 elevation-2"
+          >
+            {/* Header */}
+            <div className="mb-8 text-center">
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                CertStack
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Sign in to continue your learning journey
+              </p>
+              <Link
+                href="/signup"
+                className="mt-3 inline-flex items-center justify-center text-sm font-medium text-primary hover:text-primary/80 transition-colors"
               >
-                <svg className="h-5 w-5" viewBox="0 0 24 24">
-                  <path
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
-                    fill="#4285F4"
-                  />
-                  <path
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    fill="#34A853"
-                  />
-                  <path
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    fill="#FBBC05"
-                  />
-                  <path
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    fill="#EA4335"
-                  />
-                </svg>
-                Google
-              </button>
-              <button
-                type="button"
-                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] text-sm font-medium text-[hsl(var(--text-primary))] transition-all duration-200 hover:bg-[hsl(var(--surface))]"
-              >
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.18 0-.36-.02-.53-.06-.01-.18-.04-.56-.04-.95 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.22.05.45.05.68zm3.678 16.72c.01.12.01.23 0 .33-.4 1.47-1.49 3.4-2.68 4.47-.99.89-1.97 1.77-3.27 1.77-.53 0-.95-.15-1.35-.31-.43-.17-.87-.35-1.56-.35-.72 0-1.19.19-1.64.36-.38.15-.75.29-1.22.33-1.23.05-2.17-.96-3.16-1.86C3.03 21.16 1.54 17.73 1.54 14.39c0-3.6 2.34-5.51 4.63-5.51.72 0 1.32.21 1.84.4.4.14.76.27 1.06.27.25 0 .57-.12.95-.27.57-.21 1.28-.48 2.16-.48 1.58 0 3.14.96 3.86 2.47-1.37.79-2.3 2.27-2.3 3.94 0 1.95 1.17 3.6 2.83 4.3-.2.59-.44 1.15-.73 1.62z" />
-                </svg>
-                Apple
-              </button>
+                Create an account
+              </Link>
             </div>
-          </form>
 
-          <p className="mt-8 text-center text-sm text-[hsl(var(--text-secondary))]">
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email Field */}
+              <motion.div variants={itemVariants} className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">
+                  Email address
+                </Label>
+                <div className="relative">
+                  <Icons.mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="jane@example.com"
+                    className="h-12 pl-10 rounded-xl bg-secondary/50 border-border focus:bg-background transition-colors"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </motion.div>
+
+              {/* Password Field */}
+              <motion.div variants={itemVariants} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-sm font-medium">
+                    Password
+                  </Label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Icons.lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    className="h-12 pl-10 pr-10 rounded-xl bg-secondary/50 border-border focus:bg-background transition-colors"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? (
+                      <Icons.eyeOff className="h-4 w-4" />
+                    ) : (
+                      <Icons.eye className="h-4 w-4" />
+                    )}
+                    <span className="sr-only">
+                      {showPassword ? "Hide password" : "Show password"}
+                    </span>
+                  </button>
+                </div>
+              </motion.div>
+
+              {errorMessage && (
+                <motion.div
+                  variants={itemVariants}
+                  className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm text-destructive"
+                  role="alert"
+                >
+                  <Icons.alertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  <span>{errorMessage}</span>
+                </motion.div>
+              )}
+
+              {/* Remember Me */}
+              <motion.div variants={itemVariants} className="flex items-center gap-2">
+                <Checkbox id="remember" className="rounded" />
+                <Label
+                  htmlFor="remember"
+                  className="text-sm text-muted-foreground cursor-pointer"
+                >
+                  Remember me for 30 days
+                </Label>
+              </motion.div>
+
+              {/* Submit Button */}
+              <motion.div variants={itemVariants}>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="h-12 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200"
+                >
+                  {isLoading ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    >
+                      <Icons.refresh className="h-5 w-5" />
+                    </motion.div>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      Sign in
+                      <Icons.arrowRight className="h-4 w-4" />
+                    </span>
+                  )}
+                </Button>
+              </motion.div>
+
+              {/* Divider */}
+              <motion.div variants={itemVariants} className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-card px-4 text-muted-foreground">
+                    or continue with
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Social Login */}
+              <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 rounded-xl border-border hover:bg-secondary/50 transition-colors"
+                >
+                  <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
+                    <path
+                      fill="currentColor"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  Google
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 rounded-xl border-border hover:bg-secondary/50 transition-colors"
+                >
+                  <svg className="mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                  </svg>
+                  GitHub
+                </Button>
+              </motion.div>
+            </form>
+          </motion.div>
+
+          {/* Sign Up Link */}
+          <motion.p
+            variants={itemVariants}
+            className="mt-6 text-center text-sm text-muted-foreground"
+          >
             {"Don't have an account? "}
-            <Link href="/signup" className="font-medium text-[#4A7FFF] hover:text-[#3D6EE8]">
+            <Link
+              href="/signup"
+              className="font-medium text-primary hover:text-primary/80 transition-colors"
+            >
               Sign up for free
             </Link>
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
+
+        {/* Footer */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="mt-12 text-center text-xs text-muted-foreground"
+        >
+          By signing in, you agree to our{" "}
+          <Link href="/terms" className="underline hover:text-foreground transition-colors">
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="underline hover:text-foreground transition-colors">
+            Privacy Policy
+          </Link>
+        </motion.p>
       </div>
     </div>
   )
