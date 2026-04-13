@@ -7,25 +7,27 @@ class ExamError(Exception):
         super().__init__(message)
 
 
-async def get_exam_questions(exam_id: str):
+async def get_exam_questions(exam_name: str):
     query = """
             WITH topics AS (
-            SELECT jsonb_object_keys(exam_topics) AS topic
-            FROM exam_info
+                SELECT exam_name, jsonb_object_keys(exam_topics) AS topic
+                FROM exam_info
             )
-            SELECT question,choices,answer
+            SELECT question, choices, answer
             FROM (
-            SELECT q.*,
+                SELECT 
+                    q.*,
+                    t.exam_name,
                     ROW_NUMBER() OVER (PARTITION BY q.domain ORDER BY RANDOM()) AS rn
-            FROM questions q
-            JOIN topics t ON q.domain = t.topic
+                FROM questions q
+                JOIN topics t ON q.domain = t.topic
             ) sub
             WHERE rn <= 17
-            AND sub.exam_id = $1;
+            AND sub.exam_name = $1;
             """
 
     try:
-        results = await safe_query(query, (exam_id,), fetch="all")
+        results = await safe_query(query, (exam_name,), fetch="all")
 
         res = [{"question": result[0], "choices": result[1], "answer": result[2]} for result in results]
 
@@ -33,6 +35,6 @@ async def get_exam_questions(exam_id: str):
 
     except DBError as e:
         raise ExamError(
-            message=f"error fetching questions for exam:{exam_id}",
+            message=f"error fetching questions for exam:{exam_name}",
             status_code=e.status_code,
         )

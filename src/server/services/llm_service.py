@@ -1,9 +1,6 @@
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI,OpenAIEmbeddings
-from langchain_community.vectorstores import UpstashVectorStore
-from psycopg2 import sql
-import os,json as j
-from jwt_auth.db.db import safe_query,DBError
+import os,hashlib,asyncio
+from openai import OpenAI
+from jwt_auth.db.redis import cache
 
 class LLMError(Exception):
     def __init__(self, message: str, status_code: int = 400):
@@ -11,112 +8,51 @@ class LLMError(Exception):
         self.status_code = status_code
         super().__init__(message)
 
-PROMPT_TEMPLATE="""
-Answer the question based only on the following context:
-
-{context}
-
----
-
-Answer the question based on the above context: {query}
-
-"""
-
 ENVS = {
-    "OPENAI_API_KEY":os.getenv("OPENAI_API_KEY"),
-    "UPSTASH_VECTOR_REST_URL":os.getenv("UPSTASH_VECTOR_REST_URL"),
-    "UPSTASH_VECTOR_REST_TOKEN":os.getenv("UPSTASH_VECTOR_REST_TOKEN")
+    "OPENAI_API_KEY":os.getenv("OPENAI_API_KEY")
 }
-
-SCHEMA_COLUMNS = [#need specific exam names 
-    "exam_name", "exam_description", "exam_focus", "scoring_model", 
-    "domain_weights", "exam_topics", "expected_depth", 
-    "not_expected_depth", "llm_answering_rules"
-    ]
 
 if not all(ENVS.values()):
 
     raise RuntimeError("LLM configuration error")
 
-def query_embeddings(query: str):
 
-    vector_store = UpstashVectorStore(
-        embedding=OpenAIEmbeddings(),
-        index_url=os.getenv("UPSTASH_VECTOR_REST_URL"),
-        index_token=os.getenv("UPSTASH_VECTOR_REST_TOKEN"),
-    )
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    results = vector_store.similarity_search(query, k=5)
+async def ask_ai_about_question_service(userid:str,question:str,exam:str,user_question:str):
 
-    if not results:
+    try: 
 
-        return "No results found"
+        q_hash = hashlib.md5(question.encode()).hexdigest()
 
-    context = "\n\n---\n\n".join([doc.page_content for doc in results])
+        chat_history = await cache.get(f"{userid}:{q_hash}") 
+        chat_history = chat_history or ""
 
-    return context
-
-def ask_llm(query:str,context:str=None)->str:
-
-    prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
-    model = ChatOpenAI()
-
-    if context:
-        chain = prompt_template | model
-        response = chain.invoke({
-            "context": context,
-            "query": query
-        })
-
-    else:
-        prompt = "{question}"
-        chain = prompt | model
-        response = chain.invoke({"question":query})
-
-    return response.content
-
-def exam_context(exam:str,params:list=None)->dict:
-
-    if not params:
-        raise LLMError(status_code=400,message="no parameters given to extract")
-    
-    params.append("answering_rules_for_llm")
-
-    fields = [sql.Identifier(field) for field in params]
-
-    query = sql.SQL("""
-            SELECT {fields}
-            FROM exam_info
-            WHERE exam_name = %s
-        """).format(
-            fields=sql.SQL(",").join(fields)
-        )
-    
-    try:
-
-        res = safe_query(query,(exam,),fetch="one")
-
-    except DBError as error:
-        raise LLMError(message=error.message,status_code=error.status_code)
-
-    if not res:
-        raise LLMError(message="error fetching exam context",status_code=500)
-    
-    result = {}
-
-    for index,entry in enumerate(params):
-        result[entry] = res[index]
-    
-    return result
-
-def chat(chat_history:str,new_input:str)->str:
-    if not chat_history:
-        chat_history = f"USER QUESTION: {new_input}"
-
-    first_query = "If you need context from the exam, ONLY respond 'Context'. Otherwise, answer the question."
-
-    first_res = ask_llm(first_query)
-
-    if first_res = "Context":
+        query = f"""You are a socratic tutor for CertStack, a platform for studying for certifications. 
+        Answer the following users doubt about this question in plain text. no markdown or any formatting. just your
+        response to their question:
         
+        exam:{exam}
+        question:{question}
+        doubt:{user_question} 
+        chat history:{chat_history or ""}"""
+
+        response = await asyncio.to_thread(
+            client.responses.create,
+            model="gpt-5.4",
+            input=query
+        )
+
+        res = response.output_text
+
+        formatted_res = "\n\t".join(res.splitlines())
+
+        chat_history += f"\n\nuser:\n\t{user_question}\n\nLLM:\n\t{formatted_res}"
+
+        await cache.setex(f"{userid}:{q_hash}",120,chat_history)
+
+        return res
     
+    except Exception as e:
+
+        raise LLMError(status_code=500,message=str(e))

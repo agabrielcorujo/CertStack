@@ -9,7 +9,7 @@ async def create_profile_controller(user_id:str,request:CreateProfileRequest):
 
     except ProfileError as error:
 
-        raise HTTPException(status_code=error.status_code,detail=error.messge)
+        raise HTTPException(status_code=error.status_code,detail=error.message)
     
 async def update_profile_controller(user_id:str,request:UpdateProfileRequest):
 
@@ -18,5 +18,14 @@ async def update_profile_controller(user_id:str,request:UpdateProfileRequest):
 
     except ProfileError as error:
         
-        raise HTTPException(status_code=error.status_code,detail=error.messge)
+        raise HTTPException(status_code=error.status_code,detail=error.message)
+    
+async def get_profile_controller(user_id:str):
+    try:
+
+        return await get_profile(user_id)
+    
+    except ProfileError as error:
+
+        raise HTTPException(status_code=error.status_code,detail=error.message)
 

@@ -10,8 +10,8 @@ services:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
     volumes:
       - ../client/certstack:/app
-      - /app/node_modules
-    command: sh -c "npm install && npm run dev"
+      - client_node_modules:/app/node_modules
+    command: ["sh", "/app/docker-dev-entrypoint.sh"]
     depends_on:
       - server
 
@@ -25,4 +25,5 @@ services:
     env_file:
       - ../server/.env.dev
 
-      
+volumes:
+  client_node_modules:
