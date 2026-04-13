@@ -477,6 +477,122 @@ def get_user_decks(user_id: str):
 
     return {"status": "success", "decks": decks}
 
+
+def get_deck_flashcards(
+    user_id: str,
+    deck_id: int,
+    category: Optional[str] = None,
+    limit: int = 20,
+    offset: int = 0,
+):
+    """Hydrates a user's deck question ids into flashcard payloads for the client."""
+    if limit <= 0:
+        raise FlashcardError("limit must be greater than 0", 400)
+
+    if limit > 100:
+        raise FlashcardError("limit cannot exceed 100", 400)
+
+    if offset < 0:
+        raise FlashcardError("offset must be >= 0", 400)
+
+    normalized_category = (category or "").strip()
+    deck_exam = _get_user_deck_exam(user_id, deck_id)
+
+    try:
+        total_row = safe_query(
+            """
+            SELECT COUNT(*)
+            FROM flashcard_deck_questions
+            WHERE deck_id = %s
+            """,
+            (deck_id,),
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    total_count = int(total_row[0] or 0)
+
+    try:
+        deck_rows = safe_query(
+            """
+            SELECT question_id
+            FROM flashcard_deck_questions
+            WHERE deck_id = %s
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+            """,
+            (deck_id, limit, offset),
+            fetch="all",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    deck_question_ids = [row[0] for row in deck_rows or []]
+    if not deck_question_ids:
+        return {
+            "status": "success",
+            "deck_id": deck_id,
+            "exam": deck_exam,
+            "category_filter": normalized_category if normalized_category else None,
+            "pagination": {
+                "total": total_count,
+                "limit": limit,
+                "offset": offset,
+                "returned": 0,
+                "has_more": False,
+            },
+            "cards": [],
+        }
+
+    try:
+        exam_cards = get_exam(deck_exam, normalized_category)
+    except Exception as error:
+        raise FlashcardError(status_code=500, message=f"error loading exam cards: {error}")
+
+    exam_card_map = {}
+    for card in exam_cards or []:
+        question_text = (card.get("question") or "").strip()
+        if not question_text:
+            continue
+        question_id = hashlib.md5(question_text.encode("utf-8")).hexdigest()
+        exam_card_map[question_id] = card
+
+    cards = []
+    missing_question_ids = []
+    for question_id in deck_question_ids:
+        card = exam_card_map.get(question_id)
+        if not card:
+            missing_question_ids.append(question_id)
+            continue
+
+        cards.append(
+            {
+                "question_id": question_id,
+                "question": card.get("question"),
+                "choices": card.get("choices"),
+                "answer": card.get("answer"),
+                "difficulty": card.get("difficulty"),
+                "category": card.get("category") or "",
+            }
+        )
+
+    return {
+        "status": "success",
+        "deck_id": deck_id,
+        "exam": deck_exam,
+        "category_filter": normalized_category if normalized_category else None,
+        "pagination": {
+            "total": total_count,
+            "limit": limit,
+            "offset": offset,
+            "returned": len(cards),
+            "has_more": (offset + len(deck_question_ids)) < total_count,
+        },
+        "cards": cards,
+        "missing_question_ids": missing_question_ids,
+    }
+
 def get_progress_stats(user_id: str, exam: str, category: Optional[str] = None):
     """Aggregates flashcard progress and session stats for dashboards."""
     normalized_exam = exam.strip().lower()

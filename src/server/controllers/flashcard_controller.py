@@ -13,6 +13,7 @@ from services.flashcard_service import (
     add_question_to_deck,
     create_deck,
     end_study_session,
+    get_deck_flashcards,
     get_flashcards_for_review,
     get_progress_stats,
     get_study_session_history,
@@ -79,6 +80,27 @@ def add_question_to_deck_controller(user_id: str, request: AddQuestionToDeckRequ
 def get_user_decks_controller(user_id: str):
     try:
         return get_user_decks(user_id=user_id)
+    except FlashcardError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message)
+    except NotImplementedError as error:
+        raise HTTPException(status_code=501, detail=str(error))
+
+
+def get_deck_flashcards_controller(
+    user_id: str,
+    deck_id: int,
+    category: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
+):
+    try:
+        return get_deck_flashcards(
+            user_id=user_id,
+            deck_id=deck_id,
+            category=category,
+            limit=limit,
+            offset=offset,
+        )
     except FlashcardError as error:
         raise HTTPException(status_code=error.status_code, detail=error.message)
     except NotImplementedError as error:

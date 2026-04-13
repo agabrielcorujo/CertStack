@@ -6,6 +6,7 @@ from controllers.flashcard_controller import (
     add_question_to_deck_controller,
     create_deck_controller,
     end_study_session_controller,
+    get_deck_flashcards_controller,
     get_flashcards_controller,
     get_progress_controller,
     get_study_session_history_controller,
@@ -50,6 +51,24 @@ def create_user_deck(request: CreateDeckRequest, token: str = Depends(oauth2_sch
 def get_user_flashcard_decks(token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
     return get_user_decks_controller(user_id)
+
+
+@router.get("/decks/{deck_id}/cards")
+def get_deck_flashcards(
+    deck_id: int,
+    category: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
+    token: str = Depends(oauth2_scheme),
+):
+    user_id = decode_access_token(token)
+    return get_deck_flashcards_controller(
+        user_id=user_id,
+        deck_id=deck_id,
+        category=category,
+        limit=limit,
+        offset=offset,
+    )
 
 @router.post("/decks/add-question")
 def add_question(request: AddQuestionToDeckRequest, token: str = Depends(oauth2_scheme)):
