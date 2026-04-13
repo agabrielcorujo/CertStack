@@ -1,3 +1,17 @@
+import os
+import json as j
+import boto3 as aws
+
+sm_client = aws.client("secretsmanager")
+result = sm_client.get_secret_value(SecretId="certstack-secrets")
+
+if "SecretString" in result:
+    secrets = j.loads(result["SecretString"])
+    for key, value in secrets.items():
+        os.environ[key] = value
+else:
+    raise RuntimeError("missing environment variables")
+
 from fastapi import FastAPI
 from jwt_auth.auth_routes import router as auth_router
 from routes.profile_router import router as profile_router
