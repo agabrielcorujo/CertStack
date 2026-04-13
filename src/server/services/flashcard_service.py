@@ -748,23 +748,27 @@ def start_study_session(
 def end_study_session(
     user_id: str,
     session_id: int,
-    cards_reviewed: int,
-    correct_answers: int,
+    cards_reviewed: Optional[int],
+    correct_answers: Optional[int],
 ):
-    """Finishes a session record with review counts and return stats."""
-    if cards_reviewed < 0:
+    """Finishes a session and returns summary; safe to call repeatedly."""
+    if cards_reviewed is not None and cards_reviewed < 0:
         raise FlashcardError("cards_reviewed must be >= 0", 400)
 
-    if correct_answers < 0:
+    if correct_answers is not None and correct_answers < 0:
         raise FlashcardError("correct_answers must be >= 0", 400)
 
-    if correct_answers > cards_reviewed:
+    if (
+        cards_reviewed is not None
+        and correct_answers is not None
+        and correct_answers > cards_reviewed
+    ):
         raise FlashcardError("correct_answers cannot exceed cards_reviewed", 400)
 
     try:
         session = safe_query(
             """
-            SELECT user_id, exam, category, deck_id, started_at
+            SELECT user_id, exam, category, deck_id, started_at, cards_reviewed, correct_answers, ended_at
             FROM flashcard_study_sessions
             WHERE id = %s
             """,
@@ -780,6 +784,29 @@ def end_study_session(
     if session[0] != user_id:
         raise FlashcardError("session does not belong to user", 403)
 
+    # If already ended, return persisted values to keep the endpoint idempotent.
+    if session[7] is not None:
+        existing_accuracy = _safe_percentage(int(session[6] or 0), int(session[5] or 0))
+        return {
+            "status": "success",
+            "already_ended": True,
+            "session_id": session_id,
+            "exam": session[1],
+            "category": session[2] if session[2] else None,
+            "deck_id": session[3],
+            "started_at": str(session[4]),
+            "ended_at": str(session[7]),
+            "cards_reviewed": int(session[5] or 0),
+            "correct_answers": int(session[6] or 0),
+            "accuracy_percent": existing_accuracy,
+        }
+
+    final_cards_reviewed = int(session[5] or 0) if cards_reviewed is None else cards_reviewed
+    final_correct_answers = int(session[6] or 0) if correct_answers is None else correct_answers
+
+    if final_correct_answers > final_cards_reviewed:
+        raise FlashcardError("correct_answers cannot exceed cards_reviewed", 400)
+
     try:
         updated = safe_query(
             """
@@ -791,7 +818,7 @@ def end_study_session(
             WHERE id = %s
             RETURNING id, exam, category, deck_id, started_at, cards_reviewed, correct_answers, ended_at
             """,
-            (cards_reviewed, correct_answers, session_id),
+            (final_cards_reviewed, final_correct_answers, session_id),
             insert=True,
             fetch="one",
         )
@@ -801,7 +828,7 @@ def end_study_session(
     if not updated:
         raise FlashcardError("error updating session", 500)
 
-    session_accuracy = _safe_percentage(correct_answers, cards_reviewed)
+    session_accuracy = _safe_percentage(final_correct_answers, final_cards_reviewed)
 
     return {
         "status": "success",
@@ -814,6 +841,128 @@ def end_study_session(
         "cards_reviewed": updated[5],
         "correct_answers": updated[6],
         "accuracy_percent": session_accuracy,
+    }
+
+
+def get_study_session_history(
+    user_id: str,
+    exam: Optional[str] = None,
+    category: Optional[str] = None,
+    deck_id: Optional[int] = None,
+    include_active: bool = False,
+    limit: int = 20,
+    offset: int = 0,
+):
+    """Returns paginated study session history for the authenticated user."""
+    if limit <= 0:
+        raise FlashcardError("limit must be greater than 0", 400)
+
+    if limit > 100:
+        raise FlashcardError("limit cannot exceed 100", 400)
+
+    if offset < 0:
+        raise FlashcardError("offset must be >= 0", 400)
+
+    normalized_exam = (exam or "").strip().lower()
+    normalized_category = (category or "").strip()
+
+    filters = ["user_id = %s"]
+    filter_params: list = [user_id]
+
+    if normalized_exam:
+        filters.append("exam = %s")
+        filter_params.append(normalized_exam)
+
+    if normalized_category:
+        filters.append("category = %s")
+        filter_params.append(normalized_category)
+
+    if deck_id is not None:
+        filters.append("deck_id = %s")
+        filter_params.append(deck_id)
+
+    if not include_active:
+        filters.append("ended_at IS NOT NULL")
+
+    where_clause = " AND ".join(filters)
+
+    try:
+        total_row = safe_query(
+            f"""
+            SELECT COUNT(*)
+            FROM flashcard_study_sessions
+            WHERE {where_clause}
+            """,
+            tuple(filter_params),
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    total_count = int(total_row[0] or 0)
+
+    query_params = tuple(filter_params + [limit, offset])
+
+    try:
+        rows = safe_query(
+            f"""
+            SELECT
+                id,
+                exam,
+                category,
+                deck_id,
+                cards_reviewed,
+                correct_answers,
+                started_at,
+                ended_at,
+                EXTRACT(EPOCH FROM (COALESCE(ended_at, NOW()) - started_at)) AS duration_seconds
+            FROM flashcard_study_sessions
+            WHERE {where_clause}
+            ORDER BY started_at DESC
+            LIMIT %s OFFSET %s
+            """,
+            query_params,
+            fetch="all",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    history = []
+    for row in rows or []:
+        cards_reviewed = int(row[4] or 0)
+        correct_answers = int(row[5] or 0)
+        history.append(
+            {
+                "session_id": row[0],
+                "exam": row[1],
+                "category": row[2] if row[2] else None,
+                "deck_id": row[3],
+                "cards_reviewed": cards_reviewed,
+                "correct_answers": correct_answers,
+                "accuracy_percent": _safe_percentage(correct_answers, cards_reviewed),
+                "started_at": str(row[6]),
+                "ended_at": str(row[7]) if row[7] else None,
+                "is_active": row[7] is None,
+                "duration_seconds": int(row[8] or 0),
+            }
+        )
+
+    return {
+        "status": "success",
+        "filters": {
+            "exam": normalized_exam if normalized_exam else None,
+            "category": normalized_category if normalized_category else None,
+            "deck_id": deck_id,
+            "include_active": include_active,
+        },
+        "pagination": {
+            "total": total_count,
+            "limit": limit,
+            "offset": offset,
+            "returned": len(history),
+            "has_more": (offset + len(history)) < total_count,
+        },
+        "sessions": history,
     }
 
 

@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from schemas.schema import (
     AddQuestionToDeckRequest,
     CreateDeckRequest,
+    EndStudySessionRequest,
     GetFlashcardsRequest,
     ReviewFlashcardRequest,
 )
@@ -14,6 +15,7 @@ from services.flashcard_service import (
     end_study_session,
     get_flashcards_for_review,
     get_progress_stats,
+    get_study_session_history,
     get_user_decks,
     record_review,
     start_study_session,
@@ -112,7 +114,7 @@ def start_study_session_controller(
 
 def end_study_session_controller(
     user_id: str,
-    request,
+    request: EndStudySessionRequest,
 ):
     try:
         return end_study_session(
@@ -120,6 +122,31 @@ def end_study_session_controller(
             session_id=request.session_id,
             cards_reviewed=request.cards_reviewed,
             correct_answers=request.correct_answers,
+        )
+    except FlashcardError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message)
+    except NotImplementedError as error:
+        raise HTTPException(status_code=501, detail=str(error))
+
+
+def get_study_session_history_controller(
+    user_id: str,
+    exam: str | None = None,
+    category: str | None = None,
+    deck_id: int | None = None,
+    include_active: bool = False,
+    limit: int = 20,
+    offset: int = 0,
+):
+    try:
+        return get_study_session_history(
+            user_id=user_id,
+            exam=exam,
+            category=category,
+            deck_id=deck_id,
+            include_active=include_active,
+            limit=limit,
+            offset=offset,
         )
     except FlashcardError as error:
         raise HTTPException(status_code=error.status_code, detail=error.message)

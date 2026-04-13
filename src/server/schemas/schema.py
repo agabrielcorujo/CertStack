@@ -45,5 +45,14 @@ class StartStudySessionRequest(BaseModel):
 
 class EndStudySessionRequest(BaseModel):
     session_id: int
-    cards_reviewed: int
-    correct_answers: int
+    cards_reviewed: Optional[int] = None
+    correct_answers: Optional[int] = None
+
+
+class GetStudySessionHistoryRequest(BaseModel):
+    exam: Optional[str] = None
+    category: Optional[str] = None
+    deck_id: Optional[int] = None
+    include_active: bool = False
+    limit: int = 20
+    offset: int = 0
