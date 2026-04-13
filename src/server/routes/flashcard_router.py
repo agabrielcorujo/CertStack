@@ -5,12 +5,14 @@ from jwt_auth.controllers.auth_controller import decode_access_token_controller 
 from controllers.flashcard_controller import (
     add_question_to_deck_controller,
     create_deck_controller,
+    delete_deck_controller,
     end_study_session_controller,
     get_deck_flashcards_controller,
     get_flashcards_controller,
     get_progress_controller,
     get_study_session_history_controller,
     get_user_decks_controller,
+    remove_question_from_deck_controller,
     review_flashcard_controller,
     start_study_session_controller,
 )
@@ -74,6 +76,29 @@ def get_deck_flashcards(
 def add_question(request: AddQuestionToDeckRequest, token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
     return add_question_to_deck_controller(user_id, request)
+
+
+@router.delete("/decks/{deck_id}")
+def delete_user_deck(
+    deck_id: int,
+    token: str = Depends(oauth2_scheme),
+):
+    user_id = decode_access_token(token)
+    return delete_deck_controller(user_id=user_id, deck_id=deck_id)
+
+
+@router.delete("/decks/{deck_id}/questions/{question_id}")
+def remove_deck_question(
+    deck_id: int,
+    question_id: str,
+    token: str = Depends(oauth2_scheme),
+):
+    user_id = decode_access_token(token)
+    return remove_question_from_deck_controller(
+        user_id=user_id,
+        deck_id=deck_id,
+        question_id=question_id,
+    )
 
 @router.get("/progress")
 def get_flashcard_progress(

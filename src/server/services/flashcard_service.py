@@ -438,6 +438,84 @@ def add_question_to_deck(user_id: str, deck_id: int, question_id: str):
         "question_id": question_id,
     }
 
+
+def remove_question_from_deck(user_id: str, deck_id: int, question_id: str):
+    """Removes a question id from a user-owned deck."""
+    normalized_question_id = question_id.strip()
+
+    if not normalized_question_id:
+        raise FlashcardError("question_id is required", 400)
+
+    _ensure_deck_ownership(user_id, deck_id)
+
+    try:
+        removed = safe_query(
+            """
+            DELETE FROM flashcard_deck_questions
+            WHERE deck_id = %s AND question_id = %s
+            RETURNING question_id
+            """,
+            (deck_id, normalized_question_id),
+            insert=True,
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    if not removed:
+        raise FlashcardError("question not found in deck", 404)
+
+    return {
+        "status": "success",
+        "deck_id": deck_id,
+        "question_id": normalized_question_id,
+        "message": "question removed from deck",
+    }
+
+
+def delete_deck(user_id: str, deck_id: int):
+    """Deletes a user-owned deck. Linked deck-question rows are deleted via cascade."""
+    _ensure_deck_ownership(user_id, deck_id)
+
+    try:
+        removed_count_row = safe_query(
+            """
+            SELECT COUNT(*)
+            FROM flashcard_deck_questions
+            WHERE deck_id = %s
+            """,
+            (deck_id,),
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    removed_count = int(removed_count_row[0] or 0)
+
+    try:
+        deleted = safe_query(
+            """
+            DELETE FROM user_flashcard_decks
+            WHERE id = %s AND user_id = %s
+            RETURNING id
+            """,
+            (deck_id, user_id),
+            insert=True,
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)
+
+    if not deleted:
+        raise FlashcardError("deck not found", 404)
+
+    return {
+        "status": "success",
+        "deck_id": deck_id,
+        "removed_cards": removed_count,
+        "message": "deck deleted",
+    }
+
 def get_user_decks(user_id: str):
     """returns all decks for a user including card counts"""
     try:

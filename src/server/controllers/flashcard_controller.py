@@ -12,12 +12,14 @@ from services.flashcard_service import (
     FlashcardError,
     add_question_to_deck,
     create_deck,
+    delete_deck,
     end_study_session,
     get_deck_flashcards,
     get_flashcards_for_review,
     get_progress_stats,
     get_study_session_history,
     get_user_decks,
+    remove_question_from_deck,
     record_review,
     start_study_session,
 )
@@ -72,6 +74,28 @@ def add_question_to_deck_controller(user_id: str, request: AddQuestionToDeckRequ
             deck_id=request.deck_id,
             question_id=request.question_id,
         )
+    except FlashcardError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message)
+    except NotImplementedError as error:
+        raise HTTPException(status_code=501, detail=str(error))
+
+
+def remove_question_from_deck_controller(user_id: str, deck_id: int, question_id: str):
+    try:
+        return remove_question_from_deck(
+            user_id=user_id,
+            deck_id=deck_id,
+            question_id=question_id,
+        )
+    except FlashcardError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message)
+    except NotImplementedError as error:
+        raise HTTPException(status_code=501, detail=str(error))
+
+
+def delete_deck_controller(user_id: str, deck_id: int):
+    try:
+        return delete_deck(user_id=user_id, deck_id=deck_id)
     except FlashcardError as error:
         raise HTTPException(status_code=error.status_code, detail=error.message)
     except NotImplementedError as error:
