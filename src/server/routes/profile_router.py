@@ -4,9 +4,10 @@ from jwt_auth.controllers.auth_controller import decode_access_token_controller 
 from controllers.profile_controller import (
     create_profile_controller,
     update_profile_controller,
-    get_profile_controller
+    get_profile_controller,
+    record_progress_controller,
 )
-from schemas.schema import UpdateProfileRequest,CreateProfileRequest
+from schemas.schema import UpdateProfileRequest,CreateProfileRequest, RecordProgressRequest
 
 router = APIRouter(prefix="/profile",tags=["profile"])
 
@@ -33,3 +34,8 @@ async def get_user(token:str = Depends(oauth2_scheme)):
 
     return await get_profile_controller(user_id)
 
+@router.post("/progress")
+async def record_progress(request: RecordProgressRequest, token: str = Depends(oauth2_scheme)):
+    user_id = decode_access_token(token)
+
+    return await record_progress_controller(user_id, request)

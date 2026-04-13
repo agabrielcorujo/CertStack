@@ -7,11 +7,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from jwt_auth.db.db import close_pool, init_pool
 from jwt_auth.db.redis import close_cache, init_cache
+from services.bootstrap_service import ensure_app_schema
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     await init_pool()
     await init_cache()
+    await ensure_app_schema()
     try:
         yield
     finally:
@@ -42,7 +44,6 @@ def health_check():
     return {
         "status":"healthy"
     }
-
 
 
 

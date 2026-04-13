@@ -40,9 +40,9 @@ ENVS = {
 }
 
 SCHEMA_COLUMNS = [#need specific exam names 
-    "exam_name", "exam_description", "exam_focus", "scoring_model", 
+    "exam_name", "description", "exam_focus", "scoring_model", 
     "domain_weights", "exam_topics", "expected_depth", 
-    "not_expected_depth", "llm_answering_rules"
+    "not_expected_depth", "answering_rules_for_llm"
     ]
 
 if not all(ENVS.values()):

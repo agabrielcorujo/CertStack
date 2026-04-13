@@ -1,4 +1,7 @@
-import os,hashlib,asyncio
+import asyncio
+import hashlib
+import json
+import os
 from openai import OpenAI
 from jwt_auth.db.redis import cache
 
@@ -19,7 +22,29 @@ if not all(ENVS.values()):
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-async def ask_ai_about_question_service(userid:str,question:str,exam:str,user_question:str):
+
+def _serialize_context(value) -> str:
+    if value is None:
+        return ""
+
+    if isinstance(value, str):
+        return value
+
+    try:
+        return json.dumps(value, ensure_ascii=True)
+    except TypeError:
+        return str(value)
+
+
+async def ask_ai_about_question_service(
+    userid: str,
+    question: str,
+    exam: str,
+    user_question: str,
+    choices=None,
+    answer=None,
+    explanation: str | None = None,
+):
 
     try: 
 
@@ -28,14 +53,22 @@ async def ask_ai_about_question_service(userid:str,question:str,exam:str,user_qu
         chat_history = await cache.get(f"{userid}:{q_hash}") 
         chat_history = chat_history or ""
 
-        query = f"""You are a socratic tutor for CertStack, a platform for studying for certifications. 
-        Answer the following users doubt about this question in plain text. no markdown or any formatting. just your
-        response to their question:
-        
-        exam:{exam}
-        question:{question}
-        doubt:{user_question} 
-        chat history:{chat_history or ""}"""
+        serialized_choices = _serialize_context(choices)
+        serialized_answer = _serialize_context(answer)
+        serialized_explanation = _serialize_context(explanation)
+
+        query = f"""You are a socratic tutor for CertStack, a platform for studying for certifications.
+        Answer the user's question in plain text only. Do not use markdown or bullet formatting.
+        Use the provided question context, answer key, and explanation when helpful.
+        If the user asks why an answer is right or wrong, explain the reasoning clearly.
+
+        exam: {exam}
+        question: {question}
+        choices: {serialized_choices}
+        correct_answer: {serialized_answer}
+        explanation: {serialized_explanation}
+        user_question: {user_question}
+        chat_history: {chat_history or ""}"""
 
         response = await asyncio.to_thread(
             client.responses.create,
