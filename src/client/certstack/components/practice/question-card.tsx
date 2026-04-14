@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { CheckCircle, XCircle, Lightbulb } from "lucide-react"
 
@@ -16,6 +16,11 @@ interface QuestionCardProps {
   options: Option[]
   correctAnswer: string
   explanation: string
+  onAnswered?: (payload: {
+    selectedAnswer: string
+    correctAnswer: string
+    isCorrect: boolean
+  }) => void
 }
 
 export function QuestionCard({
@@ -25,6 +30,7 @@ export function QuestionCard({
   options,
   correctAnswer,
   explanation,
+  onAnswered,
 }: QuestionCardProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [showResult, setShowResult] = useState(false)
@@ -40,6 +46,11 @@ export function QuestionCard({
   function handleSubmit() {
     if (!selectedAnswer) return
     setShowResult(true)
+    onAnswered?.({
+      selectedAnswer,
+      correctAnswer,
+      isCorrect: selectedAnswer === correctAnswer,
+    })
   }
 
   function handleShowExplanation() {
@@ -60,6 +71,13 @@ export function QuestionCard({
     }
     return "border-[hsl(var(--border))] opacity-50"
   }
+
+  // Reset local answer state when navigating between questions.
+  useEffect(() => {
+    setSelectedAnswer(null)
+    setShowResult(false)
+    setShowExplanation(false)
+  }, [questionNumber, question])
 
   return (
     <div className="rounded-2xl border border-[hsl(var(--border-light))] bg-[hsl(var(--surface-elevated))] p-8 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">

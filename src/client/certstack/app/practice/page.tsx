@@ -1,60 +1,68 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { AppLayout } from "@/components/app-layout"
 import { AppHeader } from "@/components/app-header"
 import { QuestionCard } from "@/components/practice/question-card"
 import { QuestionNavigator } from "@/components/practice/question-navigator"
 import { Flag, ChevronLeft, ChevronRight } from "lucide-react"
+import {
+  fetchPracticeFlashcards,
+  getOrStartStudySession,
+  recordFlashcardReview,
+  type PracticeFlashcard,
+} from "@/lib/api/flashcards"
 
-const questions = [
-  {
-    id: 1,
-    question:
-      "Which of the following structures passes through the foramen ovale of the sphenoid bone?",
-    options: [
-      { id: "a", text: "Maxillary nerve (V2)" },
-      { id: "b", text: "Mandibular nerve (V3)" },
-      { id: "c", text: "Middle meningeal artery" },
-      { id: "d", text: "Ophthalmic nerve (V1)" },
-    ],
-    correctAnswer: "b",
-    explanation:
-      "The mandibular nerve (V3) is the third branch of the trigeminal nerve that passes through the foramen ovale. The maxillary nerve passes through the foramen rotundum, the middle meningeal artery passes through the foramen spinosum, and the ophthalmic nerve passes through the superior orbital fissure.",
-  },
-  {
-    id: 2,
-    question:
-      "A patient presents with inability to abduct the arm beyond 15 degrees. Which muscle is most likely affected?",
-    options: [
-      { id: "a", text: "Supraspinatus" },
-      { id: "b", text: "Deltoid" },
-      { id: "c", text: "Infraspinatus" },
-      { id: "d", text: "Teres minor" },
-    ],
-    correctAnswer: "a",
-    explanation:
-      "The supraspinatus muscle initiates abduction of the arm (first 15 degrees). Damage to this muscle or the suprascapular nerve would impair the initial phase of arm abduction. The deltoid takes over abduction from 15-90 degrees.",
-  },
-  {
-    id: 3,
-    question: "Which enzyme is the rate-limiting step in cholesterol synthesis?",
-    options: [
-      { id: "a", text: "Acetyl-CoA carboxylase" },
-      { id: "b", text: "HMG-CoA reductase" },
-      { id: "c", text: "HMG-CoA synthase" },
-      { id: "d", text: "Squalene synthase" },
-    ],
-    correctAnswer: "b",
-    explanation:
-      "HMG-CoA reductase is the rate-limiting enzyme in the mevalonate pathway for cholesterol synthesis. It converts HMG-CoA to mevalonate. Statins work by inhibiting this enzyme, reducing cholesterol synthesis.",
-  },
-]
+const DEFAULT_EXAM = "cloud practitioner"
+const DEFAULT_CATEGORY = "Cloud Concepts"
 
 export default function PracticePage() {
+  const [questions, setQuestions] = useState<PracticeFlashcard[]>([])
+  const [sessionId, setSessionId] = useState<number | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [currentQuestion, setCurrentQuestion] = useState(1)
   const [answeredQuestions, setAnsweredQuestions] = useState<number[]>([])
-  const [flaggedQuestions, setFlaggedQuestions] = useState<number[]>([2])
+  const [flaggedQuestions, setFlaggedQuestions] = useState<number[]>([])
+
+  useEffect(() => {
+    let isCancelled = false
+
+    async function loadPracticeData() {
+      try {
+        setIsLoading(true)
+        setLoadError(null)
+
+        const [fetchedQuestions, activeSessionId] = await Promise.all([
+          fetchPracticeFlashcards({
+            exam: DEFAULT_EXAM,
+            category: DEFAULT_CATEGORY,
+            limit: 20,
+          }),
+          getOrStartStudySession({
+            exam: DEFAULT_EXAM,
+            category: DEFAULT_CATEGORY,
+          }),
+        ])
+
+        if (isCancelled) return
+
+        setQuestions(fetchedQuestions)
+        setSessionId(activeSessionId)
+        setCurrentQuestion(1)
+      } catch (error) {
+        if (isCancelled) return
+        setLoadError(error instanceof Error ? error.message : "Failed to load flashcards")
+      } finally {
+        if (!isCancelled) setIsLoading(false)
+      }
+    }
+
+    loadPracticeData()
+    return () => {
+      isCancelled = true
+    }
+  }, [])
 
   const currentQ = questions[currentQuestion - 1]
 
@@ -79,11 +87,36 @@ export default function PracticePage() {
     }
   }
 
+  async function handleQuestionAnswered(payload: { isCorrect: boolean }) {
+    if (!currentQ) return
+
+    try {
+      await recordFlashcardReview({
+        questionId: currentQ.questionId,
+        wasCorrect: payload.isCorrect,
+        confidence: payload.isCorrect ? 4 : 2,
+        sessionId,
+      })
+    } catch (error) {
+      // Keep practice flow responsive even if telemetry fails.
+      console.error("Failed to record review", error)
+    }
+  }
+
+  const hasQuestions = questions.length > 0
+
   return (
     <AppLayout>
-      <AppHeader title="Practice" subtitle="Anatomy - Chapter 5" />
+      <AppHeader title="Practice" subtitle={`${DEFAULT_EXAM} - ${DEFAULT_CATEGORY}`} />
       <main className="flex-1 overflow-y-auto p-8">
         <div className="mx-auto max-w-7xl">
+          {isLoading && <p className="mb-4 text-sm text-[hsl(var(--text-secondary))]">Loading flashcards...</p>}
+          {loadError && <p className="mb-4 text-sm text-[#B91C1C]">{loadError}</p>}
+          {!isLoading && !loadError && !hasQuestions && (
+            <p className="mb-4 text-sm text-[hsl(var(--text-secondary))]">No flashcards available for this selection yet.</p>
+          )}
+
+          {hasQuestions && (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">
             {/* Main Question Area */}
             <div>
@@ -94,6 +127,7 @@ export default function PracticePage() {
                 options={currentQ.options}
                 correctAnswer={currentQ.correctAnswer}
                 explanation={currentQ.explanation}
+                onAnswered={handleQuestionAnswered}
               />
 
               {/* Navigation Buttons */}
@@ -141,6 +175,7 @@ export default function PracticePage() {
               />
             </div>
           </div>
+          )}
         </div>
       </main>
     </AppLayout>
