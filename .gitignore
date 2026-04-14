@@ -1,2 +1,6 @@
-LICENSE
-README.md
+.env.prod
+.env.dev
+__pycache__
+.venv
+.env.llm
+.DS_Store

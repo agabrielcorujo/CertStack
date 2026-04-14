@@ -1,0 +1,38 @@
+
+services:
+  client:
+    build:
+      context: ../client/certstack
+      dockerfile: ../../infrastructure/Dockerfile.client
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    volumes:
+      - ../client/certstack:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - server
+
+  server:
+    build: 
+      context: ../server
+      dockerfile: ../infrastructure/Dockerfile.server
+    ports: 
+      - "8000:8000"
+    command: ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+    env_file:
+      - ../server/.env.dev
+    volumes:
+      - type: bind
+        source: ../server
+        target: /app
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+      

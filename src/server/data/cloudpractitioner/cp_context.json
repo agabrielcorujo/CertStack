@@ -1,0 +1,115 @@
+{
+  "exam_name": "AWS Certified Cloud Practitioner",
+  "exam_description": "Validates foundational understanding of AWS Cloud concepts, services, security, and pricing.",
+  "exam_focus": "High-level conceptual knowledge rather than hands-on configuration.",
+  "scoring_model": "Scaled score 100 to 1000. Passing score: 700.",
+
+  "domain_weights": [
+    { "domain_name": "Cloud Concepts", "weight_percentage": 24 },
+    { "domain_name": "Security and Compliance", "weight_percentage": 30 },
+    { "domain_name": "Cloud Technology and Services", "weight_percentage": 34 },
+    { "domain_name": "Billing, Pricing, and Support", "weight_percentage": 12 }
+  ],
+
+  "exam_topics": [
+    {
+      "domain_name": "Cloud Concepts",
+      "topics": [
+        "Cloud computing benefits",
+        "Cloud service models (IaaS, PaaS, SaaS)",
+        "Cloud deployment models (Public, Private, Hybrid)",
+        "AWS Global Infrastructure (Regions, Availability Zones, Edge Locations)",
+        "High availability and fault tolerance",
+        "Elasticity and scalability",
+        "Shared Responsibility Model",
+        "Cloud economics (CapEx vs OpEx)"
+      ]
+    },
+    {
+      "domain_name": "Security and Compliance",
+      "topics": [
+        "IAM (users, groups, roles, policies)",
+        "Multi-Factor Authentication (MFA)",
+        "Principle of Least Privilege",
+        "AWS Organizations",
+        "Service Control Policies (SCPs)",
+        "AWS KMS",
+        "Encryption at rest and in transit",
+        "AWS CloudTrail",
+        "Amazon CloudWatch",
+        "AWS Config",
+        "AWS Shield",
+        "AWS WAF",
+        "Amazon GuardDuty",
+        "AWS Artifact",
+        "Compliance programs (SOC, ISO, PCI-DSS, HIPAA)"
+      ]
+    },
+    {
+      "domain_name": "Cloud Technology and Services",
+      "topics": [
+        "Amazon EC2",
+        "Amazon S3",
+        "Amazon S3 storage classes",
+        "Amazon VPC",
+        "Subnets and Internet Gateways",
+        "Elastic Load Balancing (ELB)",
+        "Amazon Route 53",
+        "Amazon CloudFront",
+        "AWS Lambda",
+        "Amazon ECS",
+        "Amazon EKS",
+        "AWS Elastic Beanstalk",
+        "Amazon RDS",
+        "Amazon DynamoDB",
+        "Amazon Aurora",
+        "Amazon Redshift",
+        "Amazon EBS",
+        "Amazon EFS",
+        "Amazon SQS",
+        "Amazon SNS",
+        "AWS Migration Services (Migration Hub, DataSync, Snowball)",
+        "AWS Well-Architected Framework"
+      ]
+    },
+    {
+      "domain_name": "Billing, Pricing, and Support",
+      "topics": [
+        "AWS pricing models (On-Demand, Reserved Instances, Savings Plans, Spot)",
+        "AWS Free Tier",
+        "AWS Pricing Calculator",
+        "AWS Cost Explorer",
+        "AWS Budgets",
+        "Consolidated Billing",
+        "AWS Support Plans (Basic, Developer, Business, Enterprise)",
+        "Technical Account Manager (TAM)"
+      ]
+    }
+  ],
+
+  "expected_depth": [
+    "Understand what a service does",
+    "Understand common use cases",
+    "Understand how services relate to each other",
+    "Know domain weight relevance",
+    "Understand high-level pricing models",
+    "Recognize security responsibilities between AWS and the customer"
+  ],
+
+  "not_expected_depth": [
+    "CLI commands",
+    "Advanced architecture design",
+    "Detailed configuration steps",
+    "Complex networking troubleshooting",
+    "Multi-tier system design patterns",
+    "Low-level performance tuning"
+  ],
+
+  "llm_answering_rules": [
+    "Answer at the exams defined foundational level.",
+    "Reference domain weight when discussing exam importance.",
+    "Do not provide deeper detail than expected unless user explicitly requests it.",
+    "Tie explanations back to exam relevance when possible.",
+    "Prefer conceptual clarity over technical implementation detail."
+  ]
+}
