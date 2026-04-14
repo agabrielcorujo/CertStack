@@ -1,186 +1,216 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
-import { BookOpen, Eye, EyeOff, Mail, Lock } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { startTransition, useEffect, useState, type FormEvent } from "react"
+import { ArrowRight, BookOpen, KeyRound, Mail, ShieldCheck } from "lucide-react"
+
+import { ApiError, apiFetch } from "@/lib/api"
+import { getStoredSession, saveStoredSession } from "@/lib/auth"
+import type { LoginResponse } from "@/lib/types"
 
 export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [twofa, setTwofa] = useState("")
+  const [needsTwofa, setNeedsTwofa] = useState(false)
+  const [statusMessage, setStatusMessage] = useState("")
+  const [error, setError] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (getStoredSession()) {
+      router.replace("/dashboard")
+      return
+    }
+
+    const queryEmail = new URLSearchParams(window.location.search).get("email")
+    if (queryEmail) {
+      setEmail(queryEmail)
+    }
+  }, [router])
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setSubmitting(true)
+    setError("")
+
+    try {
+      const response = await apiFetch<LoginResponse>("/auth/login", {
+        method: "POST",
+        body: {
+          email,
+          password,
+          twofa: twofa || undefined,
+        },
+      })
+
+      if (response.status === "2fa_required") {
+        setNeedsTwofa(true)
+        setStatusMessage(response.message ?? "Verification code sent to your email.")
+        return
+      }
+
+      if (!response.access_token || !response.role) {
+        throw new ApiError("Missing access token in login response.", 500, response)
+      }
+
+      saveStoredSession({
+        accessToken: response.access_token,
+        role: response.role,
+        firstName: response.first_name ?? "",
+        lastName: response.last_name ?? "",
+      })
+
+      startTransition(() => {
+        router.push("/dashboard")
+      })
+    } catch (caughtError) {
+      const message =
+        caughtError instanceof ApiError ? caughtError.message : "Unable to sign in right now."
+      setError(message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left Panel - Branding */}
-      <div className="hidden w-1/2 flex-col justify-between bg-[#4A7FFF] p-12 lg:flex">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(255,255,255,0.2)]">
-            <BookOpen className="h-6 w-6 text-[#FFFFFF]" />
-          </div>
-          <span className="text-xl font-bold text-[#FFFFFF]">ExamPrep</span>
-        </div>
-
-        <div>
-          <h1 className="text-4xl font-bold leading-tight text-[#FFFFFF]">
-            Ace your exams with
-            <br />
-            confidence
-          </h1>
-          <p className="mt-4 max-w-md text-lg leading-relaxed text-[rgba(255,255,255,0.8)]">
-            Practice with thousands of questions, track your progress, and master every subject before exam day.
-          </p>
-        </div>
-
-        <div className="flex gap-8">
-          <div>
-            <p className="text-3xl font-bold text-[#FFFFFF]">50K+</p>
-            <p className="mt-1 text-sm text-[rgba(255,255,255,0.7)]">Questions</p>
-          </div>
-          <div>
-            <p className="text-3xl font-bold text-[#FFFFFF]">12K+</p>
-            <p className="mt-1 text-sm text-[rgba(255,255,255,0.7)]">Students</p>
-          </div>
-          <div>
-            <p className="text-3xl font-bold text-[#FFFFFF]">95%</p>
-            <p className="mt-1 text-sm text-[rgba(255,255,255,0.7)]">Pass Rate</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Panel - Form */}
-      <div className="flex flex-1 items-center justify-center bg-[#FFFFFF] px-8">
-        <div className="w-full max-w-md">
-          {/* Mobile Logo */}
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#4A7FFF]">
-              <BookOpen className="h-5 w-5 text-[#FFFFFF]" />
+    <div className="auth-grid">
+      <section className="auth-hero">
+        <div className="space-y-8">
+          <div className="brand-lockup">
+            <div className="brand-icon">
+              <BookOpen className="h-5 w-5" />
             </div>
-            <span className="text-lg font-bold text-[hsl(var(--text-primary))]">ExamPrep</span>
-          </div>
-
-          <h2 className="text-2xl font-bold text-[hsl(var(--text-primary))]">Welcome back</h2>
-          <p className="mt-2 text-sm text-[hsl(var(--text-secondary))]">
-            Sign in to continue your study journey
-          </p>
-
-          <form className="mt-8 flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
-            {/* Email */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-[hsl(var(--text-primary))]">
-                Email address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
-                <input
-                  type="email"
-                  placeholder="john@university.edu"
-                  className="h-12 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] pl-11 pr-4 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[#4A7FFF] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
-                />
-              </div>
+              <p className="eyebrow">CertStack</p>
+              <h1 className="brand-title">A sharper way to prep for certification day.</h1>
             </div>
+          </div>
 
-            {/* Password */}
-            <div>
-              <div className="mb-1.5 flex items-center justify-between">
-                <label className="text-sm font-medium text-[hsl(var(--text-primary))]">
-                  Password
-                </label>
-                <button
-                  type="button"
-                  className="text-xs font-medium text-[#4A7FFF] hover:text-[#3D6EE8]"
-                >
-                  Forgot password?
-                </button>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  className="h-12 w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] pl-11 pr-12 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[#4A7FFF] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[hsl(var(--text-tertiary))] hover:text-[hsl(var(--text-secondary))]"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
+          <div className="max-w-xl space-y-5">
+            <p className="eyebrow">Cloud practitioner ready</p>
+            <h2 className="text-5xl font-bold tracking-[-0.08em] text-[hsl(var(--ink))]">
+              Flashcards that feel like Quizlet.
+              <br />
+              Full exams that feel like the real thing.
+            </h2>
+            <p className="max-w-lg text-lg leading-8 text-[hsl(var(--ink-soft))]">
+              Study the AWS Certified Cloud Practitioner with live stats, topic decks, and a
+              proper exam runner that records what you get right and wrong.
+            </p>
+          </div>
+        </div>
 
-            {/* Remember Me */}
-            <div className="flex items-center gap-2">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="panel">
+            <p className="eyebrow">Memorize faster</p>
+            <h3 className="mt-3 text-2xl font-bold tracking-[-0.05em]">Flip, grade, repeat</h3>
+            <p className="mt-3 text-sm leading-6 text-[hsl(var(--ink-soft))]">
+              Move through domain-specific decks and log every correct or missed answer as you go.
+            </p>
+          </div>
+          <div className="panel">
+            <p className="eyebrow">Measure honestly</p>
+            <h3 className="mt-3 text-2xl font-bold tracking-[-0.05em]">Long-form exam mode</h3>
+            <p className="mt-3 text-sm leading-6 text-[hsl(var(--ink-soft))]">
+              Timed sessions, flagged questions, review screens, and score tracking tied back to
+              your dashboard.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="auth-card">
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="space-y-3">
+            <p className="eyebrow">Sign in</p>
+            <h1 className="text-4xl font-bold tracking-[-0.08em]">Return to your study desk.</h1>
+            <p className="text-sm leading-6 text-[hsl(var(--ink-soft))]">
+              Use the JWT auth backend in this repo. The access token is stored locally in the
+              browser for the app shell to use.
+            </p>
+          </div>
+
+          <div>
+            <label className="field-label" htmlFor="email">
+              Email
+            </label>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--ink-faint))]" />
               <input
-                type="checkbox"
-                id="remember"
-                className="h-4 w-4 rounded border-[hsl(var(--border))] text-[#4A7FFF] focus:ring-[#DBEAFE]"
+                id="email"
+                type="email"
+                className="text-field pl-11"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="you@example.com"
+                required
               />
-              <label htmlFor="remember" className="text-sm text-[hsl(var(--text-secondary))]">
-                Remember me for 30 days
+            </div>
+          </div>
+
+          <div>
+            <label className="field-label" htmlFor="password">
+              Password
+            </label>
+            <div className="relative">
+              <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--ink-faint))]" />
+              <input
+                id="password"
+                type="password"
+                className="text-field pl-11"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+          </div>
+
+          {needsTwofa && (
+            <div className="panel-muted">
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[hsl(var(--ink))]">
+                <ShieldCheck className="h-4 w-4 text-[hsl(var(--brand))]" />
+                Verification code
+              </div>
+              <label className="field-label" htmlFor="twofa">
+                Email code
               </label>
+              <input
+                id="twofa"
+                type="text"
+                className="text-field"
+                value={twofa}
+                onChange={(event) => setTwofa(event.target.value)}
+                placeholder="Enter the 6-digit code"
+              />
+              {statusMessage ? (
+                <p className="mt-3 text-sm text-[hsl(var(--ink-soft))]">{statusMessage}</p>
+              ) : null}
             </div>
+          )}
 
-            {/* Submit */}
-            <button
-              type="submit"
-              className="h-12 w-full rounded-full bg-[#4A7FFF] text-sm font-medium text-[#FFFFFF] transition-all duration-200 hover:bg-[#3D6EE8] hover:-translate-y-px hover:shadow-lg active:translate-y-0 active:shadow-none"
-            >
-              Sign In
-            </button>
-
-            {/* Divider */}
-            <div className="flex items-center gap-4">
-              <div className="h-px flex-1 bg-[hsl(var(--border-light))]" />
-              <span className="text-xs text-[hsl(var(--text-tertiary))]">or continue with</span>
-              <div className="h-px flex-1 bg-[hsl(var(--border-light))]" />
+          {error ? (
+            <div className="rounded-[1.2rem] border border-[rgba(217,79,79,0.22)] bg-[rgba(217,79,79,0.08)] px-4 py-3 text-sm text-[hsl(var(--danger))]">
+              {error}
             </div>
+          ) : null}
 
-            {/* Social Buttons */}
-            <div className="flex gap-3">
-              <button
-                type="button"
-                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] text-sm font-medium text-[hsl(var(--text-primary))] transition-all duration-200 hover:bg-[hsl(var(--surface))]"
-              >
-                <svg className="h-5 w-5" viewBox="0 0 24 24">
-                  <path
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
-                    fill="#4285F4"
-                  />
-                  <path
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    fill="#34A853"
-                  />
-                  <path
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    fill="#FBBC05"
-                  />
-                  <path
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    fill="#EA4335"
-                  />
-                </svg>
-                Google
-              </button>
-              <button
-                type="button"
-                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] text-sm font-medium text-[hsl(var(--text-primary))] transition-all duration-200 hover:bg-[hsl(var(--surface))]"
-              >
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.18 0-.36-.02-.53-.06-.01-.18-.04-.56-.04-.95 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.22.05.45.05.68zm3.678 16.72c.01.12.01.23 0 .33-.4 1.47-1.49 3.4-2.68 4.47-.99.89-1.97 1.77-3.27 1.77-.53 0-.95-.15-1.35-.31-.43-.17-.87-.35-1.56-.35-.72 0-1.19.19-1.64.36-.38.15-.75.29-1.22.33-1.23.05-2.17-.96-3.16-1.86C3.03 21.16 1.54 17.73 1.54 14.39c0-3.6 2.34-5.51 4.63-5.51.72 0 1.32.21 1.84.4.4.14.76.27 1.06.27.25 0 .57-.12.95-.27.57-.21 1.28-.48 2.16-.48 1.58 0 3.14.96 3.86 2.47-1.37.79-2.3 2.27-2.3 3.94 0 1.95 1.17 3.6 2.83 4.3-.2.59-.44 1.15-.73 1.62z" />
-                </svg>
-                Apple
-              </button>
-            </div>
-          </form>
+          <button type="submit" className="action-button w-full" disabled={submitting}>
+            {submitting ? "Signing in..." : needsTwofa ? "Verify and continue" : "Sign in"}
+            <ArrowRight className="h-4 w-4" />
+          </button>
 
-          <p className="mt-8 text-center text-sm text-[hsl(var(--text-secondary))]">
-            {"Don't have an account? "}
-            <Link href="/signup" className="font-medium text-[#4A7FFF] hover:text-[#3D6EE8]">
-              Sign up for free
+          <p className="text-sm text-[hsl(var(--ink-soft))]">
+            No account yet?{" "}
+            <Link className="font-semibold text-[hsl(var(--brand-deep))]" href="/signup">
+              Create one
             </Link>
           </p>
-        </div>
-      </div>
+        </form>
+      </section>
     </div>
   )
 }

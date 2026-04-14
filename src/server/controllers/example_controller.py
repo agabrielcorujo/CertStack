@@ -2,18 +2,16 @@ from schemas.schema import SampleRequest
 from services.example_service import sample_service,AppError
 from fastapi import HTTPException
 
+class AppError(Exception):
+    def __init__(self, message: str, status_code: int = 400):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(message)
 
-def sample_controller(request:SampleRequest)->type:
+def sample_function(userid:str,param:type)->type:
 
-    try:
+    if ... : #something goes wrong
 
-        result = sample_service(request.request_param1)
+        raise AppError(message="something went wrong",status_code="some status code")
 
-    except AppError as error:
-        
-        raise HTTPException(
-            detail=error.message,
-            status_code=error.status_code
-        )
-
-
+    return ...

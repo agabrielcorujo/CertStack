@@ -1,305 +1,186 @@
 "use client"
 
-import { useState } from "react"
-import { AppLayout } from "@/components/app-layout"
-import { AppHeader } from "@/components/app-header"
-import {
-  Search,
-  Filter,
-  Clock,
-  FileText,
-  CheckCircle,
-  Play,
-  ChevronDown,
-  Calendar,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+import Link from "next/link"
+import { useDeferredValue, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { ArrowRight, Clock3, Search, Target } from "lucide-react"
 
-type ExamStatus = "all" | "available" | "completed" | "upcoming"
-
-interface Exam {
-  id: number
-  name: string
-  subject: string
-  questions: number
-  duration: string
-  difficulty: "Easy" | "Medium" | "Hard"
-  status: "available" | "completed" | "upcoming"
-  score?: number
-  date?: string
-  attempts?: number
-}
-
-const exams: Exam[] = [
-  {
-    id: 1,
-    name: "Anatomy Comprehensive Final",
-    subject: "Anatomy",
-    questions: 150,
-    duration: "3 hours",
-    difficulty: "Hard",
-    status: "available",
-    attempts: 0,
-  },
-  {
-    id: 2,
-    name: "Pharmacology Midterm Mock",
-    subject: "Pharmacology",
-    questions: 100,
-    duration: "2 hours",
-    difficulty: "Medium",
-    status: "completed",
-    score: 85,
-    date: "Jan 28, 2026",
-    attempts: 2,
-  },
-  {
-    id: 3,
-    name: "Biochemistry Unit 3 Test",
-    subject: "Biochemistry",
-    questions: 50,
-    duration: "1 hour",
-    difficulty: "Easy",
-    status: "completed",
-    score: 92,
-    date: "Jan 20, 2026",
-    attempts: 1,
-  },
-  {
-    id: 4,
-    name: "Pathology Practice Exam",
-    subject: "Pathology",
-    questions: 120,
-    duration: "2.5 hours",
-    difficulty: "Hard",
-    status: "available",
-    attempts: 0,
-  },
-  {
-    id: 5,
-    name: "Microbiology Final Review",
-    subject: "Microbiology",
-    questions: 80,
-    duration: "1.5 hours",
-    difficulty: "Medium",
-    status: "upcoming",
-    date: "Mar 5, 2026",
-  },
-  {
-    id: 6,
-    name: "Physiology Systems Exam",
-    subject: "Physiology",
-    questions: 100,
-    duration: "2 hours",
-    difficulty: "Medium",
-    status: "completed",
-    score: 73,
-    date: "Jan 15, 2026",
-    attempts: 1,
-  },
-  {
-    id: 7,
-    name: "Histology Lab Practical",
-    subject: "Histology",
-    questions: 60,
-    duration: "1 hour",
-    difficulty: "Easy",
-    status: "available",
-    attempts: 0,
-  },
-  {
-    id: 8,
-    name: "Genetics Comprehensive",
-    subject: "Genetics",
-    questions: 90,
-    duration: "2 hours",
-    difficulty: "Hard",
-    status: "upcoming",
-    date: "Mar 12, 2026",
-  },
-]
-
-const difficultyConfig = {
-  Easy: { bg: "#ECFDF5", text: "#047857" },
-  Medium: { bg: "#FEF3C7", text: "#B45309" },
-  Hard: { bg: "#FEE2E2", text: "#B91C1C" },
-}
-
-const statusConfig = {
-  available: { label: "Start Exam", icon: Play, color: "#4A7FFF" },
-  completed: { label: "Review", icon: CheckCircle, color: "#10B981" },
-  upcoming: { label: "Upcoming", icon: Calendar, color: "#F59E0B" },
-}
-
-const tabs: { label: string; value: ExamStatus }[] = [
-  { label: "All Exams", value: "all" },
-  { label: "Available", value: "available" },
-  { label: "Completed", value: "completed" },
-  { label: "Upcoming", value: "upcoming" },
-]
+import { AppShell } from "@/components/certstack/app-shell"
+import { ApiError, apiFetch } from "@/lib/api"
+import { clearStoredSession, getStoredSession } from "@/lib/auth"
+import { normalizeCertCatalog } from "@/lib/study"
+import type { ExamCatalogItem, ProfileResponse } from "@/lib/types"
 
 export default function ExamsPage() {
-  const [activeTab, setActiveTab] = useState<ExamStatus>("all")
-  const [searchQuery, setSearchQuery] = useState("")
+  const router = useRouter()
+  const [catalog, setCatalog] = useState<ExamCatalogItem[]>([])
+  const [profile, setProfile] = useState<ProfileResponse | null>(null)
+  const [search, setSearch] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  const filteredExams = exams.filter((exam) => {
-    const matchesTab = activeTab === "all" || exam.status === activeTab
-    const matchesSearch =
-      exam.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      exam.subject.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesTab && matchesSearch
+  const deferredSearch = useDeferredValue(search)
+
+  useEffect(() => {
+    const session = getStoredSession()
+    if (!session) {
+      router.replace("/login")
+      return
+    }
+
+    let active = true
+
+    async function loadData() {
+      try {
+        const [catalogResponse, profileResponse] = await Promise.all([
+          apiFetch<ExamCatalogItem[]>("/exams/catalog"),
+          apiFetch<ProfileResponse>("/profile/"),
+        ])
+
+        if (!active) {
+          return
+        }
+
+        setCatalog(catalogResponse)
+        setProfile(profileResponse)
+      } catch (caughtError) {
+        if (caughtError instanceof ApiError && caughtError.status === 401) {
+          clearStoredSession()
+          router.replace("/login")
+          return
+        }
+
+        if (active) {
+          setError(caughtError instanceof Error ? caughtError.message : "Unable to load exams.")
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadData()
+
+    return () => {
+      active = false
+    }
+  }, [router])
+
+  const filteredCatalog = catalog.filter((exam) => {
+    const query = deferredSearch.trim().toLowerCase()
+    if (!query) {
+      return true
+    }
+
+    return (
+      exam.display_name.toLowerCase().includes(query) ||
+      exam.description.toLowerCase().includes(query) ||
+      exam.focus.toLowerCase().includes(query)
+    )
   })
 
   return (
-    <AppLayout>
-      <AppHeader title="Exams" subtitle="Browse and take practice exams" />
-      <main className="flex-1 overflow-y-auto p-8">
-        <div className="mx-auto max-w-7xl">
-          {/* Filters Row */}
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {/* Tabs */}
-            <div className="flex gap-1 rounded-xl bg-[hsl(var(--surface))] p-1">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.value}
-                  onClick={() => setActiveTab(tab.value)}
-                  className={cn(
-                    "rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150",
-                    activeTab === tab.value
-                      ? "bg-[hsl(var(--surface-elevated))] text-[hsl(var(--text-primary))] shadow-sm"
-                      : "text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))]"
-                  )}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Search + Filter */}
-            <div className="flex gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--text-tertiary))]" />
-                <input
-                  type="text"
-                  placeholder="Search exams..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-10 w-64 rounded-xl border border-transparent bg-[hsl(var(--surface))] pl-10 pr-4 text-sm text-[hsl(var(--text-primary))] placeholder:text-[hsl(var(--text-tertiary))] transition-all duration-200 focus:border-[hsl(var(--border))] focus:bg-[hsl(var(--surface-elevated))] focus:outline-none focus:ring-2 focus:ring-[#DBEAFE]"
-                />
-              </div>
-              <button className="flex h-10 items-center gap-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-elevated))] px-4 text-sm font-medium text-[hsl(var(--text-secondary))] transition-colors duration-150 hover:bg-[hsl(var(--surface))]">
-                <Filter className="h-4 w-4" />
-                Filter
-                <ChevronDown className="h-3.5 w-3.5" />
-              </button>
-            </div>
+    <AppShell
+      title="Exam Center"
+      subtitle="Launch full-length practice sessions against the real backend question bank."
+      actions={
+        <Link className="action-button" href="/flashcards">
+          Warm up with flashcards
+        </Link>
+      }
+    >
+      <section className="hero-card">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="eyebrow">Full-length mode</p>
+            <h3 className="mt-2 text-4xl font-bold tracking-[-0.06em]">
+              Treat practice like test day.
+            </h3>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-[hsl(var(--ink-soft))]">
+              Each exam session pulls a balanced set of questions by domain, keeps a timer running,
+              and writes your final correct and incorrect totals back into the dashboard stats.
+            </p>
           </div>
 
-          {/* Exam Table */}
-          <div className="overflow-hidden rounded-2xl border border-[hsl(var(--border-light))] bg-[hsl(var(--surface-elevated))] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]">
-            {/* Table Header */}
-            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_120px] gap-4 border-b border-[hsl(var(--border))] bg-[hsl(var(--surface))] px-6 py-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--text-secondary))]">
-                Exam Name
-              </span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--text-secondary))]">
-                Subject
-              </span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--text-secondary))]">
-                Questions
-              </span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--text-secondary))]">
-                Duration
-              </span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--text-secondary))]">
-                Difficulty
-              </span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--text-secondary))]">
-                Action
-              </span>
-            </div>
-
-            {/* Table Rows */}
-            {filteredExams.map((exam) => {
-              const difficulty = difficultyConfig[exam.difficulty]
-              const status = statusConfig[exam.status]
-              const StatusIcon = status.icon
-              return (
-                <div
-                  key={exam.id}
-                  className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_120px] items-center gap-4 border-b border-[hsl(var(--border-light))] px-6 py-4 transition-colors duration-150 last:border-b-0 hover:bg-[hsl(var(--surface))]"
-                >
-                  {/* Name */}
-                  <div>
-                    <p className="text-sm font-medium text-[hsl(var(--text-primary))]">{exam.name}</p>
-                    {exam.status === "completed" && exam.score !== undefined && (
-                      <p className="mt-0.5 text-xs text-[hsl(var(--text-tertiary))]">
-                        Score: {exam.score}% | {exam.attempts} attempt{exam.attempts !== 1 ? "s" : ""}
-                      </p>
-                    )}
-                    {exam.status === "upcoming" && exam.date && (
-                      <p className="mt-0.5 text-xs text-[hsl(var(--text-tertiary))]">
-                        Available: {exam.date}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Subject */}
-                  <span className="text-sm text-[hsl(var(--text-secondary))]">{exam.subject}</span>
-
-                  {/* Questions */}
-                  <div className="flex items-center gap-1.5 text-sm text-[hsl(var(--text-secondary))]">
-                    <FileText className="h-3.5 w-3.5" />
-                    {exam.questions}
-                  </div>
-
-                  {/* Duration */}
-                  <div className="flex items-center gap-1.5 text-sm text-[hsl(var(--text-secondary))]">
-                    <Clock className="h-3.5 w-3.5" />
-                    {exam.duration}
-                  </div>
-
-                  {/* Difficulty */}
-                  <span
-                    className="inline-flex h-6 w-fit items-center rounded-full px-3 text-xs font-medium"
-                    style={{ backgroundColor: difficulty.bg, color: difficulty.text }}
-                  >
-                    {exam.difficulty}
-                  </span>
-
-                  {/* Action */}
-                  <button
-                    disabled={exam.status === "upcoming"}
-                    className={cn(
-                      "flex h-9 items-center justify-center gap-1.5 rounded-full text-xs font-medium transition-all duration-200",
-                      exam.status === "upcoming"
-                        ? "cursor-not-allowed bg-[hsl(var(--surface))] text-[hsl(var(--text-tertiary))]"
-                        : exam.status === "completed"
-                          ? "bg-[#ECFDF5] text-[#047857] hover:bg-[#D1FAE5]"
-                          : "bg-[#4A7FFF] text-[#FFFFFF] hover:bg-[#3D6EE8]"
-                    )}
-                  >
-                    <StatusIcon className="h-3.5 w-3.5" />
-                    {status.label}
-                  </button>
-                </div>
-              )
-            })}
-
-            {filteredExams.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-16">
-                <FileText className="h-12 w-12 text-[hsl(var(--text-tertiary))]" />
-                <p className="mt-4 text-sm font-medium text-[hsl(var(--text-secondary))]">
-                  No exams found
-                </p>
-                <p className="mt-1 text-xs text-[hsl(var(--text-tertiary))]">
-                  Try adjusting your search or filter
-                </p>
-              </div>
-            )}
+          <div className="relative w-full md:max-w-sm">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--ink-faint))]" />
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="text-field pl-11"
+              placeholder="Search exams"
+            />
           </div>
         </div>
-      </main>
-    </AppLayout>
+      </section>
+
+      {loading ? <section className="panel">Loading exam catalog...</section> : null}
+      {!loading && error ? <section className="panel text-[hsl(var(--danger))]">{error}</section> : null}
+
+      {!loading ? (
+        <section className="grid gap-4 xl:grid-cols-2">
+          {filteredCatalog.map((exam) => {
+            const cert = profile?.certs.find((item) => normalizeCertCatalog(item, catalog)?.slug === exam.slug)
+            const estimatedMinutes = Math.max(45, Math.round(exam.question_count * 1.3))
+
+            return (
+              <article key={exam.slug} className="panel">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="eyebrow">Available exam</p>
+                    <h3 className="mt-2 text-3xl font-bold tracking-[-0.05em]">{exam.display_name}</h3>
+                  </div>
+                  <span className="badge-chip">
+                    <Target className="h-4 w-4" />
+                    {cert ? `${cert.accuracy}% accuracy` : "No attempts yet"}
+                  </span>
+                </div>
+
+                <p className="mt-4 text-sm leading-7 text-[hsl(var(--ink-soft))]">
+                  {exam.description || exam.focus || "Certification-ready question bank with balanced domain coverage."}
+                </p>
+
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  <div className="panel-muted">
+                    <p className="eyebrow">Questions</p>
+                    <p className="mt-2 text-2xl font-bold tracking-[-0.05em]">{exam.question_count}</p>
+                  </div>
+                  <div className="panel-muted">
+                    <p className="eyebrow">Estimated time</p>
+                    <p className="mt-2 flex items-center gap-2 text-2xl font-bold tracking-[-0.05em]">
+                      <Clock3 className="h-5 w-5 text-[hsl(var(--accent))]" />
+                      {estimatedMinutes}m
+                    </p>
+                  </div>
+                  <div className="panel-muted">
+                    <p className="eyebrow">Logged attempts</p>
+                    <p className="mt-2 text-2xl font-bold tracking-[-0.05em]">{cert?.attempts ?? 0}</p>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {exam.domains.map((domain) => (
+                    <span key={domain.name} className="badge-chip">
+                      {domain.name}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+                  <p className="text-sm text-[hsl(var(--ink-soft))]">
+                    Stats recorded to the same profile totals used on the dashboard.
+                  </p>
+                  <Link className="action-button" href={`/exams/${exam.slug}`}>
+                    Start exam
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </article>
+            )
+          })}
+        </section>
+      ) : null}
+    </AppShell>
   )
 }
