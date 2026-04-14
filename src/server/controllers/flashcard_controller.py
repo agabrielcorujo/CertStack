@@ -14,6 +14,7 @@ from services.flashcard_service import (
     create_deck,
     delete_deck,
     end_study_session,
+    get_active_study_session,
     get_deck_flashcards,
     get_flashcards_for_review,
     get_progress_stats,
@@ -193,6 +194,25 @@ def get_study_session_history_controller(
             include_active=include_active,
             limit=limit,
             offset=offset,
+        )
+    except FlashcardError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message)
+    except NotImplementedError as error:
+        raise HTTPException(status_code=501, detail=str(error))
+
+
+def get_active_study_session_controller(
+    user_id: str,
+    exam: str | None = None,
+    category: str | None = None,
+    deck_id: int | None = None,
+):
+    try:
+        return get_active_study_session(
+            user_id=user_id,
+            exam=exam,
+            category=category,
+            deck_id=deck_id,
         )
     except FlashcardError as error:
         raise HTTPException(status_code=error.status_code, detail=error.message)

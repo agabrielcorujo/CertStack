@@ -911,6 +911,29 @@ def start_study_session(
         if deck_exam != normalized_exam:
             raise FlashcardError("deck exam does not match requested exam", 400)
 
+    existing_active = _find_active_session(
+        user_id=user_id,
+        exam=normalized_exam,
+        category=normalized_category,
+        deck_id=deck_id,
+    )
+    if existing_active:
+        return {
+            "status": "success",
+            "already_active": True,
+            "session_id": existing_active[0],
+            "exam": existing_active[1],
+            "category": existing_active[2] if existing_active[2] else None,
+            "deck_id": existing_active[3],
+            "started_at": str(existing_active[4]),
+            "cards_reviewed": int(existing_active[5] or 0),
+            "correct_answers": int(existing_active[6] or 0),
+            "accuracy_percent": _safe_percentage(
+                int(existing_active[6] or 0),
+                int(existing_active[5] or 0),
+            ),
+        }
+
     try:
         session = safe_query(
             """
@@ -1035,6 +1058,54 @@ def end_study_session(
         "cards_reviewed": updated[5],
         "correct_answers": updated[6],
         "accuracy_percent": session_accuracy,
+    }
+
+
+def get_active_study_session(
+    user_id: str,
+    exam: Optional[str] = None,
+    category: Optional[str] = None,
+    deck_id: Optional[int] = None,
+):
+    """Returns the newest active session for a user with optional filters."""
+    normalized_exam = (exam or "").strip().lower()
+    normalized_category = (category or "").strip()
+
+    if deck_id is not None:
+        deck_exam = _get_user_deck_exam(user_id, deck_id)
+        if normalized_exam and deck_exam != normalized_exam:
+            raise FlashcardError("deck exam does not match requested exam", 400)
+        if not normalized_exam:
+            normalized_exam = deck_exam
+
+    session = _find_active_session(
+        user_id=user_id,
+        exam=normalized_exam,
+        category=normalized_category,
+        deck_id=deck_id,
+    )
+
+    if not session:
+        return {
+            "status": "success",
+            "active_session": None,
+        }
+
+    cards_reviewed = int(session[5] or 0)
+    correct_answers = int(session[6] or 0)
+
+    return {
+        "status": "success",
+        "active_session": {
+            "session_id": session[0],
+            "exam": session[1],
+            "category": session[2] if session[2] else None,
+            "deck_id": session[3],
+            "started_at": str(session[4]),
+            "cards_reviewed": cards_reviewed,
+            "correct_answers": correct_answers,
+            "accuracy_percent": _safe_percentage(correct_answers, cards_reviewed),
+        },
     }
 
 
@@ -1263,3 +1334,42 @@ def _get_user_deck_exam(user_id: str, deck_id: int) -> str:
         raise FlashcardError("deck not found", 404)
 
     return (deck[0] or "").strip().lower()
+
+
+def _find_active_session(
+    user_id: str,
+    exam: str = "",
+    category: str = "",
+    deck_id: Optional[int] = None,
+):
+    filters = ["user_id = %s", "ended_at IS NULL"]
+    params: list = [user_id]
+
+    if exam:
+        filters.append("exam = %s")
+        params.append(exam)
+
+    if category:
+        filters.append("category = %s")
+        params.append(category)
+
+    if deck_id is not None:
+        filters.append("deck_id = %s")
+        params.append(deck_id)
+
+    where_clause = " AND ".join(filters)
+
+    try:
+        return safe_query(
+            f"""
+            SELECT id, exam, category, deck_id, started_at, cards_reviewed, correct_answers
+            FROM flashcard_study_sessions
+            WHERE {where_clause}
+            ORDER BY started_at DESC
+            LIMIT 1
+            """,
+            tuple(params),
+            fetch="one",
+        )
+    except DBError as error:
+        raise FlashcardError(status_code=error.status_code, message=error.message)

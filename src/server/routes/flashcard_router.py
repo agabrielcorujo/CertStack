@@ -7,6 +7,7 @@ from controllers.flashcard_controller import (
     create_deck_controller,
     delete_deck_controller,
     end_study_session_controller,
+    get_active_study_session_controller,
     get_deck_flashcards_controller,
     get_flashcards_controller,
     get_progress_controller,
@@ -152,4 +153,20 @@ def get_review_session_history(
         include_active=include_active,
         limit=limit,
         offset=offset,
+    )
+
+
+@router.get("/sessions/active")
+def get_active_review_session(
+    exam: str | None = None,
+    category: str | None = None,
+    deck_id: int | None = None,
+    token: str = Depends(oauth2_scheme),
+):
+    user_id = decode_access_token(token)
+    return get_active_study_session_controller(
+        user_id=user_id,
+        exam=exam,
+        category=category,
+        deck_id=deck_id,
     )
