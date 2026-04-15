@@ -1,5 +1,5 @@
 # CertStack
-Quizlet-like platform for studying for professional certification/licensing exams, focused on but not limited to state regulated licensing (i.e. Bar Exam, USMLE, CPA, etc).
+Quizlet-like platform for studying for professional certification/licensing exams.
 
 ## Backend Overview (`src/server`)
 
