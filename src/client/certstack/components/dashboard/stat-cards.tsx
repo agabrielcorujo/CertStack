@@ -1,55 +1,61 @@
 "use client"
 
 import { BookOpen, CheckCircle, Clock, TrendingUp } from "lucide-react"
+import { FlashcardProgress, SessionStats } from "@/lib/api/flashcards"
 
-const stats = [
-  {
-    label: "Total Questions",
-    value: "2,847",
-    change: "+12%",
-    changeType: "positive" as const,
-    icon: BookOpen,
-    iconBg: "hsl(var(--pastel-blue))",
-    iconColor: "hsl(var(--primary-500))",
-    blobFrom: "hsl(var(--pastel-blue))",
-    blobTo: "transparent",
-  },
-  {
-    label: "Completed",
-    value: "1,234",
-    change: "+8%",
-    changeType: "positive" as const,
-    icon: CheckCircle,
-    iconBg: "hsl(var(--pastel-mint))",
-    iconColor: "hsl(var(--success))",
-    blobFrom: "hsl(var(--pastel-mint))",
-    blobTo: "transparent",
-  },
-  {
-    label: "Avg. Score",
-    value: "78%",
-    change: "+5%",
-    changeType: "positive" as const,
-    icon: TrendingUp,
-    iconBg: "hsl(var(--pastel-yellow))",
-    iconColor: "hsl(var(--warning))",
-    blobFrom: "hsl(var(--pastel-yellow))",
-    blobTo: "transparent",
-  },
-  {
-    label: "Study Time",
-    value: "45h",
-    change: "This month",
-    changeType: "neutral" as const,
-    icon: Clock,
-    iconBg: "hsl(var(--pastel-lavender))",
-    iconColor: "hsl(var(--subject-pathology))",
-    blobFrom: "hsl(var(--pastel-lavender))",
-    blobTo: "transparent",
-  },
-]
+interface StatCardsProps {
+  progress: FlashcardProgress | null
+  sessions: SessionStats | null
+}
 
-export function StatCards() {
+export function StatCards({ progress, sessions }: StatCardsProps) {
+  const stats = [
+    {
+      label: "Tracked Cards",
+      value: progress?.tracked_cards.toLocaleString() ?? "0",
+      change: `${progress?.due_cards ?? 0} due`,
+      changeType: "neutral" as const,
+      icon: BookOpen,
+      iconBg: "hsl(var(--pastel-blue))",
+      iconColor: "hsl(var(--primary-500))",
+      blobFrom: "hsl(var(--pastel-blue))",
+      blobTo: "transparent",
+    },
+    {
+      label: "Accuracy",
+      value: `${progress?.overall_accuracy_percent ?? 0}%`,
+      change: progress ? "+2%" : "Starting",
+      changeType: progress ? "positive" : "neutral",
+      icon: CheckCircle,
+      iconBg: "hsl(var(--pastel-mint))",
+      iconColor: "hsl(var(--success))",
+      blobFrom: "hsl(var(--pastel-mint))",
+      blobTo: "transparent",
+    },
+    {
+      label: "Total Reviews",
+      value: progress?.total_reviews.toLocaleString() ?? "0",
+      change: `${sessions?.session_count ?? 0} sessions`,
+      changeType: "neutral" as const,
+      icon: TrendingUp,
+      iconBg: "hsl(var(--pastel-yellow))",
+      iconColor: "hsl(var(--warning))",
+      blobFrom: "hsl(var(--pastel-yellow))",
+      blobTo: "transparent",
+    },
+    {
+      label: "Session Accuracy",
+      value: `${sessions?.session_accuracy_percent ?? 0}%`,
+      change: sessions?.cards_reviewed ? `${sessions.cards_reviewed} reviewed` : "No sessions",
+      changeType: "neutral" as const,
+      icon: Clock,
+      iconBg: "hsl(var(--pastel-lavender))",
+      iconColor: "hsl(var(--subject-pathology))",
+      blobFrom: "hsl(var(--pastel-lavender))",
+      blobTo: "transparent",
+    },
+  ]
+
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => (
@@ -98,6 +104,15 @@ export function StatCards() {
                 {stat.value}
               </p>
               <p className="mt-1 text-sm font-medium text-[hsl(var(--text-secondary))]">
+                {stat.label}
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
                 {stat.label}
               </p>
             </div>

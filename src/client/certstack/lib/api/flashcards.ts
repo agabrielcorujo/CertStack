@@ -36,6 +36,41 @@ interface StartSessionResponse {
   session_id: number
 }
 
+export interface FlashcardProgress {
+  tracked_cards: number
+  due_cards: number
+  total_reviews: number
+  correct_reviews: number
+  incorrect_reviews: number
+  overall_accuracy_percent: number
+  average_ease_factor: number
+  average_interval_days: number
+}
+
+export interface SessionStats {
+  session_count: number
+  cards_reviewed: number
+  correct_answers: number
+  session_accuracy_percent: number
+  last_session_at: string | null
+}
+
+export interface CategoryBreakdown {
+  category: string
+  tracked_cards: number
+  due_cards: number
+  accuracy_percent: number
+}
+
+interface ProgressResponse {
+  status: string
+  exam: string
+  category_filter: string | null
+  summary: FlashcardProgress
+  sessions: SessionStats
+  category_breakdown: CategoryBreakdown[]
+}
+
 const DEFAULT_API_BASE_URL = "http://127.0.0.1:8000"
 
 function getApiBaseUrl(): string {
@@ -141,7 +176,28 @@ export async function getOrStartStudySession(params: {
 }): Promise<number | null> {
   const query = new URLSearchParams()
   if (params.exam) query.set("exam", params.exam)
-  if (params.category) query.set("category", params.category)
+ 
+
+export async function getFlashcardProgress(params: {
+  exam: string
+  category?: string
+}): Promise<{ progress: FlashcardProgress; sessions: SessionStats; categoryBreakdown: CategoryBreakdown[] } | null> {
+  try {
+    const query = new URLSearchParams()
+    query.set("exam", params.exam)
+    if (params.category) query.set("category", params.category)
+
+    const response = await apiRequest<ProgressResponse>(`/flashcards/progress?${query.toString()}`)
+    return {
+      progress: response.summary,
+      sessions: response.sessions,
+      categoryBreakdown: response.category_breakdown || [],
+    }
+  } catch (error) {
+    console.error("Failed to fetch flashcard progress:", error)
+    return null
+  }
+} if (params.category) query.set("category", params.category)
   if (params.deckId !== undefined) query.set("deck_id", String(params.deckId))
 
   const active = await apiRequest<ActiveSessionResponse>(`/flashcards/sessions/active?${query.toString()}`)

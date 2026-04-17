@@ -1,121 +1,101 @@
 "use client"
 
-import { CheckCircle, Clock, XCircle } from "lucide-react"
+import { CheckCircle, Clock } from "lucide-react"
+import { SessionStats } from "@/lib/api/flashcards"
 
-const activities = [
-  {
-    id: 1,
-    title: "Anatomy - Chapter 5 Quiz",
-    status: "completed" as const,
-    score: "92%",
-    time: "2 hours ago",
-    questions: 25,
-  },
-  {
-    id: 2,
-    title: "Pharmacology Practice Set",
-    status: "in-progress" as const,
-    score: "15/30",
-    time: "5 hours ago",
-    questions: 30,
-  },
-  {
-    id: 3,
-    title: "Biochemistry Final Mock",
-    status: "completed" as const,
-    score: "78%",
-    time: "1 day ago",
-    questions: 50,
-  },
-  {
-    id: 4,
-    title: "Pathology - Unit 3 Review",
-    status: "failed" as const,
-    score: "45%",
-    time: "2 days ago",
-    questions: 40,
-  },
-  {
-    id: 5,
-    title: "Microbiology Quick Test",
-    status: "completed" as const,
-    score: "88%",
-    time: "3 days ago",
-    questions: 20,
-  },
-]
-
-const statusConfig = {
-  completed: {
-    icon: CheckCircle,
-    color: "hsl(var(--success))",
-    bg: "hsl(var(--success-light))",
-    label: "Completed",
-  },
-  "in-progress": {
-    icon: Clock,
-    color: "hsl(var(--warning))",
-    bg: "hsl(var(--warning-light))",
-    label: "In Progress",
-  },
-  failed: {
-    icon: XCircle,
-    color: "hsl(var(--error))",
-    bg: "hsl(var(--error-light))",
-    label: "Needs Review",
-  },
+interface RecentActivityProps {
+  sessions: SessionStats | null
 }
 
-export function RecentActivity() {
+export function RecentActivity({ sessions }: RecentActivityProps) {
+  if (!sessions) {
+    return (
+      <div className="rounded-2xl border border-[hsl(var(--border-light))] bg-[hsl(var(--surface-elevated))] p-6 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <h3 className="text-lg font-semibold text-[hsl(var(--text-primary))]">Session Statistics</h3>
+        <div className="mt-6 text-center">
+          <p className="text-sm text-[hsl(var(--text-secondary))]">No session data available</p>
+        </div>
+      </div>
+    )
+  }
+
+  const formattedLastSession = sessions.last_session_at
+    ? new Date(sessions.last_session_at).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "No sessions yet"
+
+  const stats = [
+    {
+      label: "Total Sessions",
+      value: sessions.session_count.toString(),
+      icon: CheckCircle,
+      color: "hsl(var(--success))",
+      bg: "hsl(var(--success-light))",
+    },
+    {
+      label: "Cards Reviewed",
+      value: sessions.cards_reviewed.toString(),
+      icon: Clock,
+      color: "hsl(var(--warning))",
+      bg: "hsl(var(--warning-light))",
+    },
+  ]
+
   return (
     <div className="rounded-2xl border border-[hsl(var(--border-light))] bg-[hsl(var(--surface-elevated))] p-6 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
       <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-[hsl(var(--text-primary))]">Recent Activity</h3>
-        <button className="text-sm font-medium text-[hsl(var(--primary-500))] transition-colors hover:text-[hsl(var(--primary-600))]">
-          View All
-        </button>
+        <h3 className="text-lg font-semibold text-[hsl(var(--text-primary))]">Session Statistics</h3>
       </div>
       <div className="flex flex-col gap-4">
-        {activities.map((activity) => {
-          const config = statusConfig[activity.status]
-          const StatusIcon = config.icon
+        {stats.map((stat) => {
+          const Icon = stat.icon
           return (
-            <div
-              key={activity.id}
-              className="flex items-start gap-4"
-            >
-              {/* Icon circle - larger with better styling */}
+            <div key={stat.label} className="flex items-start gap-4">
+              {/* Icon circle */}
               <div
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                style={{ backgroundColor: config.bg }}
+                style={{ backgroundColor: stat.bg }}
               >
-                <StatusIcon 
+                <Icon 
                   className="h-5 w-5" 
-                  style={{ color: config.color }}
+                  style={{ color: stat.color }}
                   strokeWidth={2}
                 />
               </div>
               
               {/* Content */}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-[hsl(var(--text-primary))]">
-                  {activity.title}
+                <p className="text-sm font-semibold text-[hsl(var(--text-primary))]">
+                  {stat.label}
                 </p>
                 <p className="mt-0.5 text-xs text-[hsl(var(--text-secondary))]">
-                  {activity.questions} questions
+                  Overall statistics
                 </p>
               </div>
               
-              {/* Score - larger and bolder */}
+              {/* Value */}
               <div className="flex flex-col items-end">
                 <p className="text-lg font-bold text-[hsl(var(--text-primary))]">
-                  {activity.score}
+                  {stat.value}
                 </p>
-                <p className="text-xs text-[hsl(var(--text-tertiary))]">{activity.time}</p>
               </div>
             </div>
           )
         })}
+
+        {/* Last session info */}
+        <div className="mt-4 border-t border-[hsl(var(--border-light))] pt-4">
+          <p className="text-xs text-[hsl(var(--text-secondary))]">
+            Last session: <span className="font-semibold text-[hsl(var(--text-primary))]">{formattedLastSession}</span>
+          </p>
+          <p className="mt-2 text-xs text-[hsl(var(--text-secondary))]">
+            Session accuracy: <span className="font-semibold text-[hsl(var(--text-primary))]">{sessions.session_accuracy_percent}%</span>
+          </p>
+        </div>
       </div>
     </div>
   )
