@@ -8,10 +8,10 @@ from langchain_core.chat_history import InMemoryChatMessageHistory
 from psycopg2 import sql
 
 from services import (
-    ALLOWED_READ_COLUMNS,
-    ALLOWED_WRITE_COLUMNS,
-    ToolError,
     sql_read_tool,
+    sql_update_tool,
+    query_vector_store_tool,
+    LLMError
 )
 
 import os,json as j
@@ -51,9 +51,30 @@ SCHEMA_COLUMNS = [#need specific exam names
     "not_expected_depth", "llm_answering_rules"
     ]
 
+"""TOOLS For LLM to call"""
+@tool
+async def sql_read_tool_wrapper(table: str, columns: list, user_id: str):
+    """Read user-specific profile data or exam metadata from the SQL database."""
+    return await sql_read_tool(table, columns, user_id)
+
+@tool
+async def sql_update_tool_wrapper(table: str, columns: dict, user_id: str):
+    """Update user-specific profile information in the SQL database."""
+    return await sql_update_tool(table, columns, user_id)
+
+@tool
+async def query_vector_store_tool_wrapper(query: str):
+    """Retrieve detailed curriculum explanations, study material, and exam concepts."""
+    return await query_vector_store_tool(query)
+
 TOOL_MAP = {
-    "sql_read_tool" = sql_read_tool
+    "sql_read_tool_wrapper": sql_read_tool_wrapper,
+    "sql_update_tool_wrapper": sql_update_tool_wrapper,
+    "query_vector_store_tool_wrapper": query_vector_store_tool_wrapper
 }
+
+
+
 if not all(ENVS.values()):
 
     raise RuntimeError("LLM configuration error")
@@ -121,7 +142,31 @@ def exam_context(exam:str,params:list=None)->dict:
     return result
 
 def llm_context(question: str,exam_name:str):
+    tools = [sql_read_tool_wrapper, sql_update_tool_wrapper, query_vector_store_tool_wrapper]
+    first_prompt = f"""You are an expert AI Advisor for the {exam_name} exam.
     
+    You have access to the following tools:
+
+    - 'sql_read_tool_wrapper' for profile info or metadata.
+        Parameters: 
+        table: str
+        columns: list
+        id: str
+
+    - 'sql_update_tool_wrapper' to change user details (major, minor, etc).
+        Parameters:
+        table: str
+        columns: dict
+        id: str
+
+    - 'query_vector_store_tool_wrapper' for study concepts.
+        Parameters:
+        query: str
+    
+    Current User ID: {user_id}
+    """
+
+
     first_prompt = f""" given these following database colums: {SCHEMA_COLUMNS}, only return the columns that you understand are needed
      to answer the question: {question} as a json string ONLY (no need to have '''json''' or anything) with
      two keys: 'Result', which is either 'None' or 'Success', and 'Columns' which
