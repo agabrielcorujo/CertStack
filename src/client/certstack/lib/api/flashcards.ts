@@ -36,6 +36,17 @@ interface StartSessionResponse {
   session_id: number
 }
 
+interface EndSessionResponse {
+  session_id: number
+  exam: string
+  category: string | null
+  started_at: string
+  ended_at: string
+  cards_reviewed: number
+  correct_answers: number
+  accuracy_percent: number
+}
+
 export interface FlashcardProgress {
   tracked_cards: number
   due_cards: number
@@ -62,10 +73,18 @@ export interface CategoryBreakdown {
   accuracy_percent: number
 }
 
-interface ProgressResponse {
-  status: string
+export interface EndSessionSummary {
+  sessionId: number
   exam: string
-  category_filter: string | null
+  category: string | null
+  startedAt: string
+  endedAt: string
+  cardsReviewed: number
+  correctAnswers: number
+  accuracyPercent: number
+}
+
+interface ProgressResponse {
   summary: FlashcardProgress
   sessions: SessionStats
   category_breakdown: CategoryBreakdown[]
@@ -112,7 +131,7 @@ function normalizeChoices(rawChoices: unknown): PracticeOption[] {
     const rawText = String(choice || "")
     const letterPrefixMatch = rawText.match(/^([A-Z])\./)
     const derivedId = letterPrefixMatch?.[1]?.toLowerCase() || String.fromCharCode(97 + index)
-    const text = rawText.replace(/^[A-Z]\.?\s*/, "").trim()
+    const text = rawText.replace(/^[A-Z]\.\s*/, "").trim() || rawText.replace(/^[A-Z]\s*/, "").trim()
 
     return {
       id: derivedId,
@@ -176,28 +195,7 @@ export async function getOrStartStudySession(params: {
 }): Promise<number | null> {
   const query = new URLSearchParams()
   if (params.exam) query.set("exam", params.exam)
- 
-
-export async function getFlashcardProgress(params: {
-  exam: string
-  category?: string
-}): Promise<{ progress: FlashcardProgress; sessions: SessionStats; categoryBreakdown: CategoryBreakdown[] } | null> {
-  try {
-    const query = new URLSearchParams()
-    query.set("exam", params.exam)
-    if (params.category) query.set("category", params.category)
-
-    const response = await apiRequest<ProgressResponse>(`/flashcards/progress?${query.toString()}`)
-    return {
-      progress: response.summary,
-      sessions: response.sessions,
-      categoryBreakdown: response.category_breakdown || [],
-    }
-  } catch (error) {
-    console.error("Failed to fetch flashcard progress:", error)
-    return null
-  }
-} if (params.category) query.set("category", params.category)
+  if (params.category) query.set("category", params.category)
   if (params.deckId !== undefined) query.set("deck_id", String(params.deckId))
 
   const active = await apiRequest<ActiveSessionResponse>(`/flashcards/sessions/active?${query.toString()}`)
@@ -232,4 +230,51 @@ export async function recordFlashcardReview(params: {
       session_id: params.sessionId,
     }),
   })
+}
+
+export async function getFlashcardProgress(params: {
+  exam: string
+  category?: string
+}): Promise<{ progress: FlashcardProgress; sessions: SessionStats; categoryBreakdown: CategoryBreakdown[] } | null> {
+  try {
+    const query = new URLSearchParams()
+    query.set("exam", params.exam)
+    if (params.category) query.set("category", params.category)
+
+    const response = await apiRequest<ProgressResponse>(`/flashcards/progress?${query.toString()}`)
+    return {
+      progress: response.summary,
+      sessions: response.sessions,
+      categoryBreakdown: response.category_breakdown || [],
+    }
+  } catch (error) {
+    console.error("Failed to fetch flashcard progress:", error)
+    return null
+  }
+}
+
+export async function endStudySession(params: {
+  sessionId: number
+  cardsReviewed: number
+  correctAnswers: number
+}): Promise<EndSessionSummary> {
+  const response = await apiRequest<EndSessionResponse>("/flashcards/sessions/end", {
+    method: "POST",
+    body: JSON.stringify({
+      session_id: params.sessionId,
+      cards_reviewed: params.cardsReviewed,
+      correct_answers: params.correctAnswers,
+    }),
+  })
+
+  return {
+    sessionId: response.session_id,
+    exam: response.exam,
+    category: response.category,
+    startedAt: response.started_at,
+    endedAt: response.ended_at,
+    cardsReviewed: response.cards_reviewed,
+    correctAnswers: response.correct_answers,
+    accuracyPercent: response.accuracy_percent,
+  }
 }

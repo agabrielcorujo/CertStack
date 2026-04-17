@@ -1,12 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { AppLayout } from "@/components/app-layout"
 import { AppHeader } from "@/components/app-header"
 import { QuestionCard } from "@/components/practice/question-card"
 import { QuestionNavigator } from "@/components/practice/question-navigator"
 import { Flag, ChevronLeft, ChevronRight } from "lucide-react"
 import {
+  endStudySession,
   fetchPracticeFlashcards,
   getOrStartStudySession,
   recordFlashcardReview,
@@ -17,13 +19,16 @@ const DEFAULT_EXAM = "cloud practitioner"
 const DEFAULT_CATEGORY = "Cloud Concepts"
 
 export default function PracticePage() {
+  const router = useRouter()
   const [questions, setQuestions] = useState<PracticeFlashcard[]>([])
   const [sessionId, setSessionId] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [isEndingSession, setIsEndingSession] = useState(false)
   const [currentQuestion, setCurrentQuestion] = useState(1)
   const [answeredQuestions, setAnsweredQuestions] = useState<number[]>([])
   const [flaggedQuestions, setFlaggedQuestions] = useState<number[]>([])
+  const [correctCount, setCorrectCount] = useState(0)
 
   useEffect(() => {
     let isCancelled = false
@@ -90,6 +95,13 @@ export default function PracticePage() {
   async function handleQuestionAnswered(payload: { isCorrect: boolean }) {
     if (!currentQ) return
 
+    if (!answeredQuestions.includes(currentQuestion)) {
+      setAnsweredQuestions((prev) => [...prev, currentQuestion])
+      if (payload.isCorrect) {
+        setCorrectCount((prev) => prev + 1)
+      }
+    }
+
     try {
       await recordFlashcardReview({
         questionId: currentQ.questionId,
@@ -100,6 +112,41 @@ export default function PracticePage() {
     } catch (error) {
       // Keep practice flow responsive even if telemetry fails.
       console.error("Failed to record review", error)
+    }
+  }
+
+  async function handleFinishSession() {
+    if (!sessionId || isEndingSession) return
+
+    const cardsReviewed = answeredQuestions.length
+    const params = new URLSearchParams({
+      cardsReviewed: String(cardsReviewed),
+      correctAnswers: String(correctCount),
+      flaggedCount: String(flaggedQuestions.length),
+      totalQuestions: String(questions.length),
+      exam: DEFAULT_EXAM,
+      category: DEFAULT_CATEGORY,
+    })
+
+    try {
+      setIsEndingSession(true)
+      const summary = await endStudySession({
+        sessionId,
+        cardsReviewed,
+        correctAnswers: correctCount,
+      })
+
+      params.set("accuracyPercent", String(summary.accuracyPercent))
+      params.set("startedAt", summary.startedAt)
+      params.set("endedAt", summary.endedAt)
+      router.push(`/practice/summary?${params.toString()}`)
+    } catch (error) {
+      console.error("Failed to end session", error)
+      const fallbackAccuracy = cardsReviewed > 0 ? Math.round((correctCount / cardsReviewed) * 100) : 0
+      params.set("accuracyPercent", String(fallbackAccuracy))
+      router.push(`/practice/summary?${params.toString()}`)
+    } finally {
+      setIsEndingSession(false)
     }
   }
 
@@ -160,6 +207,16 @@ export default function PracticePage() {
                 >
                   Next
                   <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={handleFinishSession}
+                  disabled={!sessionId || isEndingSession}
+                  className="rounded-full bg-[hsl(var(--success))] px-5 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isEndingSession ? "Ending Session..." : "Finish Session"}
                 </button>
               </div>
             </div>
