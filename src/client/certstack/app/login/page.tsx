@@ -128,8 +128,8 @@ export default function LoginPage() {
             <p className="eyebrow">Sign in</p>
             <h1 className="text-4xl font-bold tracking-[-0.08em]">Return to your study desk.</h1>
             <p className="text-sm leading-6 text-[hsl(var(--ink-soft))]">
-              Use the JWT auth backend in this repo. The access token is stored locally in the
-              browser for the app shell to use.
+              Sign in with your email and password to jump back into your dashboard, flashcards,
+              and full practice exams.
             </p>
           </div>
 

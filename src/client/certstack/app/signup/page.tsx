@@ -77,15 +77,15 @@ export default function SignupPage() {
               One clear study signal.
             </h2>
             <p className="text-lg leading-8 text-[hsl(var(--ink-soft))]">
-              Register through the shared JWT auth repo, then pick Cloud Practitioner and start
-              logging results immediately.
+              Create your account, choose Cloud Practitioner, and start tracking every flashcard
+              session and exam attempt in one place.
             </p>
           </div>
         </div>
 
         <div className="space-y-4">
           {[
-            "Create an account with the existing FastAPI auth backend.",
+            "Create your account in under a minute.",
             "Enroll in AWS Certified Cloud Practitioner from the dashboard.",
             "Use flashcards and exam mode to push real stats into your profile.",
           ].map((item) => (
@@ -103,8 +103,8 @@ export default function SignupPage() {
             <p className="eyebrow">Create account</p>
             <h1 className="text-4xl font-bold tracking-[-0.08em]">Start your first cert path.</h1>
             <p className="text-sm leading-6 text-[hsl(var(--ink-soft))]">
-              This form posts directly to `/auth/register` and keeps the rest of the profile setup
-              inside this app.
+              Set up your login details now and finish the rest of your study setup inside
+              CertStack.
             </p>
           </div>
 
