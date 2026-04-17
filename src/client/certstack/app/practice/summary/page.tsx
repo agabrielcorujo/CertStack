@@ -1,10 +1,12 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { CheckCircle2, Clock3, Flag, Target } from "lucide-react"
 import { AppLayout } from "@/components/app-layout"
 import { AppHeader } from "@/components/app-header"
+import { getStudySessionHistory, type StudySessionItem } from "@/lib/api/flashcards"
 
 function formatDuration(startedAt: string | null, endedAt: string | null): string {
   if (!startedAt || !endedAt) return "N/A"
@@ -20,8 +22,29 @@ function formatDuration(startedAt: string | null, endedAt: string | null): strin
   return `${minutes}m ${seconds}s`
 }
 
+function formatDurationSeconds(durationSeconds: number): string {
+  if (durationSeconds <= 0) return "0m 0s"
+  const minutes = Math.floor(durationSeconds / 60)
+  const seconds = durationSeconds % 60
+  return `${minutes}m ${seconds}s`
+}
+
+function formatDateTime(value: string | null): string {
+  if (!value) return "N/A"
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "N/A"
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
 export default function PracticeSummaryPage() {
   const searchParams = useSearchParams()
+  const [recentSessions, setRecentSessions] = useState<StudySessionItem[]>([])
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true)
 
   const exam = searchParams.get("exam") || "cloud practitioner"
   const category = searchParams.get("category") || "General"
@@ -36,6 +59,39 @@ export default function PracticeSummaryPage() {
   const incorrectAnswers = Math.max(cardsReviewed - correctAnswers, 0)
   const completionPercent = totalQuestions > 0 ? Math.round((cardsReviewed / totalQuestions) * 100) : 0
   const sessionDuration = formatDuration(startedAt, endedAt)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadRecentSessions() {
+      try {
+        setIsLoadingHistory(true)
+        const history = await getStudySessionHistory({
+          exam,
+          category,
+          limit: 5,
+          includeActive: false,
+        })
+        if (!cancelled) {
+          setRecentSessions(history)
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to load study session history", error)
+          setRecentSessions([])
+        }
+      } finally {
+        if (!cancelled) setIsLoadingHistory(false)
+      }
+    }
+
+    loadRecentSessions()
+    return () => {
+      cancelled = true
+    }
+  }, [exam, category])
+
+  const trendItems = useMemo(() => recentSessions.slice(0, 5).reverse(), [recentSessions])
 
   return (
     <AppLayout>
@@ -102,12 +158,88 @@ export default function PracticeSummaryPage() {
             </div>
           </section>
 
+          <section className="rounded-2xl border border-[hsl(var(--border-light))] bg-[hsl(var(--surface-elevated))] p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-base font-semibold text-[hsl(var(--text-primary))]">Recent Accuracy Trend</h3>
+              <span className="text-xs text-[hsl(var(--text-secondary))]">Last 5 sessions</span>
+            </div>
+
+            {isLoadingHistory && <p className="text-sm text-[hsl(var(--text-secondary))]">Loading trend...</p>}
+
+            {!isLoadingHistory && trendItems.length === 0 && (
+              <p className="text-sm text-[hsl(var(--text-secondary))]">Complete a few sessions to see your trend.</p>
+            )}
+
+            {!isLoadingHistory && trendItems.length > 0 && (
+              <div className="flex items-end gap-3">
+                {trendItems.map((session) => {
+                  const barHeight = Math.max(14, Math.round(session.accuracyPercent * 0.8))
+                  return (
+                    <div key={session.sessionId} className="flex flex-1 flex-col items-center gap-2">
+                      <div
+                        className="w-full max-w-10 rounded-md bg-[hsl(var(--primary-500))]"
+                        style={{ height: `${barHeight}px` }}
+                        title={`${session.accuracyPercent}%`}
+                      />
+                      <span className="text-xs text-[hsl(var(--text-secondary))]">{session.accuracyPercent}%</span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-2xl border border-[hsl(var(--border-light))] bg-[hsl(var(--surface-elevated))] p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-base font-semibold text-[hsl(var(--text-primary))]">Recent Sessions</h3>
+              <span className="text-xs text-[hsl(var(--text-secondary))]">Most recent first</span>
+            </div>
+
+            {isLoadingHistory && <p className="text-sm text-[hsl(var(--text-secondary))]">Loading sessions...</p>}
+
+            {!isLoadingHistory && recentSessions.length === 0 && (
+              <p className="text-sm text-[hsl(var(--text-secondary))]">No previous completed sessions found.</p>
+            )}
+
+            {!isLoadingHistory && recentSessions.length > 0 && (
+              <div className="space-y-3">
+                {recentSessions.map((session) => (
+                  <div
+                    key={session.sessionId}
+                    className="grid grid-cols-1 gap-2 rounded-xl border border-[hsl(var(--border-light))] bg-[hsl(var(--background-surface))] p-4 sm:grid-cols-4"
+                  >
+                    <div>
+                      <p className="text-xs text-[hsl(var(--text-tertiary))]">Accuracy</p>
+                      <p className="text-sm font-semibold text-[hsl(var(--text-primary))]">{session.accuracyPercent}%</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-[hsl(var(--text-tertiary))]">Reviewed</p>
+                      <p className="text-sm font-semibold text-[hsl(var(--text-primary))]">{session.cardsReviewed}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-[hsl(var(--text-tertiary))]">Duration</p>
+                      <p className="text-sm font-semibold text-[hsl(var(--text-primary))]">
+                        {formatDurationSeconds(session.durationSeconds)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-[hsl(var(--text-tertiary))]">Completed</p>
+                      <p className="text-sm font-semibold text-[hsl(var(--text-primary))]">
+                        {formatDateTime(session.endedAt)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
           <section className="flex flex-wrap gap-3">
             <Link
               href="/practice"
               className="rounded-full bg-[#4A7FFF] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#3D6EE8]"
             >
-              Start New Session
+              Continue Practicing
             </Link>
             <Link
               href="/dashboard"

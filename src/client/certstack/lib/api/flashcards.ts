@@ -47,6 +47,22 @@ interface EndSessionResponse {
   accuracy_percent: number
 }
 
+interface StudySessionHistoryResponse {
+  sessions: Array<{
+    session_id: number
+    exam: string
+    category: string | null
+    deck_id: number | null
+    cards_reviewed: number
+    correct_answers: number
+    accuracy_percent: number
+    started_at: string
+    ended_at: string | null
+    is_active: boolean
+    duration_seconds: number
+  }>
+}
+
 export interface FlashcardProgress {
   tracked_cards: number
   due_cards: number
@@ -82,6 +98,19 @@ export interface EndSessionSummary {
   cardsReviewed: number
   correctAnswers: number
   accuracyPercent: number
+}
+
+export interface StudySessionItem {
+  sessionId: number
+  exam: string
+  category: string | null
+  cardsReviewed: number
+  correctAnswers: number
+  accuracyPercent: number
+  startedAt: string
+  endedAt: string | null
+  durationSeconds: number
+  isActive: boolean
 }
 
 interface ProgressResponse {
@@ -277,4 +306,34 @@ export async function endStudySession(params: {
     correctAnswers: response.correct_answers,
     accuracyPercent: response.accuracy_percent,
   }
+}
+
+export async function getStudySessionHistory(params: {
+  exam?: string
+  category?: string
+  limit?: number
+  offset?: number
+  includeActive?: boolean
+}): Promise<StudySessionItem[]> {
+  const query = new URLSearchParams()
+  if (params.exam) query.set("exam", params.exam)
+  if (params.category) query.set("category", params.category)
+  if (params.includeActive !== undefined) query.set("include_active", String(params.includeActive))
+  query.set("limit", String(params.limit ?? 5))
+  query.set("offset", String(params.offset ?? 0))
+
+  const response = await apiRequest<StudySessionHistoryResponse>(`/flashcards/sessions/history?${query.toString()}`)
+
+  return (response.sessions || []).map((session) => ({
+    sessionId: session.session_id,
+    exam: session.exam,
+    category: session.category,
+    cardsReviewed: session.cards_reviewed,
+    correctAnswers: session.correct_answers,
+    accuracyPercent: session.accuracy_percent,
+    startedAt: session.started_at,
+    endedAt: session.ended_at,
+    durationSeconds: session.duration_seconds,
+    isActive: session.is_active,
+  }))
 }
