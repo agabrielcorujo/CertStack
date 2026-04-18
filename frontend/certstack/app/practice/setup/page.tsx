@@ -88,7 +88,7 @@ const modes = [
   { 
     id: "practice", 
     name: "Practice Mode", 
-    description: "Standard practice with AI hints available",
+    description: "Standard practice with AI Tutor hints available",
     icon: Icons.practice,
     color: "bg-primary",
   },

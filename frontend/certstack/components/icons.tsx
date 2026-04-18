@@ -153,7 +153,7 @@ export const Icons = {
   arrowRight: ArrowRight,
   camera: Camera,
   
-  // Chat/AI
+  // Chat
   messageSquare: MessageSquare,
   bot: Bot,
   lightbulb: Lightbulb,

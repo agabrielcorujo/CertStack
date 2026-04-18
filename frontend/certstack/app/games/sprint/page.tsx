@@ -120,7 +120,7 @@ export default function ExamSprintPage() {
                 </div>
                 <h1 className="text-3xl font-bold text-foreground mb-3">Exam Sprint</h1>
                 <p className="text-muted-foreground mb-8 leading-relaxed">
-                  Simulate real exam conditions with 15 timed questions. No hints, no AI assistance - pure exam practice.
+                  Simulate real exam conditions with 15 timed questions. No hints, just pure exam practice.
                 </p>
                 
                 <div className="grid grid-cols-3 gap-4 mb-8">

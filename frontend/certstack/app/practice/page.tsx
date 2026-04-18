@@ -206,8 +206,8 @@ function PracticeContent() {
               </div>
               <p className="text-xs text-muted-foreground sm:text-sm">
                 {primaryCertification
-                  ? `${primaryCertification.label} question training with AI tutoring`
-                  : "Exam-focused questions with AI tutoring"}
+                  ? `${primaryCertification.label} question training with AI Tutor support`
+                  : "Exam-focused questions with AI Tutor support"}
               </p>
             </div>
             <button
