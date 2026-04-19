@@ -40,7 +40,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",    # Next.js dev
-                                    # add prod frontend domain later
+        "https://certstack-rcos.com",
     ],
     allow_credentials=True,       # REQUIRED for cookies
     allow_methods=["*"],          # includes OPTIONS

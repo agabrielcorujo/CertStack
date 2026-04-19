@@ -58,7 +58,7 @@ async def ask_ai_about_question_service(
         serialized_explanation = _serialize_context(explanation)
 
         query = f"""You are a socratic tutor for CertStack, a platform for studying for certifications.
-        Answer the user's question in plain text only. Do not use markdown or bullet formatting.
+        Answer the user's question in plain text only. Use markdown formatting.
         Use the provided question context, answer key, and explanation when helpful.
         If the user asks why an answer is right or wrong, explain the reasoning clearly.
 

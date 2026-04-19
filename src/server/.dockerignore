@@ -1,3 +1,6 @@
 data/
 .env.*
 services/LLM
+deploy.py
+fly.toml
+Procfile

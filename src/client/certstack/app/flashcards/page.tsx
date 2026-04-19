@@ -12,6 +12,7 @@ import {
   XCircle,
 } from "lucide-react"
 
+import { ChatMarkdown } from "@/components/certstack/chat-markdown"
 import { AppShell } from "@/components/certstack/app-shell"
 import { ApiError, apiFetch } from "@/lib/api"
 import { clearStoredSession, getStoredSession } from "@/lib/auth"
@@ -102,6 +103,7 @@ export default function FlashcardsPage() {
       return
     }
 
+    const exam = selectedExam
     let active = true
 
     async function loadCards() {
@@ -110,7 +112,7 @@ export default function FlashcardsPage() {
 
       try {
         const params = new URLSearchParams({
-          exam_name: selectedExam.exam_name,
+          exam_name: exam.exam_name,
           domain: selectedDomain,
           limit: "12",
         })
@@ -580,7 +582,11 @@ export default function FlashcardsPage() {
                           <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-[hsl(var(--ink-faint))]">
                             {message.role === "user" ? "You" : "AI"}
                           </p>
-                          <p>{message.content}</p>
+                          {message.role === "user" ? (
+                            <p>{message.content}</p>
+                          ) : (
+                            <ChatMarkdown content={message.content} />
+                          )}
                         </div>
                       ))
                     ) : (
