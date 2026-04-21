@@ -1,25 +1,33 @@
-import React from "react"
-import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import type { Metadata } from "next"
+import type { ReactNode } from "react"
+import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google"
 
-import './globals.css'
+import "./globals.css"
 
-const _geist = Geist({ subsets: ['latin'] })
-const _geistMono = Geist_Mono({ subsets: ['latin'] })
+const displayFont = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-display",
+})
+
+const monoFont = IBM_Plex_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "500", "600"],
+})
 
 export const metadata: Metadata = {
-  title: 'ExamPrep - Ace Your Exams With Confidence',
-  description: 'Practice with thousands of questions, track your progress, and master every subject before exam day.',
+  title: "CertStack",
+  description: "Quizlet-style certification prep for flashcards, full exams, and progress tracking.",
 }
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: ReactNode
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">{children}</body>
+      <body className={`${displayFont.variable} ${monoFont.variable}`}>{children}</body>
     </html>
   )
 }

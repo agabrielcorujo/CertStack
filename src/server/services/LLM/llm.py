@@ -31,7 +31,9 @@ class LLMError(Exception):
 PROMPT_TEMPLATE="""
 Answer the question based only on the following context:
 
-{context}
+Chat History (Past 10 Messages and Responses): {chat_history}
+
+Context: {context}
 
 ---
 
@@ -46,9 +48,9 @@ ENVS = {
 }
 
 SCHEMA_COLUMNS = [#need specific exam names 
-    "exam_name", "exam_description", "exam_focus", "scoring_model", 
+    "exam_name", "description", "exam_focus", "scoring_model", 
     "domain_weights", "exam_topics", "expected_depth", 
-    "not_expected_depth", "llm_answering_rules"
+    "not_expected_depth", "answering_rules_for_llm"
     ]
 
 """TOOLS For LLM to call"""
