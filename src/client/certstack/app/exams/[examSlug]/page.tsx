@@ -148,7 +148,7 @@ export default function ExamSessionPage() {
         limit_per_domain: "17",
       })
 
-      const response = await apiFetch<StudyQuestion[]>(`/exams?${params.toString()}`)
+      const response = await apiFetch<StudyQuestion[]>(`/exams/?${params.toString()}`)
       setQuestions(response)
       setAnswers({})
       setFlagged([])
