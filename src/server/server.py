@@ -41,6 +41,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",    # Next.js dev
         "https://certstack-rcos.com",
+        "https://certstack.fyi"
     ],
     allow_credentials=True,       # REQUIRED for cookies
     allow_methods=["*"],          # includes OPTIONS
