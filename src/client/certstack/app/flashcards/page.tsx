@@ -425,7 +425,7 @@ export default function FlashcardsPage() {
                     ) : null}
                   </div>
 
-                  <h4 className="text-3xl font-bold tracking-[-0.06em] leading-tight">
+                  <h4 className="text-xl font-bold tracking-[-0.04em] leading-snug sm:text-2xl">
                     {currentCard.question}
                   </h4>
 
