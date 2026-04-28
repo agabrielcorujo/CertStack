@@ -1,6 +1,8 @@
 "use client"
 
+import * as React from "react"
 import { Icons } from "@/components/icons"
+import { useTheme } from "next-themes"
 
 interface AppHeaderProps {
   title: string
@@ -8,6 +10,32 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ title, subtitle }: AppHeaderProps) {
+  const { theme, setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const toggleTheme = () => {
+    // Toggle between light and dark; preserve system via resolvedTheme when unmounted
+    const current = resolvedTheme || theme
+    if (current === "dark") setTheme("light")
+    else setTheme("dark")
+  }
+
+  // Keyboard shortcut: press 't' to toggle theme
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === "t" && (e.ctrlKey === false && e.metaKey === false && e.altKey === false)) {
+        toggleTheme()
+      }
+    }
+
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [resolvedTheme, theme])
+
   return (
     <header className="flex h-16 items-center justify-between border-b border-border bg-card px-8">
       <div>
@@ -18,6 +46,26 @@ export function AppHeader({ title, subtitle }: AppHeaderProps) {
       </div>
 
       <div className="flex items-center gap-4">
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          aria-label="Toggle theme (press t)"
+          className="flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-150 hover:bg-secondary"
+        >
+          {mounted ? (
+            resolvedTheme === "dark" ? (
+              <Icons.moon className="h-5 w-5 text-muted-foreground" />
+            ) : (
+              <Icons.sun className="h-5 w-5 text-muted-foreground" />
+            )
+          ) : (
+            <Icons.sun className="h-5 w-5 text-muted-foreground" />
+          )}
+        </button>
+        {/* Live region for assistive tech to announce theme changes */}
+        <span aria-live="polite" className="sr-only">
+          {mounted ? `Theme: ${resolvedTheme || theme}` : ""}
+        </span>
         {/* Search */}
         <div className="relative">
           <Icons.search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

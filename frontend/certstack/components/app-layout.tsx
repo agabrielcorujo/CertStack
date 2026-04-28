@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 import { useCertificationFocus } from "@/lib/certification-focus"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { AppHeader } from "@/components/app-header"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -358,6 +359,10 @@ function AppLayoutShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="relative min-h-screen bg-background">
+      {/* Desktop Header */}
+      <div className="hidden lg:block">
+        <AppHeader title="CertStack" />
+      </div>
       {/* Desktop Sidebar */}
       <Sidebar 
         className="fixed inset-y-0 left-0 z-30 hidden lg:flex" 
