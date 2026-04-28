@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { AppLayout } from "@/components/app-layout"
+import { useTheme } from "next-themes"
 import { Icons } from "@/components/icons"
 
 // ============================================================================
@@ -61,6 +62,13 @@ const settingsSections = [
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = React.useState("account")
   const [isSaving, setIsSaving] = React.useState(false)
+
+  const { theme, setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -370,22 +378,27 @@ export default function SettingsPage() {
                             { id: "light", label: "Light", icon: Icons.sun },
                             { id: "dark", label: "Dark", icon: Icons.moon },
                             { id: "system", label: "System", icon: Icons.settings },
-                          ].map((theme) => (
-                            <motion.button
-                              key={theme.id}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              className={cn(
-                                "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
-                                theme.id === "light"
-                                  ? "border-primary bg-primary/5"
-                                  : "border-border hover:border-muted-foreground/50"
-                              )}
-                            >
-                              <theme.icon className="h-5 w-5" />
-                              <span className="text-sm font-medium">{theme.label}</span>
-                            </motion.button>
-                          ))}
+                          ].map((themeOption) => {
+                            const selected = mounted && theme === themeOption.id
+
+                            return (
+                              <motion.button
+                                key={themeOption.id}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => setTheme(themeOption.id)}
+                                className={cn(
+                                  "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
+                                  selected
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-muted-foreground/50"
+                                )}
+                              >
+                                <themeOption.icon className="h-5 w-5" />
+                                <span className="text-sm font-medium">{themeOption.label}</span>
+                              </motion.button>
+                            )
+                          })}
                         </div>
                       </div>
 

@@ -6,7 +6,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'CertStack — Exam Prep Platform',
+  title: 'CertStack',
   description: 'CertStack helps you practice FE, PE, AWS, and other licensing exams with guided problem solving and coaching.',
   icons: {
     icon: [

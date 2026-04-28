@@ -1,5 +1,7 @@
 "use client"
 
+
+
 import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -7,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { AppLayout } from "@/components/app-layout"
 import { Icons } from "@/components/icons"
+import { getErrorMessage, getJson } from "@/lib/api"
 import { useCertificationFocus } from "@/lib/certification-focus"
 
 // ============================================================================
@@ -37,7 +40,7 @@ const itemVariants = {
 // MOCK DATA
 // ============================================================================
 
-const stats = [
+const mockStats = [
   {
     label: "Current Streak",
     value: "12",
@@ -72,7 +75,7 @@ const stats = [
   },
 ]
 
-const recentTopics = [
+const mockRecentTopics = [
   { name: "React Hooks", progress: 78, questions: 24, color: "bg-primary" },
   { name: "TypeScript Generics", progress: 65, questions: 18, color: "bg-accent" },
   { name: "System Design", progress: 42, questions: 12, color: "bg-chart-3" },
@@ -92,12 +95,115 @@ const achievements = [
   { name: "Speed Demon", description: "Complete a session in under 5 minutes", earned: false, icon: Icons.zap },
 ]
 
+interface ProfileCertification {
+  cert: string
+  correctqnum: number
+  incorrectqnum: number
+  accuracy: number
+  attempts: number
+}
+
+interface ProfileResponse {
+  name: string
+  certs: ProfileCertification[]
+  totals: {
+    correct: number
+    incorrect: number
+    attempts: number
+    accuracy: number
+  }
+}
+
 // ============================================================================
 // DASHBOARD PAGE
 // ============================================================================
 
 export default function DashboardPage() {
   const { primaryCertification } = useCertificationFocus()
+  const [profile, setProfile] = React.useState<ProfileResponse | null>(null)
+  const [profileError, setProfileError] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    const token = window.localStorage.getItem("certstack_access_token")
+    if (!token) {
+      setProfileError("Sign in to load your live dashboard data.")
+      return
+    }
+
+    let active = true
+
+    async function loadProfile() {
+      try {
+        const result = await getJson<ProfileResponse>("/profile", undefined, token)
+        if (!active) return
+        setProfile(result)
+        setProfileError(null)
+      } catch (error) {
+        if (!active) return
+        setProfile(null)
+        setProfileError(getErrorMessage(error))
+      }
+    }
+
+    void loadProfile()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const dashboardStats = profile
+    ? [
+        {
+          label: "Questions Practiced",
+          value: String(profile.totals.attempts),
+          unit: "total",
+          icon: Icons.practice,
+          color: "text-primary",
+          bgColor: "bg-primary/10",
+        },
+        {
+          label: "Accuracy Rate",
+          value: String(profile.totals.accuracy),
+          unit: "%",
+          icon: Icons.trendingUp,
+          color: "text-chart-3",
+          bgColor: "bg-chart-3/10",
+        },
+        {
+          label: "Certifications",
+          value: String(profile.certs.length),
+          unit: "active",
+          icon: Icons.graduationCap,
+          color: "text-accent",
+          bgColor: "bg-accent/10",
+        },
+        {
+          label: "Correct Answers",
+          value: String(profile.totals.correct),
+          unit: "total",
+          icon: Icons.checkCircle,
+          color: "text-chart-4",
+          bgColor: "bg-chart-4/10",
+        },
+      ]
+    : mockStats
+
+  const dashboardRecentTopics = profile
+    ? profile.certs.slice(0, 4).map((cert, index) => ({
+        name: cert.cert.toUpperCase(),
+        progress: cert.accuracy,
+        questions: cert.attempts,
+        color: ["bg-primary", "bg-accent", "bg-chart-3", "bg-chart-4"][index % 4],
+      }))
+    : mockRecentTopics
+
+  const dashboardName = profile?.name ?? "Jane"
+  const dashboardMessage = profile
+    ? `You have ${profile.totals.attempts} answered questions across ${profile.certs.length} certification areas.`
+    : primaryCertification
+      ? `You are focused on ${primaryCertification.label}. Keep your momentum going.`
+      : "Set your certification focus from Profile to personalize your study plan."
 
   return (
     <AppLayout>
@@ -112,13 +218,9 @@ export default function DashboardPage() {
           <motion.div variants={itemVariants} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                Welcome back, Jane
+                Welcome back, {dashboardName}
               </h1>
-              <p className="mt-1 text-muted-foreground">
-                {primaryCertification
-                  ? `You are focused on ${primaryCertification.label}. Keep your momentum going.`
-                  : "Set your certification focus from Profile to personalize your study plan."}
-              </p>
+              <p className="mt-1 text-muted-foreground">{dashboardMessage}</p>
             </div>
             <Link href="/practice">
               <Button className="h-11 rounded-xl bg-primary px-6 text-primary-foreground hover:bg-primary/90 glow-primary transition-all duration-200">
@@ -128,9 +230,18 @@ export default function DashboardPage() {
             </Link>
           </motion.div>
 
+          {profileError && (
+            <motion.div
+              variants={itemVariants}
+              className="rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground elevation-1"
+            >
+              {profileError}
+            </motion.div>
+          )}
+
           {/* Stats Grid */}
           <motion.div variants={itemVariants} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
+            {dashboardStats.map((stat) => (
               <motion.div
                 key={stat.label}
                 variants={itemVariants}
@@ -169,7 +280,7 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <div className="space-y-5">
-                {recentTopics.map((topic, index) => (
+                {dashboardRecentTopics.map((topic, index) => (
                   <motion.div
                     key={topic.name}
                     initial={{ opacity: 0, x: -10 }}
