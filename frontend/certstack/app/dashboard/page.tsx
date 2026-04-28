@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { AppLayout } from "@/components/app-layout"
 import { Icons } from "@/components/icons"
+import Achievements from "@/components/achievements"
 import { getErrorMessage, getJson } from "@/lib/api"
 import { useCertificationFocus } from "@/lib/certification-focus"
 
@@ -264,6 +265,11 @@ export default function DashboardPage() {
                 </div>
               </motion.div>
             ))}
+          </motion.div>
+
+          {/* Achievements */}
+          <motion.div variants={itemVariants} className="">
+            <Achievements />
           </motion.div>
 
           {/* Main Grid */}
