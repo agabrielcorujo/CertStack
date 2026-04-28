@@ -59,8 +59,8 @@ async def list_exams():
                    """
 
     try:
-        metadata_results = await safe_query(metadata_query, fetch="all")
-        count_results = await safe_query(counts_query, fetch="all")
+        metadata_results = await safe_query(metadata_query, fetch="all",cache_aside=False)
+        count_results = await safe_query(counts_query, fetch="all",cache_aside=False)
     except DBError as error:
         raise ExamError(message=error.message, status_code=error.status_code)
 
@@ -119,7 +119,7 @@ async def get_exam_questions(exam_name: str, limit_per_domain: int = 17):
             """
 
     try:
-        results = await safe_query(query, (exam_name, limit_per_domain), fetch="all")
+        results = await safe_query(query, (exam_name, limit_per_domain), fetch="all",cache_aside=False)
 
         res = [
             {

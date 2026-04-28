@@ -28,7 +28,7 @@ async def get_5_flaschards_service(exam_name:str,domain:str,subdomain:str=None,l
         params = (exam_name,domain,limit)
 
     try:
-        results = await safe_query(query,params,fetch="all")
+        results = await safe_query(query,params,fetch="all",cache_aside=False)
 
         res = [
             {
