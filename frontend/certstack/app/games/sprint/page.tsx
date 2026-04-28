@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { AppLayout } from "@/components/app-layout"
 import { Icons } from "@/components/icons"
+import { Confetti } from "@/components/confetti"
 
 // Sprint questions (15 questions simulating exam conditions)
 const sprintQuestions = [
@@ -38,6 +39,8 @@ export default function ExamSprintPage() {
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const [answers, setAnswers] = React.useState<(number | null)[]>(new Array(sprintQuestions.length).fill(null))
   const [flagged, setFlagged] = React.useState<boolean[]>(new Array(sprintQuestions.length).fill(false))
+  const [questionStart, setQuestionStart] = React.useState<number>(() => Date.now())
+  const [sparkKey, setSparkKey] = React.useState<number | null>(null)
 
   const question = sprintQuestions[currentIndex]
   const answeredCount = answers.filter((a) => a !== null).length
@@ -59,6 +62,11 @@ export default function ExamSprintPage() {
     return () => clearInterval(timer)
   }, [gameState, timeLeft])
 
+  // update question start time when currentIndex changes while playing
+  React.useEffect(() => {
+    if (gameState === "playing") setQuestionStart(Date.now())
+  }, [currentIndex, gameState])
+
   const startGame = () => {
     setGameState("playing")
     setTimeLeft(TOTAL_TIME)
@@ -71,6 +79,13 @@ export default function ExamSprintPage() {
     const newAnswers = [...answers]
     newAnswers[currentIndex] = index
     setAnswers(newAnswers)
+    // determine response time and trigger spark/sfx
+    const responseMs = Date.now() - questionStart
+    const quickThreshold = 3000 // ms
+    const isCorrect = index === sprintQuestions[currentIndex].correct
+    if (responseMs <= quickThreshold) {
+      setSparkKey((k) => (k === null ? 1 : k + 1))
+    }
   }
 
   const handleFlag = () => {
@@ -100,6 +115,13 @@ export default function ExamSprintPage() {
     })
     return correct
   }
+
+
+  const score = calculateScore()
+  const xp = score * 10
+  const showConfetti = gameState === "finished" && score >= Math.ceil(sprintQuestions.length * 0.8)
+
+  // no audio for sprint — keep visuals only
 
   return (
     <AppLayout>
@@ -324,12 +346,21 @@ export default function ExamSprintPage() {
                   transition={{ delay: 0.3 }}
                   className="rounded-2xl border border-border bg-card p-6 mb-6 text-center"
                 >
-                  <p className="text-5xl font-bold text-foreground mb-1">
-                    {calculateScore()}/{sprintQuestions.length}
+                  {showConfetti && <Confetti />}
+                  {/* Sparks overlay (appears when answering quickly) */}
+                  <Sparks keyTrigger={sparkKey ?? 0} />
+
+                  <p className="text-5xl font-bold text-foreground mb-1 animate-pop">
+                    {score}/{sprintQuestions.length}
                   </p>
-                  <p className="text-lg text-muted-foreground">
-                    {Math.round((calculateScore() / sprintQuestions.length) * 100)}% Correct
+                  <p className="text-lg text-muted-foreground mb-2">
+                    {Math.round((score / sprintQuestions.length) * 100)}% Correct
                   </p>
+
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1">
+                    <Icons.sparkles className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-medium">+{xp} XP</span>
+                  </div>
                 </motion.div>
 
                 {/* Action Buttons */}
@@ -396,4 +427,25 @@ export default function ExamSprintPage() {
       </div>
     </AppLayout>
   )
+}
+
+/* Small pop animation for score */
+const popStyle = `
+@keyframes pop {
+  0% { transform: scale(0.85); opacity: 0 }
+  60% { transform: scale(1.08); opacity: 1 }
+  100% { transform: scale(1); opacity: 1 }
+}
+.animate-pop { animation: pop 420ms cubic-bezier(.2,.8,.2,1) }
+`
+
+// Inject pop keyframes globally for this module (simple approach)
+if (typeof window !== "undefined"){
+  const id = "sprint-pop-style"
+  if (!document.getElementById(id)){
+    const s = document.createElement('style')
+    s.id = id
+    s.innerHTML = popStyle
+    document.head.appendChild(s)
+  }
 }

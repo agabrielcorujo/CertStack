@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { AppLayout } from "@/components/app-layout"
 import { Icons } from "@/components/icons"
+import { playCorrect, playWrong, playVictory } from "@/components/sfx"
+import { Confetti } from "@/components/confetti"
 
 // Speed round questions (simplified for fast gameplay)
 const speedQuestions = [
@@ -34,6 +36,7 @@ export default function SpeedRoundPage() {
   const [correctCount, setCorrectCount] = React.useState(0)
   const [wrongCount, setWrongCount] = React.useState(0)
   const [showFeedback, setShowFeedback] = React.useState<"correct" | "wrong" | null>(null)
+  const [questionStart, setQuestionStart] = React.useState<number>(() => Date.now())
 
   const question = speedQuestions[currentIndex % speedQuestions.length]
 
@@ -52,6 +55,10 @@ export default function SpeedRoundPage() {
 
     return () => clearInterval(timer)
   }, [gameState, timeLeft])
+
+  React.useEffect(() => {
+    if (gameState === "playing") setQuestionStart(Date.now())
+  }, [currentIndex, gameState])
 
   const startGame = () => {
     setGameState("playing")
@@ -85,6 +92,13 @@ export default function SpeedRoundPage() {
       setShowFeedback("wrong")
     }
 
+    // play sfx and spark for quick answers
+    const responseMs = Date.now() - questionStart
+    const quickThreshold = 2000
+    if (isCorrect) playCorrect()
+    else playWrong()
+    // quick-answer visual effects removed at question time
+    
     // Quick feedback then next question
     setTimeout(() => {
       setShowFeedback(null)
@@ -99,6 +113,10 @@ export default function SpeedRoundPage() {
   return (
     <AppLayout>
       <div className="min-h-[calc(100vh-64px)] lg:min-h-screen flex flex-col">
+        {/* Confetti on great accuracy */}
+        {gameState === "finished" && correctCount >= 8 && (
+          <Confetti />
+        )}
         {/* Game Area */}
         <div className="flex-1 flex items-center justify-center px-4 py-8">
           <AnimatePresence mode="wait">
@@ -199,6 +217,7 @@ export default function SpeedRoundPage() {
                     !showFeedback && "border-border"
                   )}
                 >
+                  {/* per-question confetti removed; keep end-of-game confetti only */}
                   <p className="text-lg font-medium text-foreground mb-6 leading-relaxed">
                     {question.text}
                   </p>

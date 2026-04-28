@@ -9,6 +9,8 @@ import { Progress } from "@/components/ui/progress"
 import { AppLayout } from "@/components/app-layout"
 import { Icons } from "@/components/icons"
 import { getErrorMessage, getJson, postJson } from "@/lib/api"
+import { playCorrect, playWrong, playVictory } from "@/components/sfx"
+import { Confetti } from "@/components/confetti"
 
 // Ladder levels with progressive difficulty
 const ladderLevels = [
@@ -94,6 +96,7 @@ export default function TopicLadderPage() {
   const [levelCorrect, setLevelCorrect] = React.useState(0)
   const [selectedAnswer, setSelectedAnswer] = React.useState<number | null>(null)
   const [showFeedback, setShowFeedback] = React.useState(false)
+  const [questionStart, setQuestionStart] = React.useState<number>(() => Date.now())
   const [isLoadingLevel, setIsLoadingLevel] = React.useState(false)
   const [levelLoadError, setLevelLoadError] = React.useState<string | null>(null)
   const [isChecking, setIsChecking] = React.useState(false)
@@ -135,6 +138,7 @@ export default function TopicLadderPage() {
       setResolvedCorrectIndex(null)
       setShowFeedback(false)
       setGameState("playing")
+      setQuestionStart(Date.now())
     } catch (error) {
       const fallbackQuestions = [...questionsByDifficulty[levelInfo.difficulty as keyof typeof questionsByDifficulty]]
       const shuffled = [...fallbackQuestions].sort(() => Math.random() - 0.5).slice(0, levelInfo.questionsToPass + 2)
@@ -148,6 +152,7 @@ export default function TopicLadderPage() {
       setShowFeedback(false)
       setLevelLoadError(getErrorMessage(error))
       setGameState("playing")
+      setQuestionStart(Date.now())
     } finally {
       setIsLoadingLevel(false)
     }
@@ -170,16 +175,25 @@ export default function TopicLadderPage() {
 
       setResolvedCorrectIndex(result.correct_index)
       setShowFeedback(true)
+      // play sfx
       if (result.correct) {
         setLevelCorrect((c: number) => c + 1)
+        try { playCorrect() } catch (e) {}
+      } else {
+        try { playWrong() } catch (e) {}
       }
+      // quick-answer visual effects removed at question time
     } catch {
       const isCorrect = selectedAnswer === levelQuestions[currentQuestionIndex].correct
       setResolvedCorrectIndex(levelQuestions[currentQuestionIndex].correct)
       setShowFeedback(true)
       if (isCorrect) {
         setLevelCorrect((c: number) => c + 1)
+        try { playCorrect() } catch (e) {}
+      } else {
+        try { playWrong() } catch (e) {}
       }
+      // quick-answer visual effects removed at question time
     } finally {
       setIsChecking(false)
     }
@@ -196,14 +210,17 @@ export default function TopicLadderPage() {
       if (passedLevel) {
         setTotalCorrect((t: number) => t + levelCorrect + (selectedAnswer === levelQuestions[currentQuestionIndex].correct ? 1 : 0))
         setGameState("levelComplete")
+        try { playVictory() } catch (e) {}
       } else {
         setGameState("levelFailed")
+        try { playWrong() } catch (e) {}
       }
     } else {
       setCurrentQuestionIndex((i: number) => i + 1)
       setSelectedAnswer(null)
       setResolvedCorrectIndex(null)
       setShowFeedback(false)
+      setQuestionStart(Date.now())
     }
   }
 
@@ -385,6 +402,7 @@ export default function TopicLadderPage() {
                     animate={{ opacity: 1, x: 0 }}
                     className="rounded-2xl border border-border bg-card p-6 elevation-1"
                   >
+                      {/* per-question visual effects removed */}
                     <p className="text-sm text-muted-foreground mb-4">
                       Question {currentQuestionIndex + 1} of {levelQuestions.length}
                     </p>
@@ -464,6 +482,7 @@ export default function TopicLadderPage() {
               className="flex-1 flex items-center justify-center px-4 py-8"
             >
               <div className="text-center max-w-md">
+                <Confetti />
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
