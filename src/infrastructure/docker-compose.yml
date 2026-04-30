@@ -2,16 +2,16 @@
 services:
   client:
     build:
-      context: ../client/certstack
-      dockerfile: ../../infrastructure/Dockerfile.client
+      context: ../../frontend/certstack
+      dockerfile: ../../src/infrastructure/Dockerfile.client
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
     volumes:
-      - ../client/certstack:/app
+      - ../../frontend/certstack:/app
       - client_node_modules:/app/node_modules
-    command: ["sh", "/app/docker-dev-entrypoint.sh"]
+    command: sh -c "mkdir -p /app/.next/dev/logs && rm -rf /app/.next/cache && npm install && npm run dev"
     depends_on:
       - server
 
