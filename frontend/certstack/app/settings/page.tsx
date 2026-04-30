@@ -16,7 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { AppLayout } from "@/components/app-layout"
+import { useToast } from "@/hooks/use-toast"
 import { useTheme } from "next-themes"
+import { useRouter } from "next/navigation"
 import { Icons } from "@/components/icons"
 
 // ============================================================================
@@ -68,6 +70,23 @@ export default function SettingsPage() {
 
   React.useEffect(() => {
     setMounted(true)
+  }, [])
+
+  const router = useRouter()
+  const { toast } = useToast()
+
+  // If the URL contains a hash like #notifications, switch to that section on mount
+  React.useEffect(() => {
+    try {
+      const hash = typeof window !== "undefined" ? window.location.hash.replace("#", "") : ""
+      if (hash && settingsSections.some((s) => s.id === hash)) {
+        setActiveSection(hash)
+        // remove hash from URL to avoid repeated effects on back/forward
+        history.replaceState(null, "", window.location.pathname + window.location.search)
+      }
+    } catch (e) {
+      // ignore
+    }
   }, [])
 
   const handleSave = async () => {
@@ -478,10 +497,22 @@ export default function SettingsPage() {
                           Irreversible actions that affect your account
                         </p>
                         <div className="mt-4 flex flex-wrap gap-3">
-                          <Button variant="outline" size="sm" className="rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10"
+                            onClick={() => toast({ title: 'Export Data', description: 'Export is not available in this environment.' })}
+                          >
                             Export Data
                           </Button>
-                          <Button variant="outline" size="sm" className="rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10"
+                            onClick={() =>
+                              toast({ title: 'Account deletion', description: 'Account deletion simulated (frontend only).' })
+                            }
+                          >
                             Delete Account
                           </Button>
                         </div>
@@ -492,7 +523,7 @@ export default function SettingsPage() {
 
                 {/* Save Button */}
                 <div className="flex items-center justify-end gap-3 border-t border-border px-6 py-4 sm:px-8">
-                  <Button variant="outline" className="rounded-xl">
+                  <Button variant="outline" className="rounded-xl" onClick={() => router.back()}>
                     Cancel
                   </Button>
                   <Button

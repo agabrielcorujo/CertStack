@@ -185,14 +185,16 @@ export default function GamesPage() {
             {/* Leaderboard */}
             <motion.div variants={itemVariants}>
               <div className="rounded-2xl border border-border bg-card p-6 elevation-1">
-                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
                     <Icons.trophy className="h-5 w-5 text-chart-4" />
                     <h3 className="text-lg font-semibold text-foreground">Top Players</h3>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-sm text-primary">
-                    View All
-                  </Button>
+                  <Link href="/leaderboard">
+                    <Button variant="ghost" size="sm" className="text-sm text-primary">
+                      View All
+                    </Button>
+                  </Link>
                 </div>
                 <div className="space-y-3">
                   {leaderboard.map((player, index) => (

@@ -7,8 +7,21 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AppLayout } from "@/components/app-layout"
+import Link from "next/link"
 import { Icons } from "@/components/icons"
+import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 import { CERTIFICATION_OPTIONS, useCertificationFocus } from "@/lib/certification-focus"
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog"
 
 // ============================================================================
 // ANIMATION VARIANTS
@@ -83,6 +96,8 @@ const topicProgress = [
 // ============================================================================
 
 export default function ProfilePage() {
+  const { toast } = useToast()
+  const router = useRouter()
   const {
     selectedIds,
     primaryId,
@@ -141,7 +156,10 @@ export default function ProfilePage() {
                       JD
                     </AvatarFallback>
                   </Avatar>
-                  <button className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/90 transition-colors">
+                  <button
+                    onClick={() => toast({ title: 'Change avatar', description: 'Avatar change is not available in this environment.' })}
+                    className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/90 transition-colors"
+                  >
                     <Icons.camera className="h-4 w-4" />
                     <span className="sr-only">Change avatar</span>
                   </button>
@@ -170,10 +188,42 @@ export default function ProfilePage() {
                         </span>
                       </div>
                     </div>
-                    <Button variant="outline" className="rounded-xl">
-                      <Icons.edit className="mr-2 h-4 w-4" />
-                      Edit Profile
-                    </Button>
+                    {/* Inline Edit Profile modal */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="rounded-xl">
+                          <Icons.edit className="mr-2 h-4 w-4" />
+                          Edit Profile
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Edit Profile</DialogTitle>
+                          <DialogDescription>Update your name and email address.</DialogDescription>
+                        </DialogHeader>
+
+                        <div className="mt-4 space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Full name</label>
+                            <Input defaultValue="Jane Doe" className="h-11 rounded-xl bg-secondary/50 border-border" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Email</label>
+                            <Input defaultValue="jane@example.com" type="email" className="h-11 rounded-xl bg-secondary/50 border-border" />
+                          </div>
+                        </div>
+
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                          </DialogClose>
+                          <Button onClick={() => toast({ title: 'Profile saved', description: 'Profile changes saved locally.' })}>
+                            Save Changes
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
               </div>
@@ -288,9 +338,11 @@ export default function ProfilePage() {
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-foreground">Topic Progress</h2>
-                <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
-                  View all
-                </Button>
+                <Link href="/materials">
+                  <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
+                    View all
+                  </Button>
+                </Link>
               </div>
               <div className="space-y-5">
                 {topicProgress.map((topic, index) => (

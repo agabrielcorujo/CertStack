@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Icons } from "@/components/icons"
 import { getErrorMessage, postJson } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
 
 // ============================================================================
 // ANIMATION VARIANTS
@@ -39,6 +40,7 @@ const itemVariants = {
 // ============================================================================
 
 export default function LoginPage() {
+  const { toast } = useToast()
   const [showPassword, setShowPassword] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [email, setEmail] = React.useState("")
@@ -254,6 +256,7 @@ export default function LoginPage() {
                 <Button
                   type="button"
                   variant="outline"
+                  onClick={() => toast({ title: 'Google login', description: 'Not configured in this environment' })}
                   className="h-12 rounded-xl border-border hover:bg-secondary/50 transition-colors"
                 >
                   <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
@@ -279,6 +282,7 @@ export default function LoginPage() {
                 <Button
                   type="button"
                   variant="outline"
+                  onClick={() => toast({ title: 'GitHub login', description: 'Not configured in this environment' })}
                   className="h-12 rounded-xl border-border hover:bg-secondary/50 transition-colors"
                 >
                   <svg className="mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 24 24">

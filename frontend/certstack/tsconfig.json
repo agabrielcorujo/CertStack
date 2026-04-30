@@ -11,6 +11,7 @@
     "strict": false,
     "noEmit": true,
     "incremental": true,
+    "tsBuildInfoFile": "./.cache/tsconfig.tsbuildinfo",
     "baseUrl": ".",
     "paths": {
       "@/*": [

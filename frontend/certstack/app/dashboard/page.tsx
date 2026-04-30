@@ -1,7 +1,4 @@
 "use client"
-
-
-
 import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -12,6 +9,7 @@ import { Icons } from "@/components/icons"
 import Achievements from "@/components/achievements"
 import { getErrorMessage, getJson } from "@/lib/api"
 import { useCertificationFocus } from "@/lib/certification-focus"
+import { useRouter } from "next/navigation"
 
 // ============================================================================
 // ANIMATION VARIANTS
@@ -121,6 +119,7 @@ interface ProfileResponse {
 
 export default function DashboardPage() {
   const { primaryCertification } = useCertificationFocus()
+  const router = useRouter()
   const [profile, setProfile] = React.useState<ProfileResponse | null>(null)
   const [profileError, setProfileError] = React.useState<string | null>(null)
 
@@ -362,6 +361,7 @@ export default function DashboardPage() {
               </div>
               <Button
                 variant="outline"
+                onClick={() => router.push('/practice?mode=review')}
                 className="mt-4 w-full rounded-xl border-border hover:bg-secondary/50"
               >
                 Start Review Session

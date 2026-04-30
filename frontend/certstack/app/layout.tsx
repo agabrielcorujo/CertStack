@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     apple: '/placeholder-user.jpg',
     other: [
       { rel: 'apple-touch-icon', url: '/placeholder-user.jpg', sizes: '180x180' },
+      { rel: 'manifest', url: '/site.webmanifest' },
     ],
-    manifest: '/site.webmanifest',
   },
 }
 
@@ -34,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>
         <a href="#content" className="skip-link">Skip to content</a>
         <AppProviders>

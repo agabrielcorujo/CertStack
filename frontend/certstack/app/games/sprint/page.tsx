@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { AppLayout } from "@/components/app-layout"
 import { Icons } from "@/components/icons"
 import { Confetti } from "@/components/confetti"
+import { Sparks } from "@/components/sparks"
 
 // Sprint questions (15 questions simulating exam conditions)
 const sprintQuestions = [

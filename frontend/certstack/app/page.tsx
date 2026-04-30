@@ -182,14 +182,16 @@ export default function HomePage() {
                     Start Practice Session
               </motion.button>
             </Link>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex h-12 items-center gap-2 rounded-xl border-2 border-border px-8 text-sm font-semibold text-foreground transition-all duration-200 hover:border-muted-foreground/40 hover:bg-secondary"
-            >
-              <BookOpenIcon className="h-5 w-5" />
-              Explore Library
-            </motion.button>
+            <Link href="/materials">
+              <motion.a
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex h-12 items-center gap-2 rounded-xl border-2 border-border px-8 text-sm font-semibold text-foreground transition-all duration-200 hover:border-muted-foreground/40 hover:bg-secondary"
+              >
+                <BookOpenIcon className="h-5 w-5" />
+                Explore Library
+              </motion.a>
+            </Link>
           </motion.div>
         </div>
       </motion.section>
